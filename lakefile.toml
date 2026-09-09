@@ -1,0 +1,12 @@
+name = "contmeasurements"
+defaultTargets = ["ContMeasurements"]
+
+# Mathlib pinned to the v4.33.1 tag, matching lean-toolchain: a release tag has a
+# fully-published build cache, so `lake exe cache get` finds every olean.
+[[require]]
+name = "mathlib"
+scope = "leanprover-community"
+version = "git#v4.33.1"
+
+[[lean_lib]]
+name = "ContMeasurements"

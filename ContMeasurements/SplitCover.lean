@@ -1,0 +1,286 @@
+/-
+Copyright (c) 2026 Mario Ullrich. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Mario Ullrich
+-/
+import Mathlib.Analysis.Normed.Group.Pointwise
+import Mathlib.Topology.MetricSpace.Thickening
+import Mathlib.Algebra.Group.EvenFunction
+
+/-!
+# Split sets and split covers
+
+Throughout, `E` is a real normed space and the sets considered are **symmetric**,
+that is, invariant under `x ↦ -x`.
+
+A closed symmetric set `A` is called *split* if it decomposes as `A = A⁺ ∪ A⁻` with
+`A⁺, A⁻` closed, disjoint, and exchanged by `x ↦ -x`.  On a split set one can name a
+"sign" telling `x` from `-x` consistently, and by compactness the two halves are then
+a positive distance apart.
+
+Since `A⁻` is determined by `A⁺` as `-A⁺`, a split set is recorded here by its
+positive half alone:
+
+> a set `P` with `P` closed and `Disjoint P (-P)`; the split set it describes is
+> `P ∪ -P`.
+
+`SplitCover K k` says that `K` is covered by `k` such split sets.  This is the
+covering form of the Krasnosel'skiĭ genus, and it is the quantity that one adaptive
+continuous measurement can at most double (plus one) — see `Halving.lean` and
+`LowerBound.lean`.
+
+## Main results
+
+* `SplitCover.of_odd` — a closed symmetric set on which a continuous odd function has
+  no zero is a single split set.  This is both the case `n = 1` of the induction and
+  the "sign region of the odd part" contributed by each measurement.
+* `SplitCover.biUnion_of_pairwise_disjoint` — pairwise disjoint compact symmetric
+  pieces, each covered by `h` split sets, together need only `h` split sets: the
+  pieces may **share** their sign regions.  This is where the factor `2` of the
+  recursion `c(n) = 2 c(n-1) + 1` comes from, and nothing better is possible.
+* `SplitCover.exists_cthickening` — a split cover of a compact symmetric set extends
+  to a split cover of a closed neighbourhood of it.
+* `SplitCover.exists_odd_map` — a cover by `k` split sets yields a continuous odd map
+  into `ℝᵏ` without zeros on the covered set, via the sign functions
+  `σ(x) = dist(x, P⁻) - dist(x, P⁺)`.  Feeding this into the Borsuk–Ulam theorem is
+  the last step of the lower bound.
+-/
+
+open Metric Set
+
+namespace ContMeasurements
+
+variable {E : Type*} [NormedAddCommGroup E]
+
+/-- On a finite index type, finitely many positive numbers have a positive lower
+bound.  Stated for `Fin k` including `k = 0`, where the bound is vacuous. -/
+theorem exists_pos_le_of_forall_pos {k : ℕ} (f : Fin k → ℝ) (hf : ∀ i, 0 < f i) :
+    ∃ r > 0, ∀ i, r ≤ f i := by
+  rcases isEmpty_or_nonempty (Fin k) with hk | hk
+  · exact ⟨1, one_pos, fun i => (hk.false i).elim⟩
+  · obtain ⟨i₀, -, hi₀⟩ := Finset.exists_min_image Finset.univ f ⟨Classical.arbitrary _,
+      Finset.mem_univ _⟩
+    exact ⟨f i₀, hf i₀, fun i => hi₀ i (Finset.mem_univ i)⟩
+
+/-- The reflection of a closed set is closed: `-s` is the preimage of `s` under the
+continuous map `x ↦ -x`. -/
+theorem isClosed_neg_set {s : Set E} (h : IsClosed s) : IsClosed (-s) :=
+  h.preimage continuous_neg
+
+/-- `SplitCover K k` : the set `K` can be covered by `k` split sets.
+
+Each split set is given by its positive half `P i`: a closed set disjoint from its
+own reflection `-(P i)`, the split set itself being `P i ∪ -(P i)`.  A "sign" is
+available on each of them, namely `+` on `P i` and `-` on `-(P i)`. -/
+def SplitCover (K : Set E) (k : ℕ) : Prop :=
+  ∃ P : Fin k → Set E,
+    (∀ i, IsClosed (P i) ∧ Disjoint (P i) (-(P i))) ∧ K ⊆ ⋃ i, (P i ∪ -(P i))
+
+namespace SplitCover
+
+theorem mono {K K' : Set E} {k : ℕ} (h : SplitCover K k) (hKK : K' ⊆ K) :
+    SplitCover K' k := by
+  obtain ⟨P, hP, hcov⟩ := h
+  exact ⟨P, hP, hKK.trans hcov⟩
+
+theorem empty (k : ℕ) : SplitCover (∅ : Set E) k :=
+  ⟨fun _ => ∅, fun _ => ⟨isClosed_empty, by simp⟩, by simp⟩
+
+/-- More split sets are never worse: pad the family with empty sets. -/
+theorem of_le {K : Set E} {k l : ℕ} (hkl : k ≤ l) (h : SplitCover K k) :
+    SplitCover K l := by
+  obtain ⟨P, hP, hcov⟩ := h
+  refine ⟨fun j => if hj : (j : ℕ) < k then P ⟨j, hj⟩ else ∅, fun j => ?_, ?_⟩
+  · by_cases hj : (j : ℕ) < k
+    · simpa [hj] using hP ⟨j, hj⟩
+    · simp [hj]
+  · intro x hx
+    obtain ⟨-, ⟨i, rfl⟩, hxi⟩ := hcov hx
+    refine mem_iUnion.2 ⟨⟨(i : ℕ), lt_of_lt_of_le i.2 hkl⟩, ?_⟩
+    simpa [i.2] using hxi
+
+/-- Two split covers combine into one of the union, with the numbers added. -/
+theorem union {K K' : Set E} {k l : ℕ} (h : SplitCover K k) (h' : SplitCover K' l) :
+    SplitCover (K ∪ K') (k + l) := by
+  obtain ⟨P, hP, hcov⟩ := h
+  obtain ⟨Q, hQ, hcov'⟩ := h'
+  refine ⟨Fin.append P Q, fun i => ?_, ?_⟩
+  · refine Fin.addCases (fun i => ?_) (fun i => ?_) i
+    · rw [Fin.append_left]; exact hP i
+    · rw [Fin.append_right]; exact hQ i
+  · rintro x (hx | hx)
+    · obtain ⟨-, ⟨i, rfl⟩, hxi⟩ := hcov hx
+      exact mem_iUnion.2 ⟨Fin.castAdd l i, by rwa [Fin.append_left]⟩
+    · obtain ⟨-, ⟨i, rfl⟩, hxi⟩ := hcov' hx
+      exact mem_iUnion.2 ⟨Fin.natAdd k i, by rwa [Fin.append_right]⟩
+
+/-- A closed symmetric set on which a continuous **odd** function has no zero is a
+single split set: the sign of the function tells `x` from `-x`.
+
+This is the elementary engine of the lower bound.  Applied to
+`δ(x) = λ(x) - λ(-x)`, the odd part of a measurement `λ`, it says that wherever the
+measurement actually separates an antipodal pair, one split set settles the matter. -/
+theorem of_odd {W : Set E} {δ : E → ℝ} (hW : IsClosed W) (hWs : ∀ x ∈ W, -x ∈ W)
+    (hδc : Continuous δ) (hδodd : Function.Odd δ) (hδ : ∀ x ∈ W, δ x ≠ 0) :
+    SplitCover W 1 := by
+  refine ⟨fun _ => W ∩ {x | 0 ≤ δ x}, fun _ => ⟨hW.inter (isClosed_le continuous_const hδc),
+    ?_⟩, ?_⟩
+  · rw [Set.disjoint_left]
+    rintro x ⟨hxW, hxδ⟩ hxneg
+    obtain ⟨-, hxδ'⟩ : -x ∈ W ∩ {x | 0 ≤ δ x} := hxneg
+    have hneg : (0 : ℝ) ≤ δ (-x) := hxδ'
+    rw [hδodd x] at hneg
+    have hpos : (0 : ℝ) ≤ δ x := hxδ
+    exact hδ x hxW (le_antisymm (by linarith) hpos)
+  · intro x hx
+    refine mem_iUnion.2 ⟨0, ?_⟩
+    rcases le_total 0 (δ x) with hδx | hδx
+    · exact Or.inl ⟨hx, hδx⟩
+    · refine Or.inr ⟨hWs x hx, ?_⟩
+      show (0 : ℝ) ≤ δ (-x)
+      rw [hδodd x]
+      linarith
+
+/-- Normalisation: on a compact symmetric set the halves of a split cover may be
+taken compact and contained in the set. -/
+theorem exists_compact_halves {K : Set E} {k : ℕ} (hK : IsCompact K)
+    (hKs : ∀ x ∈ K, -x ∈ K) (h : SplitCover K k) :
+    ∃ P : Fin k → Set E, (∀ i, IsCompact (P i) ∧ P i ⊆ K ∧ Disjoint (P i) (-(P i)))
+      ∧ K ⊆ ⋃ i, (P i ∪ -(P i)) := by
+  obtain ⟨P, hP, hcov⟩ := h
+  refine ⟨fun i => K ∩ P i, fun i => ⟨hK.inter_right (hP i).1, inter_subset_left, ?_⟩, ?_⟩
+  · exact Disjoint.mono inter_subset_right (fun x hx => (Set.mem_neg.1 hx).2) (hP i).2
+  · intro x hx
+    obtain ⟨-, ⟨i, rfl⟩, hxi⟩ := hcov hx
+    refine mem_iUnion.2 ⟨i, ?_⟩
+    rcases hxi with hxi | hxi
+    · exact Or.inl ⟨hx, hxi⟩
+    · exact Or.inr (Set.mem_neg.2 ⟨hKs x hx, Set.mem_neg.1 hxi⟩)
+
+/-- **Pairwise disjoint pieces share their split sets.**
+
+If compact symmetric sets `Z j` are pairwise disjoint and each is covered by `h`
+split sets, then their union is covered by `h` split sets — not by `h` times the
+number of pieces.  The `i`-th split set of the union is the union of the `i`-th split
+sets of the pieces; it is again split because a point and its reflection lie in the
+same piece.
+
+Applied to the slabs of a measurement's level sets, this is exactly the step that
+costs only a factor `2` (odd-numbered slabs and even-numbered slabs each form a
+disjoint family). -/
+theorem biUnion_of_pairwise_disjoint {ι : Type*} {s : Finset ι} {Z : ι → Set E} {h : ℕ}
+    (hZc : ∀ j ∈ s, IsCompact (Z j)) (hZs : ∀ j ∈ s, ∀ x ∈ Z j, -x ∈ Z j)
+    (hZd : ∀ j ∈ s, ∀ j' ∈ s, j ≠ j' → Disjoint (Z j) (Z j'))
+    (hZ : ∀ j ∈ s, SplitCover (Z j) h) : SplitCover (⋃ j ∈ s, Z j) h := by
+  classical
+  -- Normalised halves for every index, taken empty outside `s`.
+  have hall : ∀ j : ι, ∃ P : Fin h → Set E,
+      (∀ i, IsCompact (P i) ∧ (j ∈ s → P i ⊆ Z j) ∧ Disjoint (P i) (-(P i)))
+        ∧ (j ∈ s → Z j ⊆ ⋃ i, (P i ∪ -(P i))) := by
+    intro j
+    by_cases hj : j ∈ s
+    · obtain ⟨P, hP, hcov⟩ := exists_compact_halves (hZc j hj) (hZs j hj) (hZ j hj)
+      exact ⟨P, fun i => ⟨(hP i).1, fun _ => (hP i).2.1, (hP i).2.2⟩, fun _ => hcov⟩
+    · exact ⟨fun _ => ∅, fun i => ⟨isCompact_empty, fun hj' => absurd hj' hj, by simp⟩,
+        fun hj' => absurd hj' hj⟩
+  choose P hP hcov using hall
+  refine ⟨fun i => ⋃ j ∈ s, P j i, fun i => ⟨?_, ?_⟩, ?_⟩
+  · exact s.finite_toSet.isClosed_biUnion fun j _ => (hP j i).1.isClosed
+  · rw [Set.disjoint_left]
+    rintro x hx hxneg
+    obtain ⟨-, ⟨j, rfl⟩, -, ⟨hjs, rfl⟩, hxj⟩ := hx
+    obtain ⟨-, ⟨j', rfl⟩, -, ⟨hjs', rfl⟩, hxj'⟩ := Set.mem_neg.1 hxneg
+    have hxZ : x ∈ Z j := (hP j i).2.1 hjs hxj
+    have hxZ' : x ∈ Z j' := by
+      have hnx : -x ∈ Z j' := (hP j' i).2.1 hjs' hxj'
+      simpa using hZs j' hjs' _ hnx
+    have hjj' : j = j' := by
+      by_contra hne
+      exact (hZd j hjs j' hjs' hne).le_bot ⟨hxZ, hxZ'⟩
+    subst hjj'
+    exact (Set.disjoint_left.1 (hP j i).2.2 hxj) (Set.mem_neg.2 hxj')
+  · rintro x ⟨-, ⟨j, rfl⟩, -, ⟨hjs, rfl⟩, hxj⟩
+    obtain ⟨-, ⟨i, rfl⟩, hxi⟩ := hcov j hjs hxj
+    refine mem_iUnion.2 ⟨i, ?_⟩
+    rcases hxi with hxi | hxi
+    · exact Or.inl (mem_biUnion hjs hxi)
+    · exact Or.inr (Set.mem_neg.2 (mem_biUnion hjs (Set.mem_neg.1 hxi)))
+
+/-- **Fattening.** A split cover of a compact symmetric set survives passing to a
+closed neighbourhood of it: the halves are thickened by less than half their mutual
+distance, so they stay disjoint.
+
+This is what lets the induction of the lower bound cover, not just a level set, but a
+whole slab around it. -/
+theorem exists_cthickening {K : Set E} {k : ℕ} (hK : IsCompact K)
+    (hKs : ∀ x ∈ K, -x ∈ K) (hc : SplitCover K k) :
+    ∃ r > 0, SplitCover (Metric.cthickening r K) k := by
+  obtain ⟨P, hP, hcov⟩ := exists_compact_halves hK hKs hc
+  have hneg : ∀ i, IsClosed (-(P i)) := fun i => isClosed_neg_set (hP i).1.isClosed
+  choose δ hδ0 hδ using fun i =>
+    ((hP i).2.2).exists_cthickenings (hP i).1 (hneg i)
+  obtain ⟨r, hr0, hr⟩ := exists_pos_le_of_forall_pos δ hδ0
+  refine ⟨r, hr0, fun i => Metric.cthickening r (P i), fun i => ⟨isClosed_cthickening, ?_⟩, ?_⟩
+  · rw [neg_cthickening]
+    exact (hδ i).mono (cthickening_mono (hr i) _) (cthickening_mono (hr i) _)
+  · intro x hx
+    rw [hK.cthickening_eq_biUnion_closedBall hr0.le] at hx
+    obtain ⟨-, ⟨z, rfl⟩, -, ⟨hzK, rfl⟩, hxz⟩ := hx
+    obtain ⟨-, ⟨i, rfl⟩, hzi⟩ := hcov hzK
+    refine mem_iUnion.2 ⟨i, ?_⟩
+    rcases hzi with hzi | hzi
+    · exact Or.inl (mem_cthickening_of_dist_le _ _ _ _ hzi (mem_closedBall.1 hxz))
+    · rw [neg_cthickening]
+      exact Or.inr (mem_cthickening_of_dist_le _ _ _ _ hzi (mem_closedBall.1 hxz))
+
+/-- **From a split cover to an odd map without zeros.**
+
+Given `k` split sets covering `K`, the sign functions
+`σ_i(x) = dist(x, -(P i)) - dist(x, P i)` assemble into a continuous odd map
+`Ψ : E → ℝᵏ` that vanishes nowhere on `K`: each `x ∈ K` lies in some split set, and
+there `σ_i(x) ≠ 0` because the two halves are closed and disjoint.
+
+Together with the Borsuk–Ulam theorem this converts a covering count into a dimension
+bound. -/
+theorem exists_odd_map {K : Set E} {k : ℕ} (hc : SplitCover K k) :
+    ∃ Ψ : E → (Fin k → ℝ), Continuous Ψ ∧ Function.Odd Ψ ∧ ∀ x ∈ K, Ψ x ≠ 0 := by
+  obtain ⟨P, hP, hcov⟩ := hc
+  -- `x ↦ dist (x, -S)` at `-x` is `x ↦ dist (x, S)`, because `x ↦ -x` is an isometry.
+  have key : ∀ (S : Set E) (x : E), infDist (-x) (-S) = infDist x S := by
+    intro S x
+    rw [← Set.image_neg_eq_neg]
+    exact Metric.infDist_image isometry_neg
+  refine ⟨fun x i => infDist x (-(P i)) - infDist x (P i), ?_, ?_, ?_⟩
+  · exact continuous_pi fun i =>
+      (Metric.continuous_infDist_pt _).sub (Metric.continuous_infDist_pt _)
+  · intro x
+    funext i
+    show infDist (-x) (-(P i)) - infDist (-x) (P i) = -(infDist x (-(P i)) - infDist x (P i))
+    rw [key (P i) x, show (P i) = -(-(P i)) from (neg_neg _).symm, key (-(P i)) x, neg_neg]
+    ring
+  · intro x hx hΨ
+    obtain ⟨-, ⟨i, rfl⟩, hxi⟩ := hcov hx
+    have hΨi : infDist x (-(P i)) - infDist x (P i) = 0 := congrFun hΨ i
+    rcases hxi with hxi | hxi
+    · -- `x` lies in the positive half: its distance to the negative half is positive.
+      have h0 : infDist x (P i) = 0 := infDist_zero_of_mem hxi
+      have hne : (-(P i)).Nonempty := ⟨-x, Set.mem_neg.2 (by simpa using hxi)⟩
+      have hpos : 0 < infDist x (-(P i)) := by
+        refine (Metric.infDist_pos_iff_notMem_closure hne).1 ?_
+        rw [(isClosed_neg_set (hP i).1).closure_eq]
+        exact fun hc => (Set.disjoint_left.1 (hP i).2 hxi) hc
+      rw [h0, sub_zero] at hΨi
+      exact hpos.ne' hΨi
+    · -- `x` lies in the negative half: its distance to the positive half is positive.
+      have h0 : infDist x (-(P i)) = 0 := infDist_zero_of_mem hxi
+      have hne : (P i).Nonempty := ⟨-x, Set.mem_neg.1 hxi⟩
+      have hpos : 0 < infDist x (P i) := by
+        refine (Metric.infDist_pos_iff_notMem_closure hne).1 ?_
+        rw [(hP i).1.closure_eq]
+        exact fun hc => (Set.disjoint_left.1 (hP i).2 hc) hxi
+      rw [h0, zero_sub, neg_eq_zero] at hΨi
+      exact hpos.ne' hΨi
+
+end SplitCover
+
+end ContMeasurements
