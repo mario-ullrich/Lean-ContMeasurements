@@ -8,6 +8,9 @@ import ContMeasurements.SplitCover
 import ContMeasurements.Halving
 import ContMeasurements.BorsukUlam
 import ContMeasurements.LowerBound
+import ContMeasurements.ColoredCover
+import ContMeasurements.Bisection
+import ContMeasurements.Identification
 
 /-!
 # Adaptive continuous measurements

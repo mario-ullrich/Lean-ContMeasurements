@@ -1,0 +1,257 @@
+/-
+Copyright (c) 2026 Mario Ullrich. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Mario Ullrich
+-/
+import ContMeasurements.ColoredCover
+import Mathlib.Algebra.BigOperators.Finprod
+import Mathlib.Topology.Algebra.InfiniteSum.Constructions
+import Mathlib.Topology.Algebra.Monoid
+import Mathlib.Analysis.SpecialFunctions.Exp
+
+/-!
+# Identifying a piece with a single measurement
+
+Once the colour `r` of the piece containing `x` is known, one further continuous
+measurement pins down the piece itself.  The pieces of colour `r` are `c`-separated,
+so a *single* continuous functional can take a different constant value near each of
+them without ever having to interpolate between two of them.
+
+Concretely, number the pieces of colour `r` by natural numbers `e i` (possible because
+the index set is countable) and set
+`λ(x) = Σᶠ i  (e i + 1) · φ(dist(x, D i))`,
+where `φ` is a continuous collar function that equals `1` up to distance `c/8` and
+vanishes from distance `c/4` on.  Near any point at most one summand is nonzero — two
+would put two pieces of the same colour closer than `c` — so the sum is locally finite
+and hence continuous, and its value at a point within `c/8` of the piece `i` is
+exactly `e i + 1`.
+
+The value is an **integer**, which is what makes the last trick of the upper bound
+work: an extra coordinate can be smuggled into the fractional part of this
+measurement, see `UpperBound.lean`.
+
+## Main results
+
+* `ContMeasurements.exists_identification` — the functional and its decoder.
+* `ContMeasurements.logistic` — a continuous injection `ℝ → (0,1)`, used to carry one
+  real coordinate inside the fractional part.
+-/
+
+open Metric Set
+
+namespace ContMeasurements
+
+/-! ### The collar function -/
+
+/-- A continuous collar: `1` on `[0, c/8]`, `0` from `c/4` on, values in `[0,1]`. -/
+noncomputable def collar (c s : ℝ) : ℝ := max 0 (min 1 (2 - 8 * s / c))
+
+theorem continuous_collar (c : ℝ) : Continuous (collar c) :=
+  continuous_const.max (continuous_const.min
+    (continuous_const.sub ((continuous_const.mul continuous_id).div_const c)))
+
+theorem collar_eq_one {c s : ℝ} (hc : 0 < c) (hs : s ≤ c / 8) : collar c s = 1 := by
+  have h8 : 8 * s / c ≤ 1 := by
+    rw [div_le_one hc]
+    linarith
+  have h : (1 : ℝ) ≤ 2 - 8 * s / c := by linarith
+  rw [collar, min_eq_left h, max_eq_right zero_le_one]
+
+theorem collar_eq_zero {c s : ℝ} (hc : 0 < c) (hs : c / 4 ≤ s) : collar c s = 0 := by
+  have h8 : (2 : ℝ) ≤ 8 * s / c := by
+    rw [le_div_iff₀ hc]
+    linarith
+  have h : 2 - 8 * s / c ≤ 0 := by linarith
+  rw [collar, max_eq_left (le_trans (min_le_right _ _) h)]
+
+/-- The only way the collar can be nonzero is close to the set. -/
+theorem lt_of_collar_ne_zero {c s : ℝ} (hc : 0 < c) (h : collar c s ≠ 0) : s < c / 4 := by
+  by_contra hs
+  exact h (collar_eq_zero hc (not_lt.1 hs))
+
+/-! ### The identification functional -/
+
+variable {X : Type*} [PseudoMetricSpace X] {ι : Type*} {K : ℕ} {ε c : ℝ}
+
+open Classical in
+/-- The contribution of the piece `i` to the identification functional: the label
+`e i + 1` damped by the collar, and `0` unless the piece is nonempty and has the
+colour under consideration.
+
+The nonemptiness guard matters: `Metric.infDist x ∅ = 0`, so without it an empty
+piece would contribute its full label everywhere. -/
+noncomputable def weight (cc : ColoredCover X ι K ε c) (r : Fin K) (e : ι → ℕ) (i : ι)
+    (x : X) : ℝ :=
+  if cc.t i = r ∧ (cc.D i).Nonempty then
+    ((e i : ℝ) + 1) * collar c (Metric.infDist x (cc.D i))
+  else 0
+
+/-- The **identification functional** of the colour `r`. -/
+noncomputable def identify (cc : ColoredCover X ι K ε c) (r : Fin K) (e : ι → ℕ)
+    (x : X) : ℝ :=
+  ∑ᶠ i, weight cc r e i x
+
+open Classical in
+/-- The decoder: from the value `n = e i + 1` of the identification functional it
+returns some point of the piece `i`. -/
+noncomputable def decodePoint [Nonempty X] (cc : ColoredCover X ι K ε c) (r : Fin K)
+    (e : ι → ℕ) (n : ℤ) : X :=
+  if h : ∃ y : X, ∃ i, cc.t i = r ∧ y ∈ cc.D i ∧ (e i : ℤ) + 1 = n then h.choose
+  else Classical.arbitrary X
+
+theorem decodePoint_mem [Nonempty X] {cc : ColoredCover X ι K ε c} {r : Fin K}
+    {e : ι → ℕ} (he : Function.Injective e) {i : ι} (hi : cc.t i = r) {p : X}
+    (hp : p ∈ cc.D i) : decodePoint cc r e ((e i : ℤ) + 1) ∈ cc.D i := by
+  classical
+  have h : ∃ y : X, ∃ i', cc.t i' = r ∧ y ∈ cc.D i' ∧ (e i' : ℤ) + 1 = (e i : ℤ) + 1 :=
+    ⟨p, i, hi, hp, rfl⟩
+  rw [decodePoint, dif_pos h]
+  obtain ⟨i', hi', hmem', hn'⟩ := h.choose_spec
+  have hii : i' = i := he (by omega)
+  subst hii
+  exact hmem'
+
+section Functional
+
+variable {cc : ColoredCover X ι K ε c} {r : Fin K} {e : ι → ℕ}
+
+theorem continuous_weight (i : ι) : Continuous (weight cc r e i) := by
+  classical
+  unfold weight
+  by_cases h : cc.t i = r ∧ (cc.D i).Nonempty
+  · simp only [if_pos h]
+    exact continuous_const.mul ((continuous_collar c).comp (Metric.continuous_infDist_pt _))
+  · simp only [if_neg h]
+    exact continuous_const
+
+/-- If the weight of a piece is nonzero somewhere in a small ball, the piece comes
+close to the centre of that ball. -/
+theorem exists_mem_of_weight_ne_zero (hc : 0 < c) {i : ι} {x₀ z : X}
+    (hz : dist x₀ z < c / 8) (hw : weight cc r e i z ≠ 0) :
+    cc.t i = r ∧ ∃ p ∈ cc.D i, dist x₀ p < 3 * c / 8 := by
+  classical
+  unfold weight at hw
+  by_cases h : cc.t i = r ∧ (cc.D i).Nonempty
+  · rw [if_pos h] at hw
+    have hcol : collar c (Metric.infDist z (cc.D i)) ≠ 0 := by
+      intro h0
+      rw [h0, mul_zero] at hw
+      exact hw rfl
+    obtain ⟨p, hp, hzp⟩ :=
+      (Metric.infDist_lt_iff h.2).1 (lt_of_collar_ne_zero hc hcol)
+    exact ⟨h.1, p, hp, by
+      have := dist_triangle x₀ z p
+      linarith⟩
+  · rw [if_neg h] at hw
+    exact absurd rfl hw
+
+/-- Near any point, at most one piece of the colour `r` carries weight: two of them
+would be closer than the separation constant `c`. -/
+theorem locallyFinite_weight (hc : 0 < c) :
+    LocallyFinite fun i => Function.support (weight cc r e i) := by
+  intro x₀
+  refine ⟨Metric.ball x₀ (c / 8), Metric.ball_mem_nhds _ (by positivity), ?_⟩
+  refine Set.Subsingleton.finite ?_
+  rintro i ⟨z, hzs, hzb⟩ j ⟨z', hzs', hzb'⟩
+  by_contra hij
+  obtain ⟨hti, p, hp, hxp⟩ :=
+    exists_mem_of_weight_ne_zero hc (Metric.mem_ball'.1 hzb) hzs
+  obtain ⟨htj, q, hq, hxq⟩ :=
+    exists_mem_of_weight_ne_zero hc (Metric.mem_ball'.1 hzb') hzs'
+  have hsep := cc.separated i j hij (hti.trans htj.symm) p hp q hq
+  have := dist_triangle p x₀ q
+  rw [dist_comm p x₀] at this
+  linarith
+
+theorem continuous_identify (hc : 0 < c) : Continuous (identify cc r e) := by
+  unfold identify
+  exact continuous_finsum (fun i => continuous_weight i) (locallyFinite_weight hc)
+
+/-- **The value of the identification functional.**  At a point within `c/8` of the
+piece `i` of colour `r`, the functional takes the value `e i + 1`; every other piece
+of the same colour is too far away to contribute. -/
+theorem identify_eq (hc : 0 < c) {i : ι} (hi : cc.t i = r) {x p : X} (hp : p ∈ cc.D i)
+    (hxp : dist x p < c / 8) : identify cc r e x = (e i : ℝ) + 1 := by
+  classical
+  have hne : (cc.D i).Nonempty := ⟨p, hp⟩
+  have hzero : ∀ j, j ≠ i → weight cc r e j x = 0 := by
+    intro j hji
+    by_contra hw
+    obtain ⟨htj, q, hq, hxq⟩ :=
+      exists_mem_of_weight_ne_zero hc (by rw [dist_self]; positivity) hw
+    have hsep := cc.separated i j (Ne.symm hji) (hi.trans htj.symm) p hp q hq
+    have := dist_triangle p x q
+    rw [dist_comm p x] at this
+    linarith
+  rw [identify, finsum_eq_single _ i hzero, weight, if_pos ⟨hi, hne⟩,
+    collar_eq_one hc (le_of_lt (lt_of_le_of_lt (Metric.infDist_le_dist_of_mem hp) hxp)),
+    mul_one]
+
+end Functional
+
+/-- **The identification measurement.**
+
+For every colour `r` there is a continuous functional whose value on the closure of
+the set of points of colour `r` is an integer, together with a decoder turning that
+integer into a point at distance at most `ε + c/8` from the measured point.
+
+The functional is one measurement, and it is what the bisection over colours hands
+over to. -/
+theorem exists_identification [Nonempty X] [Countable ι] (cc : ColoredCover X ι K ε c)
+    (hc : 0 < c) (r : Fin K) :
+    ∃ (lam : X → ℝ) (dec : ℤ → X), Continuous lam ∧
+      ∀ x ∈ closure (cc.colourSet r),
+        ∃ n : ℤ, lam x = (n : ℝ) ∧ dist x (dec n) ≤ ε + c / 8 := by
+  obtain ⟨e, he⟩ := Countable.exists_injective_nat ι
+  refine ⟨identify cc r e, decodePoint cc r e, continuous_identify hc, ?_⟩
+  intro x hx
+  -- The point is within `c/8` of some piece of colour `r`.
+  obtain ⟨y, hy, hxy⟩ := Metric.mem_closure_iff.1 hx (c / 8) (by positivity)
+  obtain ⟨i, hi, hyi⟩ := hy
+  refine ⟨(e i : ℤ) + 1, ?_, ?_⟩
+  · rw [identify_eq hc hi hyi hxy]
+    push_cast
+    ring
+  · -- The decoder returns a point of the same piece, of diameter at most `ε`.
+    have hmem := decodePoint_mem (cc := cc) (r := r) he hi hyi
+    have hdiam := cc.dist_le i _ hyi _ hmem
+    have := dist_triangle x y (decodePoint cc r e ((e i : ℤ) + 1))
+    linarith
+
+/-! ### A continuous injection into the unit interval -/
+
+/-- A continuous injection `ℝ → (0,1)`: the logistic function `s ↦ eˢ / (1 + eˢ)`.
+
+It lets one real coordinate be carried in the fractional part of a measurement whose
+integer part carries the identity of a piece.  This is the device that saves one
+measurement in the upper bound. -/
+noncomputable def logistic (s : ℝ) : ℝ := Real.exp s / (1 + Real.exp s)
+
+theorem one_add_exp_pos (s : ℝ) : 0 < 1 + Real.exp s := by
+  have := Real.exp_pos s
+  linarith
+
+theorem continuous_logistic : Continuous logistic := by
+  unfold logistic
+  exact Real.continuous_exp.div (continuous_const.add Real.continuous_exp) fun s =>
+    (one_add_exp_pos s).ne'
+
+theorem logistic_mem_Ioo (s : ℝ) : logistic s ∈ Set.Ioo (0 : ℝ) 1 := by
+  have hpos := Real.exp_pos s
+  have hden := one_add_exp_pos s
+  refine ⟨div_pos hpos hden, ?_⟩
+  show Real.exp s / (1 + Real.exp s) < 1
+  rw [div_lt_one hden]
+  linarith
+
+theorem injective_logistic : Function.Injective logistic := by
+  intro a b hab
+  have hda := one_add_exp_pos a
+  have hdb := one_add_exp_pos b
+  have hab' : Real.exp a / (1 + Real.exp a) = Real.exp b / (1 + Real.exp b) := hab
+  have hcross : Real.exp a * (1 + Real.exp b) = Real.exp b * (1 + Real.exp a) :=
+    (div_eq_div_iff hda.ne' hdb.ne').1 hab'
+  have hexp : Real.exp a = Real.exp b := by nlinarith [hcross]
+  exact Real.exp_eq_exp.1 hexp
+
+end ContMeasurements
