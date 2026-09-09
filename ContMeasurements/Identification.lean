@@ -254,4 +254,11 @@ theorem injective_logistic : Function.Injective logistic := by
   have hexp : Real.exp a = Real.exp b := by nlinarith [hcross]
   exact Real.exp_eq_exp.1 hexp
 
+/-- A left inverse of `logistic`, used to read the smuggled coordinate back off. -/
+noncomputable def logisticInv : ℝ → ℝ := Function.invFun logistic
+
+@[simp]
+theorem logisticInv_logistic (s : ℝ) : logisticInv (logistic s) = s :=
+  Function.leftInverse_invFun injective_logistic s
+
 end ContMeasurements

@@ -12,6 +12,8 @@ import ContMeasurements.ColoredCover
 import ContMeasurements.Bisection
 import ContMeasurements.Identification
 import ContMeasurements.BrickPartition
+import ContMeasurements.UpperBound
+import ContMeasurements.Complexity
 
 /-!
 # Adaptive continuous measurements
