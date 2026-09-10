@@ -54,11 +54,6 @@ namespace ContMeasurements
 
 open Metric Set AdaptiveScheme
 
-theorem brickSep_le_one (m : ℕ) : brickSep m ≤ 1 := by
-  rw [brickSep, div_le_one (by positivity)]
-  have : (0 : ℝ) ≤ (m : ℝ) := Nat.cast_nonneg m
-  linarith
-
 /-- **Recovery in `ℝ^{m+1}` with the maximum norm.**
 
 For every accuracy `ε > 0` there is a scheme of `⌈log₂(m+1)⌉ + 1` adaptive continuous

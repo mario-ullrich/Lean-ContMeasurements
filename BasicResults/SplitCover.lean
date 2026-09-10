@@ -58,14 +58,8 @@ theorem exists_pos_le_of_forall_pos {k : ℕ} (f : Fin k → ℝ) (hf : ∀ i, 0
     ∃ r > 0, ∀ i, r ≤ f i := by
   rcases isEmpty_or_nonempty (Fin k) with hk | hk
   · exact ⟨1, one_pos, fun i => (hk.false i).elim⟩
-  · obtain ⟨i₀, -, hi₀⟩ := Finset.exists_min_image Finset.univ f ⟨Classical.arbitrary _,
-      Finset.mem_univ _⟩
-    exact ⟨f i₀, hf i₀, fun i => hi₀ i (Finset.mem_univ i)⟩
-
-/-- The reflection of a closed set is closed: `-s` is the preimage of `s` under the
-continuous map `x ↦ -x`. -/
-theorem isClosed_neg_set {s : Set E} (h : IsClosed s) : IsClosed (-s) :=
-  h.preimage continuous_neg
+  · obtain ⟨i₀, hi₀⟩ := Finite.exists_min f
+    exact ⟨f i₀, hf i₀, hi₀⟩
 
 /-- `SplitCover K k` : the set `K` can be covered by `k` split sets.
 
@@ -78,26 +72,15 @@ def SplitCover (K : Set E) (k : ℕ) : Prop :=
 
 namespace SplitCover
 
+/-- A split cover of a set is a split cover of every subset. -/
 theorem mono {K K' : Set E} {k : ℕ} (h : SplitCover K k) (hKK : K' ⊆ K) :
     SplitCover K' k := by
   obtain ⟨P, hP, hcov⟩ := h
   exact ⟨P, hP, hKK.trans hcov⟩
 
+/-- The empty set is covered by any number of split sets. -/
 theorem empty (k : ℕ) : SplitCover (∅ : Set E) k :=
   ⟨fun _ => ∅, fun _ => ⟨isClosed_empty, by simp⟩, by simp⟩
-
-/-- More split sets are never worse: pad the family with empty sets. -/
-theorem of_le {K : Set E} {k l : ℕ} (hkl : k ≤ l) (h : SplitCover K k) :
-    SplitCover K l := by
-  obtain ⟨P, hP, hcov⟩ := h
-  refine ⟨fun j => if hj : (j : ℕ) < k then P ⟨j, hj⟩ else ∅, fun j => ?_, ?_⟩
-  · by_cases hj : (j : ℕ) < k
-    · simpa [hj] using hP ⟨j, hj⟩
-    · simp [hj]
-  · intro x hx
-    obtain ⟨-, ⟨i, rfl⟩, hxi⟩ := hcov hx
-    refine mem_iUnion.2 ⟨⟨(i : ℕ), lt_of_lt_of_le i.2 hkl⟩, ?_⟩
-    simpa [i.2] using hxi
 
 /-- Two split covers combine into one of the union, with the numbers added. -/
 theorem union {K K' : Set E} {k l : ℕ} (h : SplitCover K k) (h' : SplitCover K' l) :
@@ -113,6 +96,12 @@ theorem union {K K' : Set E} {k l : ℕ} (h : SplitCover K k) (h' : SplitCover K
       exact mem_iUnion.2 ⟨Fin.castAdd l i, by rwa [Fin.append_left]⟩
     · obtain ⟨-, ⟨i, rfl⟩, hxi⟩ := hcov' hx
       exact mem_iUnion.2 ⟨Fin.natAdd k i, by rwa [Fin.append_right]⟩
+
+/-- More split sets are never worse: pad the family with empty sets. -/
+theorem of_le {K : Set E} {k l : ℕ} (hkl : k ≤ l) (h : SplitCover K k) :
+    SplitCover K l := by
+  have hu := h.union (SplitCover.empty (E := E) (l - k))
+  rwa [Set.union_empty, Nat.add_sub_cancel' hkl] at hu
 
 /-- A closed symmetric set on which a continuous **odd** function has no zero is a
 single split set: the sign of the function tells `x` from `-x`.
@@ -216,7 +205,7 @@ theorem exists_cthickening {K : Set E} {k : ℕ} (hK : IsCompact K)
     (hKs : ∀ x ∈ K, -x ∈ K) (hc : SplitCover K k) :
     ∃ r > 0, SplitCover (Metric.cthickening r K) k := by
   obtain ⟨P, hP, hcov⟩ := exists_compact_halves hK hKs hc
-  have hneg : ∀ i, IsClosed (-(P i)) := fun i => isClosed_neg_set (hP i).1.isClosed
+  have hneg : ∀ i, IsClosed (-(P i)) := fun i => (hP i).1.isClosed.neg
   choose δ hδ0 hδ using fun i =>
     ((hP i).2.2).exists_cthickenings (hP i).1 (hneg i)
   obtain ⟨r, hr0, hr⟩ := exists_pos_le_of_forall_pos δ hδ0
@@ -267,7 +256,7 @@ theorem exists_odd_map {K : Set E} {k : ℕ} (hc : SplitCover K k) :
       have hne : (-(P i)).Nonempty := ⟨-x, Set.mem_neg.2 (by simpa using hxi)⟩
       have hpos : 0 < infDist x (-(P i)) := by
         refine (Metric.infDist_pos_iff_notMem_closure hne).1 ?_
-        rw [(isClosed_neg_set (hP i).1).closure_eq]
+        rw [(hP i).1.neg.closure_eq]
         exact fun hc => (Set.disjoint_left.1 (hP i).2 hxi) hc
       rw [h0, sub_zero] at hΨi
       exact hpos.ne' hΨi

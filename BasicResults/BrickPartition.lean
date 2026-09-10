@@ -62,6 +62,7 @@ def face (a : Fin m → ℤ) (S : Finset (Fin m)) : Set (Fin m → ℝ) :=
 /-- The closed `t`-neighbourhood of a set, spelled out to avoid side conditions. -/
 def nbhd (t : ℝ) (A : Set (Fin m → ℝ)) : Set (Fin m → ℝ) := {x | ∃ p ∈ A, dist x p ≤ t}
 
+/-- A face spanned by `k` directions lies in the `k`-skeleton. -/
 theorem face_subset_skeleton (a : Fin m → ℤ) (S : Finset (Fin m)) :
     face a S ⊆ latticeSkeleton m S.card :=
   fun _ hx => ⟨S, le_rfl, fun i hi => ⟨a i, hx.2 i hi⟩⟩
@@ -91,16 +92,25 @@ noncomputable def brickSep (m : ℕ) : ℝ := 1 / (4 * ((m : ℝ) + 2))
 common difference `brickSep m`. -/
 noncomputable def brickDelta (m k : ℕ) : ℝ := ((m : ℝ) + 1 - k) * brickSep m
 
+/-- The separation constant is positive. -/
 theorem brickSep_pos (m : ℕ) : 0 < brickSep m := by
   rw [brickSep]
   positivity
 
+/-- The separation constant is at most `1`. -/
+theorem brickSep_le_one (m : ℕ) : brickSep m ≤ 1 := by
+  rw [brickSep, div_le_one (by positivity)]
+  have : (0 : ℝ) ≤ (m : ℝ) := Nat.cast_nonneg m
+  linarith
+
+/-- Consecutive radii differ by the separation constant. -/
 theorem brickDelta_succ_add (m k : ℕ) :
     brickDelta m (k + 1) + brickSep m = brickDelta m k := by
   rw [brickDelta, brickDelta]
   push_cast
   ring
 
+/-- The radii decrease with the level. -/
 theorem brickDelta_le_zero (m k : ℕ) : brickDelta m k ≤ brickDelta m 0 := by
   rw [brickDelta, brickDelta]
   have hk : (0 : ℝ) ≤ (k : ℝ) := Nat.cast_nonneg k
@@ -108,11 +118,13 @@ theorem brickDelta_le_zero (m k : ℕ) : brickDelta m k ≤ brickDelta m 0 := by
   push_cast
   nlinarith [mul_nonneg hk hs]
 
+/-- The radii are positive up to level `m`. -/
 theorem brickDelta_pos {k : ℕ} (hk : k ≤ m) : 0 < brickDelta m k := by
   rw [brickDelta]
   have hkm : (k : ℝ) ≤ (m : ℝ) := Nat.cast_le.2 hk
   exact mul_pos (by linarith) (brickSep_pos m)
 
+/-- The radii are nonnegative up to level `m`. -/
 theorem brickDelta_nonneg {k : ℕ} (hk : k ≤ m) : 0 ≤ brickDelta m k :=
   (brickDelta_pos hk).le
 
@@ -248,10 +260,6 @@ theorem exists_mem_brickPiece (x : Fin m → ℝ) : ∃ i, x ∈ brickPiece m i 
 
 /-! ### The coloured cover -/
 
-/-- The number of directions of a face is at most the dimension. -/
-theorem card_le_dim (S : Finset (Fin m)) : S.card ≤ m := by
-  simpa using Finset.card_le_card (Finset.subset_univ S)
-
 /-- Two points of one face differ by at most `1` in every coordinate. -/
 theorem dist_le_one_of_mem_face {a : Fin m → ℤ} {S : Finset (Fin m)} {p q : Fin m → ℝ}
     (hp : p ∈ face a S) (hq : q ∈ face a S) : dist p q ≤ 1 := by
@@ -295,7 +303,7 @@ theorem brickPiece_separated (i j : BrickIndex m) (hij : i ≠ j)
   rw [not_le] at hcon
   obtain ⟨p, hp, hxp⟩ := hx.1
   obtain ⟨q, hq, hyq⟩ := hy.1
-  have hkm : i.2.card ≤ m := card_le_dim i.2
+  have hkm : i.2.card ≤ m := by simpa using Finset.card_le_univ i.2
   have hd0 : 0 ≤ brickDelta m i.2.card := brickDelta_nonneg hkm
   have hsp := brickSep_pos m
   have hle0 : brickDelta m i.2.card ≤ brickDelta m 0 := brickDelta_le_zero m _
@@ -352,7 +360,7 @@ which is what the recovery algorithm consumes. -/
 noncomputable def brickCover (m : ℕ) :
     ColoredCover (Fin m → ℝ) (BrickIndex m) (m + 1) (3 / 2) (brickSep m) where
   D := brickPiece m
-  t i := ⟨i.2.card, by have := card_le_dim i.2; omega⟩
+  t i := ⟨i.2.card, Nat.lt_succ_of_le (by simpa using Finset.card_le_univ i.2)⟩
   cover := exists_mem_brickPiece
   dist_le i x hx y hy := brickPiece_dist_le i hx hy
   separated i j hij hcol x hx y hy := by

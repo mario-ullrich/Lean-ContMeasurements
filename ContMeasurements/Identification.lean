@@ -43,10 +43,12 @@ namespace ContMeasurements
 /-- A continuous collar: `1` on `[0, c/8]`, `0` from `c/4` on, values in `[0,1]`. -/
 noncomputable def collar (c s : ℝ) : ℝ := max 0 (min 1 (2 - 8 * s / c))
 
+/-- The collar function is continuous. -/
 theorem continuous_collar (c : ℝ) : Continuous (collar c) :=
   continuous_const.max (continuous_const.min
     (continuous_const.sub ((continuous_const.mul continuous_id).div_const c)))
 
+/-- The collar equals `1` up to distance `c/8`. -/
 theorem collar_eq_one {c s : ℝ} (hc : 0 < c) (hs : s ≤ c / 8) : collar c s = 1 := by
   have h8 : 8 * s / c ≤ 1 := by
     rw [div_le_one hc]
@@ -54,6 +56,7 @@ theorem collar_eq_one {c s : ℝ} (hc : 0 < c) (hs : s ≤ c / 8) : collar c s =
   have h : (1 : ℝ) ≤ 2 - 8 * s / c := by linarith
   rw [collar, min_eq_left h, max_eq_right zero_le_one]
 
+/-- The collar vanishes from distance `c/4` on. -/
 theorem collar_eq_zero {c s : ℝ} (hc : 0 < c) (hs : c / 4 ≤ s) : collar c s = 0 := by
   have h8 : (2 : ℝ) ≤ 8 * s / c := by
     rw [le_div_iff₀ hc]
@@ -96,6 +99,7 @@ noncomputable def decodePoint [Nonempty X] (cc : ColoredCover X ι K ε c) (r : 
   if h : ∃ y : X, ∃ i, cc.t i = r ∧ y ∈ cc.D i ∧ (e i : ℤ) + 1 = n then h.choose
   else Classical.arbitrary X
 
+/-- The decoder applied to the label of a nonempty piece returns a point of that piece. -/
 theorem decodePoint_mem [Nonempty X] {cc : ColoredCover X ι K ε c} {r : Fin K}
     {e : ι → ℕ} (he : Function.Injective e) {i : ι} (hi : cc.t i = r) {p : X}
     (hp : p ∈ cc.D i) : decodePoint cc r e ((e i : ℤ) + 1) ∈ cc.D i := by
@@ -112,6 +116,7 @@ section Functional
 
 variable {cc : ColoredCover X ι K ε c} {r : Fin K} {e : ι → ℕ}
 
+/-- Each weight is continuous. -/
 theorem continuous_weight (i : ι) : Continuous (weight cc r e i) := by
   classical
   unfold weight
@@ -160,6 +165,7 @@ theorem locallyFinite_weight (hc : 0 < c) :
   rw [dist_comm p x₀] at this
   linarith
 
+/-- The identification functional is continuous: a locally finite sum of continuous weights. -/
 theorem continuous_identify (hc : 0 < c) : Continuous (identify cc r e) := by
   unfold identify
   exact continuous_finsum (fun i => continuous_weight i) (locallyFinite_weight hc)

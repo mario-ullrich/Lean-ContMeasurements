@@ -94,6 +94,7 @@ variable {X : Type u} {Y : Type v} [TopologicalSpace X] [TopologicalSpace Y]
 def first (S : AdaptiveScheme X) : X → ℝ :=
   S.lam 0 Fin.elim0
 
+/-- The first functional of a scheme is continuous. -/
 theorem continuous_first (S : AdaptiveScheme X) : Continuous S.first :=
   S.continuous_lam 0 _
 
@@ -119,17 +120,21 @@ def info : (n : ℕ) → AdaptiveScheme X → X → (Fin n → ℝ)
   | 0, _, _ => Fin.elim0
   | n + 1, S, x => Fin.cons (S.first x) (info n (S.tail (S.first x)) x)
 
+/-- No measurements produce the empty tuple. -/
 @[simp]
 theorem info_zero (S : AdaptiveScheme X) (x : X) : S.info 0 x = Fin.elim0 := rfl
 
+/-- Unfolding one measurement: the first value, then the information of the tail scheme. -/
 theorem info_succ (S : AdaptiveScheme X) (n : ℕ) (x : X) :
     S.info (n + 1) x = Fin.cons (S.first x) ((S.tail (S.first x)).info n x) := rfl
 
+/-- The first entry of the information is the first measurement. -/
 @[simp]
 theorem info_succ_zero (S : AdaptiveScheme X) (n : ℕ) (x : X) :
     S.info (n + 1) x 0 = S.first x := by
   rw [info_succ, Fin.cons_zero]
 
+/-- The later entries of the information are those of the tail scheme. -/
 @[simp]
 theorem info_succ_succ (S : AdaptiveScheme X) (n : ℕ) (x : X) (i : Fin n) :
     S.info (n + 1) x i.succ = (S.tail (S.first x)).info n x i := by
@@ -143,13 +148,16 @@ def comap (π : Y → X) (hπ : Continuous π) (S : AdaptiveScheme X) : Adaptive
   lam k y := S.lam k y ∘ π
   continuous_lam k y := (S.continuous_lam k y).comp hπ
 
+/-- The first functional of a transported scheme. -/
 @[simp]
 theorem first_comap (π : Y → X) (hπ : Continuous π) (S : AdaptiveScheme X) (z : Y) :
     (S.comap π hπ).first z = S.first (π z) := rfl
 
+/-- Transport commutes with taking the tail. -/
 theorem tail_comap (π : Y → X) (hπ : Continuous π) (S : AdaptiveScheme X) (y : ℝ) :
     (S.comap π hπ).tail y = (S.tail y).comap π hπ := rfl
 
+/-- The information of a transported scheme is the original information at the image point. -/
 @[simp]
 theorem info_comap (π : Y → X) (hπ : Continuous π) (n : ℕ) (S : AdaptiveScheme X) (z : Y) :
     (S.comap π hπ).info n z = S.info n (π z) := by
@@ -163,9 +171,11 @@ def single (f : X → ℝ) (hf : Continuous f) : AdaptiveScheme X where
   lam _ _ := f
   continuous_lam _ _ := hf
 
+/-- The first functional of `single f hf` is `f`. -/
 @[simp]
 theorem first_single (f : X → ℝ) (hf : Continuous f) : (single f hf).first = f := rfl
 
+/-- One measurement of `single f hf` returns the value of `f`. -/
 theorem info_single_one (f : X → ℝ) (hf : Continuous f) (x : X) :
     (single f hf).info 1 x = Fin.cons (f x) Fin.elim0 := rfl
 
@@ -186,19 +196,18 @@ def branch (f : X → ℝ) (hf : Continuous f) (choice : ℝ → AdaptiveScheme 
     | zero => exact hf
     | succ k => exact (choice _).continuous_lam _ _
 
+/-- The first functional of a branching scheme is the branching functional. -/
 @[simp]
 theorem first_branch (f : X → ℝ) (hf : Continuous f) (choice : ℝ → AdaptiveScheme X) :
     (branch f hf choice).first = f := rfl
 
+/-- After the first value `y` is observed, a branching scheme continues with `choice y`. -/
 theorem tail_branch (f : X → ℝ) (hf : Continuous f) (choice : ℝ → AdaptiveScheme X)
     (y : ℝ) : (branch f hf choice).tail y = choice y := by
   ext k ys x
-  have h0 : (Fin.cons y ys : Fin (k + 1) → ℝ) 0 = y := Fin.cons_zero _ _
-  have h1 : Fin.tail (Fin.cons y ys : Fin (k + 1) → ℝ) = ys := Fin.tail_cons _ _
-  show (choice ((Fin.cons y ys : Fin (k + 1) → ℝ) 0)).lam k
-      (Fin.tail (Fin.cons y ys : Fin (k + 1) → ℝ)) x = (choice y).lam k ys x
-  rw [h0, h1]
+  rfl
 
+/-- Information of a branching scheme: `f x`, then the information of the chosen continuation. -/
 theorem info_branch_succ (f : X → ℝ) (hf : Continuous f) (choice : ℝ → AdaptiveScheme X)
     (n : ℕ) (x : X) :
     (branch f hf choice).info (n + 1) x = Fin.cons (f x) ((choice (f x)).info n x) := by
@@ -221,6 +230,7 @@ distinguish antipodes unless `2ⁿ ≥ dim X + 1`. -/
 def DistinguishesAntipodes (S : AdaptiveScheme X) (n : ℕ) (K : Set X) : Prop :=
   ∀ x ∈ K, S.info n x ≠ S.info n (-x)
 
+/-- Distinguishing antipodes passes to subsets. -/
 theorem DistinguishesAntipodes.mono {S : AdaptiveScheme X} {n : ℕ} {K K' : Set X}
     (h : S.DistinguishesAntipodes n K) (hK : K' ⊆ K) : S.DistinguishesAntipodes n K' :=
   fun x hx => h x (hK hx)

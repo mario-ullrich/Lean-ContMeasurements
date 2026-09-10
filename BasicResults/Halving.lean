@@ -121,35 +121,22 @@ theorem splitCover_of_levelSets {Z : Set E} {μ : E → ℝ} {h : ℕ}
     linarith [hx.2, hx'.1]
   -- Only finitely many slabs meet `Z`, since `μ` is bounded on `Z`.
   obtain ⟨M, hM⟩ := (hZ.image hμ).isBounded.subset_closedBall (0 : ℝ)
-  set N : ℤ := ⌈M / w⌉ + 1 with hN
-  have hgrid : ∀ x ∈ Z, ∃ j ∈ Finset.Icc (-N) N, x ∈ Zs j := by
+  set J : Finset ℤ := Finset.Icc ⌊-M / w⌋ ⌊M / w⌋ with hJ
+  have hgrid : ∀ x ∈ Z, ∃ j ∈ J, x ∈ Zs j := by
     intro x hx
-    refine ⟨⌊μ x / w⌋, ?_, ⟨hx, ?_⟩⟩
-    · have habs : |μ x| ≤ M := by
-        have hmem : μ x ∈ Metric.closedBall (0 : ℝ) M := hM ⟨x, hx, rfl⟩
-        rwa [Metric.mem_closedBall, Real.dist_eq, sub_zero] at hmem
-      have hub : (⌊μ x / w⌋ : ℝ) ≤ M / w := by
-        refine le_trans (Int.floor_le _) ?_
-        exact div_le_div_of_nonneg_right (abs_le.1 habs).2 hw0.le
-      have hlb : -(M / w) - 1 < (⌊μ x / w⌋ : ℝ) := by
-        refine lt_of_le_of_lt ?_ (Int.sub_one_lt_floor _)
-        have hstep : -(M / w) ≤ μ x / w := by
-          rw [← neg_div]
-          exact div_le_div_of_nonneg_right (abs_le.1 habs).1 hw0.le
-        linarith
-      have hceil : (M / w : ℝ) ≤ (⌈M / w⌉ : ℝ) := Int.le_ceil _
-      refine Finset.mem_Icc.2 ⟨?_, ?_⟩
-      · have : (-(N : ℤ) : ℝ) < (⌊μ x / w⌋ : ℝ) := by push_cast [hN]; linarith
-        exact_mod_cast le_of_lt (by exact_mod_cast this)
-      · have : (⌊μ x / w⌋ : ℝ) < (N : ℤ) := by push_cast [hN]; linarith
-        exact_mod_cast le_of_lt (by exact_mod_cast this)
+    have habs : |μ x| ≤ M := by
+      have hmem : μ x ∈ Metric.closedBall (0 : ℝ) M := hM ⟨x, hx, rfl⟩
+      rwa [Metric.mem_closedBall, Real.dist_eq, sub_zero] at hmem
+    refine ⟨⌊μ x / w⌋, Finset.mem_Icc.2 ⟨Int.floor_mono ?_, Int.floor_mono ?_⟩, ⟨hx, ?_⟩⟩
+    · exact div_le_div_of_nonneg_right (abs_le.1 habs).1 hw0.le
+    · exact div_le_div_of_nonneg_right (abs_le.1 habs).2 hw0.le
     · rw [Set.mem_preimage, Set.mem_Icc]
       constructor
       · rw [← le_div_iff₀ hw0]; exact Int.floor_le _
       · rw [← div_le_iff₀ hw0]; exact le_of_lt (Int.lt_floor_add_one _)
   -- Split the finitely many relevant indices by parity.
-  set sE : Finset ℤ := (Finset.Icc (-N) N).filter (fun j => j % 2 = 0) with hsE
-  set sO : Finset ℤ := (Finset.Icc (-N) N).filter (fun j => ¬ j % 2 = 0) with hsO
+  set sE : Finset ℤ := J.filter (fun j => j % 2 = 0) with hsE
+  set sO : Finset ℤ := J.filter (fun j => ¬ j % 2 = 0) with hsO
   have hpar : ∀ (s : Finset ℤ), (∀ j ∈ s, ∀ j' ∈ s, j % 2 = j' % 2) →
       ∀ j ∈ s, ∀ j' ∈ s, j ≠ j' → Disjoint (Zs j) (Zs j') := by
     intro s hs j hj j' hj' hne

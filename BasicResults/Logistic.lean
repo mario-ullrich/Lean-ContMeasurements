@@ -21,27 +21,27 @@ namespace ContMeasurements
 /-- The logistic function `s ↦ eˢ / (1 + eˢ)`, a continuous injection `ℝ → (0,1)`. -/
 noncomputable def logistic (s : ℝ) : ℝ := Real.exp s / (1 + Real.exp s)
 
-theorem one_add_exp_pos (s : ℝ) : 0 < 1 + Real.exp s := by
-  have := Real.exp_pos s
-  linarith
-
+/-- The logistic function is continuous; its denominator never vanishes. -/
 theorem continuous_logistic : Continuous logistic := by
   unfold logistic
-  exact Real.continuous_exp.div (continuous_const.add Real.continuous_exp) fun s =>
-    (one_add_exp_pos s).ne'
+  exact Real.continuous_exp.div (continuous_const.add Real.continuous_exp) fun s => by
+    positivity
 
+/-- The logistic function takes values in the open unit interval. -/
 theorem logistic_mem_Ioo (s : ℝ) : logistic s ∈ Set.Ioo (0 : ℝ) 1 := by
   have hpos := Real.exp_pos s
-  have hden := one_add_exp_pos s
+  have hden : 0 < 1 + Real.exp s := by positivity
   refine ⟨div_pos hpos hden, ?_⟩
   show Real.exp s / (1 + Real.exp s) < 1
   rw [div_lt_one hden]
   linarith
 
+/-- The logistic function is injective, since `t ↦ t / (1 + t)` is injective on `(0, ∞)`
+and the exponential is injective. -/
 theorem injective_logistic : Function.Injective logistic := by
   intro a b hab
-  have hda := one_add_exp_pos a
-  have hdb := one_add_exp_pos b
+  have hda : 0 < 1 + Real.exp a := by positivity
+  have hdb : 0 < 1 + Real.exp b := by positivity
   have hab' : Real.exp a / (1 + Real.exp a) = Real.exp b / (1 + Real.exp b) := hab
   have hcross : Real.exp a * (1 + Real.exp b) = Real.exp b * (1 + Real.exp a) :=
     (div_eq_div_iff hda.ne' hdb.ne').1 hab'
@@ -51,6 +51,7 @@ theorem injective_logistic : Function.Injective logistic := by
 /-- A left inverse of `logistic`, used to read the smuggled coordinate back off. -/
 noncomputable def logisticInv : ℝ → ℝ := Function.invFun logistic
 
+/-- `logisticInv` undoes `logistic`. -/
 @[simp]
 theorem logisticInv_logistic (s : ℝ) : logisticInv (logistic s) = s :=
   Function.leftInverse_invFun injective_logistic s

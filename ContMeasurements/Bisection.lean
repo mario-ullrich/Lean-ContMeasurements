@@ -70,7 +70,7 @@ theorem exists_bisection_scheme {X : Type*} [PseudoMetricSpace X] [Nonempty X] {
     intro C hC
     -- At most one colour is left; either none, and there is nothing to prove, or one,
     -- and its own algorithm does the job.
-    rcases Finset.card_le_one.1 (by simpa using hC) with h
+    have h := Finset.card_le_one.1 (by simpa using hC)
     rcases Finset.eq_empty_or_nonempty C with rfl | ⟨r, hr⟩
     · exact ⟨AdaptiveScheme.single (fun _ => (0 : ℝ)) continuous_const,
         fun _ => Classical.arbitrary X, by simp⟩

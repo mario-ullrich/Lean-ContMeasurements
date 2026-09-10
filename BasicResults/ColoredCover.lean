@@ -64,6 +64,7 @@ variable {X : Type*} [PseudoMetricSpace X] {ι : Type*} {K : ℕ} {ε c : ℝ}
 def colourSet (cc : ColoredCover X ι K ε c) (r : Fin K) : Set X :=
   {x | ∃ i, cc.t i = r ∧ x ∈ cc.D i}
 
+/-- Membership in a colour set, unfolded. -/
 @[simp]
 theorem mem_colourSet {cc : ColoredCover X ι K ε c} {r : Fin K} {x : X} :
     x ∈ cc.colourSet r ↔ ∃ i, cc.t i = r ∧ x ∈ cc.D i := Iff.rfl
@@ -85,9 +86,10 @@ section Scale
 
 variable {V : Type*} [NormedAddCommGroup V] [NormedSpace ℝ V]
 
-/-- Scaling a vector scales distances by the absolute value of the factor. -/
-private theorem dist_smul_eq (a : ℝ) (u v : V) : dist (a • u) (a • v) = ‖a‖ * dist u v := by
-  rw [dist_eq_norm, dist_eq_norm, ← smul_sub, norm_smul]
+/-- Scaling two vectors by `s⁻¹` with `s > 0` scales their distance by `s⁻¹`. -/
+private theorem dist_inv_smul {s : ℝ} (hs : 0 < s) (u v : V) :
+    dist (s⁻¹ • u) (s⁻¹ • v) = s⁻¹ * dist u v := by
+  rw [dist_smul₀, Real.norm_eq_abs, abs_of_pos (inv_pos.2 hs)]
 
 /-- Rescaling a coloured cover by a factor `s > 0`: the piece `D i` becomes `s • D i`,
 so both the diameter bound and the separation constant are multiplied by `s`.
@@ -102,23 +104,22 @@ def scale (cc : ColoredCover V ι K ε c) {s : ℝ} (hs : 0 < s) :
   cover x := cc.cover (s⁻¹ • x)
   dist_le i x hx y hy := by
     have h := cc.dist_le i _ hx _ hy
-    rw [dist_smul_eq, Real.norm_eq_abs, abs_of_pos (inv_pos.2 hs)] at h
-    have h2 := mul_le_mul_of_nonneg_left h hs.le
-    rwa [← mul_assoc, mul_inv_cancel₀ hs.ne', one_mul] at h2
+    rwa [dist_inv_smul hs, inv_mul_le_iff₀ hs] at h
   separated i j hij hcol x hx y hy := by
     have h := cc.separated i j hij hcol _ hx _ hy
-    rw [dist_smul_eq, Real.norm_eq_abs, abs_of_pos (inv_pos.2 hs)] at h
-    have h2 := mul_le_mul_of_nonneg_left h hs.le
-    rwa [← mul_assoc, mul_inv_cancel₀ hs.ne', one_mul] at h2
+    rwa [dist_inv_smul hs, le_inv_mul_iff₀ hs] at h
 
+/-- Membership in a rescaled piece, unfolded. -/
 @[simp]
 theorem mem_scale_D {cc : ColoredCover V ι K ε c} {s : ℝ} (hs : 0 < s) {i : ι} {x : V} :
     x ∈ (cc.scale hs).D i ↔ s⁻¹ • x ∈ cc.D i := Iff.rfl
 
+/-- Rescaling keeps the colours. -/
 @[simp]
 theorem scale_t {cc : ColoredCover V ι K ε c} {s : ℝ} (hs : 0 < s) :
     (cc.scale hs).t = cc.t := rfl
 
+/-- Membership in a rescaled colour set, unfolded. -/
 @[simp]
 theorem mem_scale_colourSet {cc : ColoredCover V ι K ε c} {s : ℝ} (hs : 0 < s)
     {r : Fin K} {x : V} :
