@@ -24,14 +24,14 @@ Borsuk–Ulam are exactly the lower bounds; they are marked as such in the READM
 `#print axioms` distinguishes them: the statements depending on this file report
 `sorryAx`, all others do not.
 
-If Borsuk–Ulam enters Mathlib, only `borsukUlam_euclidean` has to be replaced by an
+If Borsuk–Ulam enters Mathlib, only `borsukUlam` has to be replaced by an
 `exact` of the library result; nothing downstream changes.
 
 ## Main statements
 
-* `ContMeasurements.borsukUlam_euclidean` — the theorem itself, on the unit sphere of
+* `borsukUlam` — the theorem itself, on the unit sphere of
   `EuclideanSpace ℝ (Fin m)`. **Contains the project's only `sorry`.**
-* `ContMeasurements.exists_norm_eq_and_apply_eq_zero` — the form actually used: on
+* `Function.Odd.exists_norm_eq_and_eq_zero_of_lt_finrank` — the form actually used: on
   *any* finite-dimensional real normed space `E` of dimension `m`, and on the sphere
   of *any* radius `R > 0`, a continuous odd map `E → ℝᵏ` with `k < m` has a zero.
   This is proved from the Euclidean case by transporting along a linear
@@ -40,8 +40,6 @@ If Borsuk–Ulam enters Mathlib, only `borsukUlam_euclidean` has to be replaced 
 -/
 
 open Metric
-
-namespace ContMeasurements
 
 /-- **Borsuk–Ulam theorem** (odd-map form).  A map into `ℝᵏ` with `k < m` that is odd
 and continuous on the unit sphere of `ℝᵐ` vanishes at some point of that sphere.
@@ -53,7 +51,7 @@ Equivalently: `k < m` continuous functionals cannot separate all antipodal pairs
 Borsuk–Ulam, and proving it would require a substantial piece of algebraic topology
 (or a combinatorial route through Tucker's lemma), which is outside the scope of this
 project. -/
-theorem borsukUlam_euclidean {m k : ℕ} (hk : k < m)
+theorem borsukUlam {m k : ℕ} (hk : k < m)
     (f : EuclideanSpace ℝ (Fin m) → (Fin k → ℝ))
     (hf : ContinuousOn f (Metric.sphere 0 1)) (hodd : Function.Odd f) :
     ∃ x ∈ Metric.sphere (0 : EuclideanSpace ℝ (Fin m)) 1, f x = 0 :=
@@ -72,16 +70,18 @@ symmetric set, and the radial map `u ↦ (R / ‖e u‖) • e u` sends it onto 
 radius `R` of `E` oddly and continuously.  No property of the norm of `E` is used
 beyond homogeneity, which is why the lower bound holds for *any* norm.
 
-Depends on `borsukUlam_euclidean`, hence on its `sorry`. -/
-theorem exists_norm_eq_and_apply_eq_zero {m k : ℕ} (hm : Module.finrank ℝ E = m)
-    (hk : k < m) {R : ℝ} (hR : 0 < R) (Ψ : E → (Fin k → ℝ)) (hΨc : Continuous Ψ)
-    (hΨo : Function.Odd Ψ) : ∃ x : E, ‖x‖ = R ∧ Ψ x = 0 := by
+Depends on `borsukUlam`, hence on its `sorry`. -/
+theorem Function.Odd.exists_norm_eq_and_eq_zero_of_lt_finrank {m k : ℕ}
+    (hm : Module.finrank ℝ E = m) (hk : k < m) {R : ℝ} (hR : 0 < R)
+    (Ψ : E → (Fin k → ℝ)) (hΨc : Continuous Ψ) (hΨo : Function.Odd Ψ) :
+    ∃ x : E, ‖x‖ = R ∧ Ψ x = 0 := by
   -- A linear homeomorphism from the Euclidean model space.
   let e : EuclideanSpace ℝ (Fin m) ≃L[ℝ] E :=
     ContinuousLinearEquiv.ofFinrankEq (finrank_euclideanSpace_fin.trans hm.symm)
   -- The radial map onto the sphere of radius `R`, introduced with a pointwise defining
   -- equation so that rewriting under it stays straightforward.
-  obtain ⟨g, hg⟩ : ∃ g : EuclideanSpace ℝ (Fin m) → E, ∀ u, g u = (R / ‖e u‖) • e u :=
+  obtain ⟨g, hg⟩ :
+      ∃ g : EuclideanSpace ℝ (Fin m) → E, ∀ u, g u = (R / ‖e u‖) • e u :=
     ⟨_, fun _ => rfl⟩
   have hne : ∀ u ∈ Metric.sphere (0 : EuclideanSpace ℝ (Fin m)) 1, ‖e u‖ ≠ 0 := by
     intro u hu
@@ -107,10 +107,8 @@ theorem exists_norm_eq_and_apply_eq_zero {m k : ℕ} (hm : Module.finrank ℝ E 
     show Ψ (g (-u)) = -Ψ (g u)
     rw [hgodd u, hΨo]
   -- Borsuk–Ulam produces a zero on the unit sphere; rescaling gives the point wanted.
-  obtain ⟨u₀, hu₀, hzero⟩ := borsukUlam_euclidean hk (Ψ ∘ g) hcont hodd
+  obtain ⟨u₀, hu₀, hzero⟩ := borsukUlam hk (Ψ ∘ g) hcont hodd
   refine ⟨g u₀, ?_, hzero⟩
   have h1 : ‖e u₀‖ ≠ 0 := hne u₀ hu₀
   have h2 : (0 : ℝ) < ‖e u₀‖ := lt_of_le_of_ne (norm_nonneg _) (Ne.symm h1)
   rw [hg, norm_smul, Real.norm_eq_abs, abs_of_pos (by positivity), div_mul_cancel₀ _ h1]
-
-end ContMeasurements

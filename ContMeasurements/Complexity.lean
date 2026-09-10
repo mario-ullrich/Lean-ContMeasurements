@@ -28,7 +28,7 @@ alone does.
 * `ContMeasurements.minMeasurements` — the quantity `n*`.
 * `ContMeasurements.minMeasurements_le` — the upper bound. Proved unconditionally.
 * `ContMeasurements.clog_le_minMeasurements` — the lower bound. Depends on
-  `borsukUlam_euclidean`, hence on its `sorry`.
+  `borsukUlam`, hence on its `sorry`.
 * `ContMeasurements.minMeasurements_eq_of_two_pow` — equality in dimension `2ᵏ`.
   Depends on the same `sorry`.
 -/
@@ -62,7 +62,7 @@ theorem minMeasurements_le {d : ℕ} (hd : Module.finrank ℝ E = d) (hd0 : 0 < 
 /-- **The lower bound, in counting form.**  An algorithm accurate to within `ε < R` on
 the ball of radius `R` uses `n` measurements with `2ⁿ ≥ d + 1`.
 
-Depends on `borsukUlam_euclidean`, hence on its `sorry`. -/
+Depends on `borsukUlam`, hence on its `sorry`. -/
 theorem succ_le_two_pow_minMeasurements {d : ℕ} (hd : Module.finrank ℝ E = d)
     (hd0 : 0 < d) {R ε : ℝ} (hε : 0 < ε) (hεR : ε < R) :
     d + 1 ≤ 2 ^ minMeasurements E R ε := by
@@ -86,7 +86,7 @@ theorem succ_le_two_pow_minMeasurements {d : ℕ} (hd : Module.finrank ℝ E = d
 
 /-- **The lower bound.**  At least `⌈log₂(d+1)⌉` measurements are needed.
 
-Depends on `borsukUlam_euclidean`, hence on its `sorry`. -/
+Depends on `borsukUlam`, hence on its `sorry`. -/
 theorem clog_le_minMeasurements {d : ℕ} (hd : Module.finrank ℝ E = d) (hd0 : 0 < d)
     {R ε : ℝ} (hε : 0 < ε) (hεR : ε < R) :
     Nat.clog 2 (d + 1) ≤ minMeasurements E R ε :=
@@ -94,7 +94,7 @@ theorem clog_le_minMeasurements {d : ℕ} (hd : Module.finrank ℝ E = d) (hd0 :
 
 /-- **The sandwich.**  `⌈log₂(d+1)⌉ ≤ n* ≤ ⌈log₂ d⌉ + 1`.
 
-Depends on `borsukUlam_euclidean` through its lower half. -/
+Depends on `borsukUlam` through its lower half. -/
 theorem clog_le_minMeasurements_le {d : ℕ} (hd : Module.finrank ℝ E = d) (hd0 : 0 < d)
     {R ε : ℝ} (hε : 0 < ε) (hεR : ε < R) :
     Nat.clog 2 (d + 1) ≤ minMeasurements E R ε ∧
@@ -103,7 +103,7 @@ theorem clog_le_minMeasurements_le {d : ℕ} (hd : Module.finrank ℝ E = d) (hd
 
 /-- **In dimension a power of two the two bounds meet:** `n*(2ᵏ) = k + 1`.
 
-Depends on `borsukUlam_euclidean`, hence on its `sorry`. -/
+Depends on `borsukUlam`, hence on its `sorry`. -/
 theorem minMeasurements_eq_of_two_pow {k : ℕ} (hd : Module.finrank ℝ E = 2 ^ k)
     {R ε : ℝ} (hε : 0 < ε) (hεR : ε < R) : minMeasurements E R ε = k + 1 := by
   have hd0 : 0 < 2 ^ k := Nat.one_le_two_pow

@@ -18,19 +18,18 @@ most a factor of two, never more.
 
 The mechanism is the one described in the introduction of the lower-bound paper.  A
 level set carries its split cover over to a whole slab `Z ∩ μ⁻¹(I)` of nearby values
-(`exists_splitCover_slab`), by fattening the split sets slightly.  Cutting the range
-of `μ` into closed slabs of a fixed small width, slabs with an **even** index are
+(`HasSplitCover.exists_pos_inter_preimage_ball`), by fattening the split sets
+slightly.  Cutting the range of `μ` into closed slabs of a fixed small width, slabs
+with an **even** index are
 pairwise disjoint, and so are those with an **odd** index.  Pairwise disjoint pieces
-share their split sets (`SplitCover.biUnion_of_pairwise_disjoint`), so the even slabs
+share their split sets (`HasSplitCover.biUnion_of_pairwise_disjoint`), so the even slabs
 together need `h` split sets and the odd slabs another `h`.
 
-The factor `2` cannot be improved: it is exactly dual to the bisection over colours
+The factor `2` cannot be improved: it is exactly dual to the bisection over colors
 performed by the recovery algorithm of the upper bound.
 -/
 
 open Metric Set
-
-namespace ContMeasurements
 
 variable {E : Type*} [NormedAddCommGroup E]
 
@@ -40,14 +39,14 @@ If the level set `Z ∩ μ⁻¹{y}` of an even function `μ` admits a cover by `
 sets, then so does `Z ∩ μ⁻¹(B(y, ρ))` for some `ρ > 0`.
 
 The proof fattens the split sets of the level set to a closed neighbourhood of it
-(`SplitCover.exists_cthickening`), and then uses compactness: the points of `Z` that
+(`HasSplitCover.exists_cthickening`), and then uses compactness: the points of `Z` that
 stay away from the level set have `μ`-values bounded away from `y`, because their
 image is compact and misses `y`. -/
-theorem exists_splitCover_slab {Z : Set E} {μ : E → ℝ} {h : ℕ}
+theorem HasSplitCover.exists_pos_inter_preimage_ball {Z : Set E} {μ : E → ℝ} {h : ℕ}
     (hZ : IsCompact Z) (hsymm : ∀ x ∈ Z, -x ∈ Z) (hμ : Continuous μ)
     (hμeven : ∀ x ∈ Z, μ (-x) = μ x) (y : ℝ)
-    (hlevel : SplitCover (Z ∩ μ ⁻¹' {y}) h) :
-    ∃ ρ > 0, SplitCover (Z ∩ μ ⁻¹' Metric.ball y ρ) h := by
+    (hlevel : HasSplitCover (Z ∩ μ ⁻¹' {y}) h) :
+    ∃ ρ > 0, HasSplitCover (Z ∩ μ ⁻¹' Metric.ball y ρ) h := by
   set L : Set E := Z ∩ μ ⁻¹' {y} with hL
   have hLc : IsCompact L := hZ.inter_right (isClosed_singleton.preimage hμ)
   have hLs : ∀ x ∈ L, -x ∈ L := by
@@ -74,15 +73,15 @@ compact symmetric set `Z` is covered by `h` split sets, then `Z` is covered by `
 split sets.
 
 One real value therefore costs a factor of two, and this is sharp. -/
-theorem splitCover_of_levelSets {Z : Set E} {μ : E → ℝ} {h : ℕ}
+theorem hasSplitCover_two_mul_of_forall_fiber {Z : Set E} {μ : E → ℝ} {h : ℕ}
     (hZ : IsCompact Z) (hsymm : ∀ x ∈ Z, -x ∈ Z) (hμ : Continuous μ)
     (hμeven : ∀ x ∈ Z, μ (-x) = μ x)
-    (hlevel : ∀ y : ℝ, SplitCover (Z ∩ μ ⁻¹' {y}) h) :
-    SplitCover Z (2 * h) := by
+    (hlevel : ∀ y : ℝ, HasSplitCover (Z ∩ μ ⁻¹' {y}) h) :
+    HasSplitCover Z (2 * h) := by
   classical
   -- Every value has a ball of values whose slab is still covered by `h` split sets.
   choose ρ hρ0 hρ using fun y : ℝ =>
-    exists_splitCover_slab hZ hsymm hμ hμeven y (hlevel y)
+    HasSplitCover.exists_pos_inter_preimage_ball hZ hsymm hμ hμeven y (hlevel y)
   -- A Lebesgue number `η` for this cover of the compact set of attained values.
   obtain ⟨η, hη0, hη⟩ := lebesgue_number_lemma_of_metric (hZ.image hμ)
     (fun _ : ℝ => Metric.isOpen_ball)
@@ -97,10 +96,10 @@ theorem splitCover_of_levelSets {Z : Set E} {μ : E → ℝ} {h : ℕ}
   have hZss : ∀ j, ∀ x ∈ Zs j, -x ∈ Zs j := by
     rintro j x ⟨hxZ, hxI⟩
     exact ⟨hsymm x hxZ, by rw [Set.mem_preimage, hμeven x hxZ]; exact hxI⟩
-  have hZsplit : ∀ j : ℤ, SplitCover (Zs j) h := by
+  have hZsplit : ∀ j : ℤ, HasSplitCover (Zs j) h := by
     intro j
     rcases Set.eq_empty_or_nonempty (Zs j) with he | ⟨x, hx⟩
-    · rw [he]; exact SplitCover.empty h
+    · rw [he]; exact hasSplitCover_empty h
     · obtain ⟨y, hy⟩ := hη (μ x) ⟨x, hx.1, rfl⟩
       refine (hρ y).mono ?_
       rintro z ⟨hzZ, hz⟩
@@ -127,7 +126,8 @@ theorem splitCover_of_levelSets {Z : Set E} {μ : E → ℝ} {h : ℕ}
     have habs : |μ x| ≤ M := by
       have hmem : μ x ∈ Metric.closedBall (0 : ℝ) M := hM ⟨x, hx, rfl⟩
       rwa [Metric.mem_closedBall, Real.dist_eq, sub_zero] at hmem
-    refine ⟨⌊μ x / w⌋, Finset.mem_Icc.2 ⟨Int.floor_mono ?_, Int.floor_mono ?_⟩, ⟨hx, ?_⟩⟩
+    refine ⟨⌊μ x / w⌋,
+      Finset.mem_Icc.2 ⟨Int.floor_mono ?_, Int.floor_mono ?_⟩, ⟨hx, ?_⟩⟩
     · exact div_le_div_of_nonneg_right (abs_le.1 habs).1 hw0.le
     · exact div_le_div_of_nonneg_right (abs_le.1 habs).2 hw0.le
     · rw [Set.mem_preimage, Set.mem_Icc]
@@ -144,13 +144,13 @@ theorem splitCover_of_levelSets {Z : Set E} {μ : E → ℝ} {h : ℕ}
     rcases (by omega : j + 2 ≤ j' ∨ j' + 2 ≤ j) with hc | hc
     · exact hdisj2 j j' hc
     · exact (hdisj2 j' j hc).symm
-  have hcovE : SplitCover (⋃ j ∈ sE, Zs j) h :=
-    SplitCover.biUnion_of_pairwise_disjoint (fun j _ => hZsc j) (fun j _ => hZss j)
+  have hcovE : HasSplitCover (⋃ j ∈ sE, Zs j) h :=
+    HasSplitCover.biUnion_of_pairwise_disjoint (fun j _ => hZsc j) (fun j _ => hZss j)
       (hpar sE (by intro j hj j' hj'
                    rw [hsE, Finset.mem_filter] at hj hj'
                    rw [hj.2, hj'.2])) (fun j _ => hZsplit j)
-  have hcovO : SplitCover (⋃ j ∈ sO, Zs j) h :=
-    SplitCover.biUnion_of_pairwise_disjoint (fun j _ => hZsc j) (fun j _ => hZss j)
+  have hcovO : HasSplitCover (⋃ j ∈ sO, Zs j) h :=
+    HasSplitCover.biUnion_of_pairwise_disjoint (fun j _ => hZsc j) (fun j _ => hZss j)
       (hpar sO (by intro j hj j' hj'
                    rw [hsO, Finset.mem_filter] at hj hj'
                    omega)) (fun j _ => hZsplit j)
@@ -166,5 +166,3 @@ theorem splitCover_of_levelSets {Z : Set E} {μ : E → ℝ} {h : ℕ}
       exact ⟨hjmem, hp⟩
   rw [two_mul]
   exact (hcovE.union hcovO).mono hsub
-
-end ContMeasurements

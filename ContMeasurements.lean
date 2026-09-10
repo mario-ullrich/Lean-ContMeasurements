@@ -25,8 +25,8 @@ completely: `⌈log₂ d⌉ + 1` measurements suffice, and `⌈log₂(d+1)⌉` a
 
 ## Layout
 
-The general ingredients — Borsuk–Ulam, split covers, the halving lemma, coloured
-covers, the brick partition of `ℝᵐ` — live in the separate `BasicResults` library.
+The general ingredients — Borsuk–Ulam, split covers, the halving lemma, colored
+covers, the Lebesgue cover of `ℝᵐ` — live in the separate `BasicResults` library.
 Nothing there mentions measurements. This library holds the theory itself.
 
 * `ContMeasurements.Scheme` — the model: `AdaptiveScheme`, its information map, and
@@ -34,9 +34,9 @@ Nothing there mentions measurements. This library holds the theory itself.
 * `ContMeasurements.LowerBound` — `n` measurements separating antipodes force
   `2ⁿ ≥ d + 1`, hence an error of at least `R` on the sphere of radius `R` when
   `2ⁿ ≤ d`.
-* `ContMeasurements.Bisection` — finding a colour costs `⌈log₂ (number of colours)⌉`
+* `ContMeasurements.Bisection` — finding a color costs `⌈log₂ (number of colors)⌉`
   measurements.
-* `ContMeasurements.Identification` — one measurement names a piece within a colour,
+* `ContMeasurements.Identification` — one measurement names a piece within a color,
   with an integer value whose fractional part is free to carry one more coordinate.
 * `ContMeasurements.UpperBound` — `⌈log₂ d⌉ + 1` measurements recover any vector of a
   `d`-dimensional real normed space to any accuracy.

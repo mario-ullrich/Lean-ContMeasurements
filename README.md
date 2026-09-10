@@ -76,16 +76,16 @@ entry reports `sorryAx`, every ✅ entry does not.
 
 | Result | Status |
 |---|---|
-| Split sets and `SplitCover`; monotonicity, padding, unions | ✅ proved |
-| A closed symmetric set with a nonvanishing odd function is one split set (`SplitCover.of_odd`) | ✅ proved |
+| Split sets and `HasSplitCover`; monotonicity, padding, unions | ✅ proved |
+| A closed symmetric set with a nonvanishing odd function is one split set (`hasSplitCover_one_of_odd_ne_zero`) | ✅ proved |
 | Disjoint compact symmetric pieces **share** their split sets (`biUnion_of_pairwise_disjoint`) | ✅ proved |
 | Fattening a split cover to a neighbourhood (`exists_cthickening`) | ✅ proved |
-| A split cover gives a continuous odd map into `ℝᵏ` without zeros (`exists_odd_map`) | ✅ proved |
-| Level set to slab (`exists_splitCover_slab`) | ✅ proved |
-| **Halving lemma**: level sets covered by `h` split sets ⟹ the set by `2h` (`splitCover_of_levelSets`) | ✅ proved |
-| **Covering proposition**: `n` measurements separating antipodes ⟹ a cover by `2ⁿ - 1` split sets (`splitCover_of_distinguishesAntipodes`) | ✅ proved |
-| Borsuk–Ulam, odd-map form (`borsukUlam_euclidean`) | ❌ `sorry` |
-| Borsuk–Ulam for any norm and radius (`exists_norm_eq_and_apply_eq_zero`) | ⚠️ proved |
+| A split cover gives a continuous odd map into `ℝᵏ` without zeros (`exists_odd_continuous_ne_zero`) | ✅ proved |
+| Level set to slab (`HasSplitCover.exists_pos_inter_preimage_ball`) | ✅ proved |
+| **Halving lemma**: level sets covered by `h` split sets ⟹ the set by `2h` (`hasSplitCover_two_mul_of_forall_fiber`) | ✅ proved |
+| **Covering proposition**: `n` measurements separating antipodes ⟹ a cover by `2ⁿ - 1` split sets (`DistinguishesAntipodes.hasSplitCover`) | ✅ proved |
+| Borsuk–Ulam, odd-map form (`borsukUlam`) | ❌ `sorry` |
+| Borsuk–Ulam for any norm and radius (`Function.Odd.exists_norm_eq_and_eq_zero_of_lt_finrank`) | ⚠️ proved |
 | Antipodal coincidence: `2ⁿ ≤ d` ⟹ some antipodal pair is indistinguishable (`exists_antipodal_coincidence`) | ⚠️ proved |
 | Counting form `2ⁿ ≥ d + 1` (`two_pow_ge_of_distinguishesAntipodes`) | ⚠️ proved |
 | Error `≥ R` on the sphere of radius `R` when `2ⁿ ≤ d` (`exists_error_ge`) | ⚠️ proved |
@@ -94,13 +94,13 @@ entry reports `sorryAx`, every ✅ entry does not.
 
 | Result | Status |
 |---|---|
-| `ColoredCover`, colour sets, rescaling (`scale`) | ✅ defined and proved |
-| **Bisection**: `⌈log₂ N⌉` measurements find the colour among `N` (`exists_bisection_scheme`) | ✅ proved |
+| `ColoredCover`, color sets, rescaling (`scale`) | ✅ defined and proved |
+| **Bisection**: `⌈log₂ N⌉` measurements find the color among `N` (`exists_bisection_scheme`) | ✅ proved |
 | Collar function, locally finite weights, the identification functional (`identify`) | ✅ proved |
 | **Identification**: one measurement names the piece, with an integer value (`exists_identification`) | ✅ proved |
 | A continuous injection `ℝ → (0,1)` and its left inverse (`logistic`, `logisticInv`) | ✅ proved |
 | Skeleta, faces, and the geometric separation lemma (`exists_int_near_of_ne`) | ✅ proved |
-| **Brick partition**: `ℝᵐ` covered with `m + 1` colours, pieces of diameter `≤ 3/2`, separation `1/(4(m+2))` (`brickCover`) | ✅ proved |
+| **Brick partition**: `ℝᵐ` covered with `m + 1` colors, pieces of diameter `≤ 3/2`, separation `1/(4(m+2))` (`brickCover`) | ✅ proved |
 | **Upper bound in `ℝᵈ`**, maximum norm (`exists_recovery_scheme_pi`) | ✅ proved |
 | **Upper bound for any finite-dimensional real normed space** (`exists_recovery_scheme`) | ✅ proved |
 
@@ -154,11 +154,11 @@ changes.
 * `Metric.infDist` under negation: there is `EMetric.infEdist_neg` but no real-valued
   `infDist_neg`; here it is derived from `Metric.infDist_image isometry_neg`.
 * The passage from level sets to slabs by a Lebesgue-number argument
-  (`exists_splitCover_slab`), which is generic.
+  (`HasSplitCover.exists_pos_inter_preimage_ball`), which is generic.
 * The bisection lemma (`exists_bisection_scheme`): a finite family of "membership
   oracles" realised by distance functionals.
-* The brick partition (`brickCover`): a Lebesgue-type coloured covering of `ℝᵐ` with
-  `m + 1` colours and separated pieces of the same colour.
+* The brick partition (`brickCover`): a Lebesgue-type colored covering of `ℝᵐ` with
+  `m + 1` colors and separated pieces of the same color.
 
 ## Layout
 
@@ -175,16 +175,16 @@ the single `sorry` sits there rather than among the results of the papers.
 ├── BasicResults.lean           ← entry point of the general library
 ├── BasicResults/
 │   ├── BorsukUlam.lean         ← Borsuk–Ulam (the only `sorry`) + transfer
-│   ├── SplitCover.lean         ← split sets, split covers, odd maps
+│   ├── HasSplitCover.lean         ← split sets, split covers, odd maps
 │   ├── Halving.lean            ← level sets → slabs → the halving lemma
-│   ├── ColoredCover.lean       ← coloured covers and rescaling
-│   ├── BrickPartition.lean     ← the m+1 colour cover of ℝᵐ
+│   ├── ColoredCover.lean       ← colored covers and rescaling
+│   ├── LebesgueCover.lean     ← the m+1 color cover of ℝᵐ
 │   └── Logistic.lean           ← a continuous injection ℝ → (0,1)
 ├── ContMeasurements.lean       ← entry point of the theory
 ├── ContMeasurements/
 │   ├── Scheme.lean             ← the model: AdaptiveScheme, info, combinators
 │   ├── LowerBound.lean         ← 2ⁿ ≥ d+1; antipodal coincidence; error ≥ R
-│   ├── Bisection.lean          ← finding a colour by bisection
+│   ├── Bisection.lean          ← finding a color by bisection
 │   ├── Identification.lean     ← naming a piece with one measurement
 │   ├── UpperBound.lean         ← ⌈log₂ d⌉ + 1 measurements suffice
 │   └── Complexity.lean         ← the minimal number n* and the sandwich

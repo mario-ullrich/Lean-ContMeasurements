@@ -3,57 +3,53 @@ Copyright (c) 2026 Mario Ullrich. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mario Ullrich
 -/
-import Mathlib.Analysis.SpecialFunctions.Exp
+import Mathlib.Analysis.SpecialFunctions.Log.Basic
 
 /-!
-# A continuous injection of the line into the unit interval
+# The logistic function and its inverse
 
-The logistic function `s ↦ eˢ / (1 + eˢ)` maps `ℝ` continuously and injectively onto
-a subset of the open interval `(0,1)`, and `logisticInv` inverts it on its image.
+The logistic function `s ↦ eˢ / (1 + eˢ)` maps `ℝ` continuously and injectively into
+the open interval `(0,1)`, and the logit `p ↦ log (p / (1 - p))` inverts it.
 
-Nothing here is specific to measurements.  The gadget is used once, in the upper
-bound: a measurement whose value is an *integer* has a free fractional part, and this
-map puts one more real coordinate into it, saving one measurement.
+Nothing here is specific to measurements.  The pair is used once, in the upper bound:
+a measurement whose value is an *integer* has a free fractional part, and the logistic
+function puts one more real coordinate into it, saving one measurement.
 -/
 
-namespace ContMeasurements
+namespace Real
 
 /-- The logistic function `s ↦ eˢ / (1 + eˢ)`, a continuous injection `ℝ → (0,1)`. -/
-noncomputable def logistic (s : ℝ) : ℝ := Real.exp s / (1 + Real.exp s)
+noncomputable def logistic (s : ℝ) : ℝ := exp s / (1 + exp s)
+
+/-- The logit function `p ↦ log (p / (1 - p))`, inverse to the logistic function. -/
+noncomputable def logit (p : ℝ) : ℝ := log (p / (1 - p))
 
 /-- The logistic function is continuous; its denominator never vanishes. -/
-theorem continuous_logistic : Continuous logistic := by
-  unfold logistic
-  exact Real.continuous_exp.div (continuous_const.add Real.continuous_exp) fun s => by
-    positivity
+theorem continuous_logistic : Continuous logistic :=
+  continuous_exp.div (continuous_const.add continuous_exp) fun _ => by positivity
 
 /-- The logistic function takes values in the open unit interval. -/
 theorem logistic_mem_Ioo (s : ℝ) : logistic s ∈ Set.Ioo (0 : ℝ) 1 := by
-  have hpos := Real.exp_pos s
-  have hden : 0 < 1 + Real.exp s := by positivity
+  have hpos := exp_pos s
+  have hden : 0 < 1 + exp s := by positivity
   refine ⟨div_pos hpos hden, ?_⟩
-  show Real.exp s / (1 + Real.exp s) < 1
+  show exp s / (1 + exp s) < 1
   rw [div_lt_one hden]
   linarith
 
-/-- The logistic function is injective, since `t ↦ t / (1 + t)` is injective on `(0, ∞)`
-and the exponential is injective. -/
-theorem injective_logistic : Function.Injective logistic := by
-  intro a b hab
-  have hda : 0 < 1 + Real.exp a := by positivity
-  have hdb : 0 < 1 + Real.exp b := by positivity
-  have hab' : Real.exp a / (1 + Real.exp a) = Real.exp b / (1 + Real.exp b) := hab
-  have hcross : Real.exp a * (1 + Real.exp b) = Real.exp b * (1 + Real.exp a) :=
-    (div_eq_div_iff hda.ne' hdb.ne').1 hab'
-  have hexp : Real.exp a = Real.exp b := by nlinarith [hcross]
-  exact Real.exp_eq_exp.1 hexp
-
-/-- A left inverse of `logistic`, used to read the smuggled coordinate back off. -/
-noncomputable def logisticInv : ℝ → ℝ := Function.invFun logistic
-
-/-- `logisticInv` undoes `logistic`. -/
+/-- The logit undoes the logistic function.  The computation behind it is
+`logistic s / (1 - logistic s) = eˢ`. -/
 @[simp]
-theorem logisticInv_logistic (s : ℝ) : logisticInv (logistic s) = s :=
-  Function.leftInverse_invFun injective_logistic s
+theorem logit_logistic (s : ℝ) : logit (logistic s) = s := by
+  have key : logistic s / (1 - logistic s) = exp s := by
+    have h : (1 : ℝ) + exp s ≠ 0 := by positivity
+    rw [logistic]
+    field_simp
+    ring
+  rw [logit, key, log_exp]
 
-end ContMeasurements
+/-- The logistic function is injective, having a left inverse. -/
+theorem logistic_injective : Function.Injective logistic :=
+  Function.LeftInverse.injective logit_logistic
+
+end Real

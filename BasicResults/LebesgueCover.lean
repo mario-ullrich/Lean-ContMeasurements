@@ -8,11 +8,11 @@ import Mathlib.Analysis.Normed.Lp.PiLp
 import Mathlib.Algebra.Order.Floor.Ring
 
 /-!
-# The brick partition of `ℝᵐ` with `m + 1` colours
+# A colored cover of `ℝᵐ` with `m + 1` colors
 
-This file builds the coloured cover of `ℝᵐ` (with the maximum norm) that drives the
-recovery algorithm: pieces of bounded diameter, coloured with `m + 1` colours in such
-a way that two distinct pieces of the same colour are a definite distance apart.
+This file builds the colored cover of `ℝᵐ` (with the maximum norm) that drives the
+recovery algorithm: pieces of bounded diameter, colored with `m + 1` colors in such
+a way that two distinct pieces of the same color are a definite distance apart.
 
 ## The construction
 
@@ -22,28 +22,29 @@ be small radii in arithmetic progression with common difference `c`.  Put
 
   `C_k = (closed δ_k-neighbourhood of F_k) \ (⋃_{j < k} closed δ_j-neighbourhood of F_j)`,
 
-and give `C_k` the colour `k`.  Each `C_k` splits into pieces sitting around the
+and give `C_k` the color `k`.  Each `C_k` splits into pieces sitting around the
 individual `k`-dimensional faces of the grid; these are the pieces of the cover.
 
 Two distinct faces of the same dimension `k` are separated because a point close to
 both of them is close to a face of dimension `k - 1`: it would then lie in the
 `δ_{k-1}`-neighbourhood of `F_{k-1}`, which `C_k` has removed.  Making this precise is
-`exists_int_near_of_ne`, the geometric heart of the file.
+`LebesgueCover.exists_int_abs_sub_le_of_ne`, the geometric heart of the file.
 
-The number `m + 1` of colours cannot be lowered — that is the Lebesgue covering
+The number `m + 1` of colors cannot be lowered — that is the Lebesgue covering
 dimension of `ℝᵐ`.  The recovery algorithm therefore spends `⌈log₂(m+1)⌉` measurements
-on the bisection over colours; the extra coordinate trick of `UpperBound.lean` is what
+on the bisection over colors; the extra coordinate trick of `UpperBound.lean` is what
 brings the total down to `⌈log₂ m⌉ + 1`.
 
 ## Main definitions and results
 
-* `ContMeasurements.brickCover` — the coloured cover of `ℝᵐ` with `m + 1` colours,
-  pieces of diameter at most `3/2` and separation `1 / (4(m+2))`.
+* `ColoredCover.lebesgue` — the colored cover of `ℝᵐ` with `m + 1` colors, pieces of
+  diameter at most `3/2` and separation `1 / (4(m+2))`.  Its ingredients live in the
+  namespace `LebesgueCover`.
 -/
 
 open Metric Set
 
-namespace ContMeasurements
+namespace LebesgueCover
 
 variable {m : ℕ}
 
@@ -51,26 +52,28 @@ variable {m : ℕ}
 
 /-- The `k`-skeleton of the integer grid: points with at most `k` non-integer
 coordinates. -/
-def latticeSkeleton (m k : ℕ) : Set (Fin m → ℝ) :=
+def skeleton (m k : ℕ) : Set (Fin m → ℝ) :=
   {x | ∃ S : Finset (Fin m), S.card ≤ k ∧ ∀ i ∉ S, ∃ n : ℤ, x i = (n : ℝ)}
 
 /-- The closed face of the grid with corner `a` spanned by the directions in `S`:
 the coordinates in `S` range over `[aᵢ, aᵢ + 1]`, the others are pinned to `aᵢ`. -/
 def face (a : Fin m → ℤ) (S : Finset (Fin m)) : Set (Fin m → ℝ) :=
-  {x | (∀ i ∈ S, (a i : ℝ) ≤ x i ∧ x i ≤ (a i : ℝ) + 1) ∧ ∀ i ∉ S, x i = (a i : ℝ)}
+  {x | (∀ i ∈ S, (a i : ℝ) ≤ x i ∧ x i ≤ (a i : ℝ) + 1) ∧
+    ∀ i ∉ S, x i = (a i : ℝ)}
 
 /-- The closed `t`-neighbourhood of a set, spelled out to avoid side conditions. -/
-def nbhd (t : ℝ) (A : Set (Fin m → ℝ)) : Set (Fin m → ℝ) := {x | ∃ p ∈ A, dist x p ≤ t}
+def closedNbhd (t : ℝ) (A : Set (Fin m → ℝ)) : Set (Fin m → ℝ) :=
+  {x | ∃ p ∈ A, dist x p ≤ t}
 
 /-- A face spanned by `k` directions lies in the `k`-skeleton. -/
 theorem face_subset_skeleton (a : Fin m → ℤ) (S : Finset (Fin m)) :
-    face a S ⊆ latticeSkeleton m S.card :=
+    face a S ⊆ skeleton m S.card :=
   fun _ hx => ⟨S, le_rfl, fun i hi => ⟨a i, hx.2 i hi⟩⟩
 
 /-- Every point of the `k`-skeleton lies on a `k`-dimensional face, provided
 `k ≤ m`. -/
 theorem exists_face_of_mem_skeleton {k : ℕ} (hk : k ≤ m) {p : Fin m → ℝ}
-    (hp : p ∈ latticeSkeleton m k) :
+    (hp : p ∈ skeleton m k) :
     ∃ (a : Fin m → ℤ) (S : Finset (Fin m)), S.card = k ∧ p ∈ face a S := by
   obtain ⟨S₀, hS₀card, hS₀⟩ := hp
   obtain ⟨S, hS₀S, -, hScard⟩ :=
@@ -86,56 +89,56 @@ theorem exists_face_of_mem_skeleton {k : ℕ} (hk : k ≤ m) {p : Fin m → ℝ}
 /-! ### The radii -/
 
 /-- The separation constant of the cover, and the common difference of the radii. -/
-noncomputable def brickSep (m : ℕ) : ℝ := 1 / (4 * ((m : ℝ) + 2))
+noncomputable def sep (m : ℕ) : ℝ := 1 / (4 * ((m : ℝ) + 2))
 
 /-- The radius used at level `k`: an arithmetic progression decreasing in `k`, with
-common difference `brickSep m`. -/
-noncomputable def brickDelta (m k : ℕ) : ℝ := ((m : ℝ) + 1 - k) * brickSep m
+common difference `sep m`. -/
+noncomputable def radius (m k : ℕ) : ℝ := ((m : ℝ) + 1 - k) * sep m
 
 /-- The separation constant is positive. -/
-theorem brickSep_pos (m : ℕ) : 0 < brickSep m := by
-  rw [brickSep]
+theorem sep_pos (m : ℕ) : 0 < sep m := by
+  rw [sep]
   positivity
 
 /-- The separation constant is at most `1`. -/
-theorem brickSep_le_one (m : ℕ) : brickSep m ≤ 1 := by
-  rw [brickSep, div_le_one (by positivity)]
+theorem sep_le_one (m : ℕ) : sep m ≤ 1 := by
+  rw [sep, div_le_one (by positivity)]
   have : (0 : ℝ) ≤ (m : ℝ) := Nat.cast_nonneg m
   linarith
 
 /-- Consecutive radii differ by the separation constant. -/
-theorem brickDelta_succ_add (m k : ℕ) :
-    brickDelta m (k + 1) + brickSep m = brickDelta m k := by
-  rw [brickDelta, brickDelta]
+theorem radius_succ_add_sep (m k : ℕ) :
+    radius m (k + 1) + sep m = radius m k := by
+  rw [radius, radius]
   push_cast
   ring
 
 /-- The radii decrease with the level. -/
-theorem brickDelta_le_zero (m k : ℕ) : brickDelta m k ≤ brickDelta m 0 := by
-  rw [brickDelta, brickDelta]
+theorem radius_le_radius_zero (m k : ℕ) : radius m k ≤ radius m 0 := by
+  rw [radius, radius]
   have hk : (0 : ℝ) ≤ (k : ℝ) := Nat.cast_nonneg k
-  have hs := (brickSep_pos m).le
+  have hs := (sep_pos m).le
   push_cast
   nlinarith [mul_nonneg hk hs]
 
 /-- The radii are positive up to level `m`. -/
-theorem brickDelta_pos {k : ℕ} (hk : k ≤ m) : 0 < brickDelta m k := by
-  rw [brickDelta]
+theorem radius_pos {k : ℕ} (hk : k ≤ m) : 0 < radius m k := by
+  rw [radius]
   have hkm : (k : ℝ) ≤ (m : ℝ) := Nat.cast_le.2 hk
-  exact mul_pos (by linarith) (brickSep_pos m)
+  exact mul_pos (by linarith) (sep_pos m)
 
 /-- The radii are nonnegative up to level `m`. -/
-theorem brickDelta_nonneg {k : ℕ} (hk : k ≤ m) : 0 ≤ brickDelta m k :=
-  (brickDelta_pos hk).le
+theorem radius_nonneg {k : ℕ} (hk : k ≤ m) : 0 ≤ radius m k :=
+  (radius_pos hk).le
 
 /-- The two radii used in a separation argument add up to less than `1`, so distinct
 faces of the same dimension really are distinguishable. -/
-theorem two_brickDelta_zero_add_sep_lt (m : ℕ) :
-    2 * brickDelta m 0 + brickSep m < 1 / 2 := by
+theorem two_mul_radius_zero_add_sep_lt (m : ℕ) :
+    2 * radius m 0 + sep m < 1 / 2 := by
   have hpos : (0 : ℝ) < 4 * ((m : ℝ) + 2) := by positivity
-  have hkey : 2 * brickDelta m 0 + brickSep m
+  have hkey : 2 * radius m 0 + sep m
       = (2 * (m : ℝ) + 3) * (1 / (4 * ((m : ℝ) + 2))) := by
-    rw [brickDelta, brickSep]
+    rw [radius, sep]
     push_cast
     ring
   rw [hkey, mul_one_div, div_lt_div_iff₀ hpos (by norm_num : (0 : ℝ) < 2)]
@@ -154,7 +157,7 @@ has excluded.
 
 The bound `δ + δ' < 1` is what makes the argument work: two lattice points that differ
 must differ by at least `1`. -/
-theorem exists_int_near_of_ne {a a' : Fin m → ℤ} {S S' : Finset (Fin m)}
+theorem exists_int_abs_sub_le_of_ne {a a' : Fin m → ℤ} {S S' : Finset (Fin m)}
     {x p q : Fin m → ℝ} {δ δ' : ℝ} (hne : (a, S) ≠ (a', S'))
     (hcard : S.card = S'.card) (hp : p ∈ face a S) (hq : q ∈ face a' S')
     (hxp : dist x p ≤ δ) (hxq : dist x q ≤ δ') (hsum : δ + δ' < 1) :
@@ -232,23 +235,23 @@ theorem exists_int_near_of_ne {a a' : Fin m → ℤ} {S S' : Finset (Fin m)}
 /-! ### The pieces -/
 
 /-- The index set of the cover: a corner and a set of spanned directions. -/
-abbrev BrickIndex (m : ℕ) := (Fin m → ℤ) × Finset (Fin m)
+abbrev Index (m : ℕ) := (Fin m → ℤ) × Finset (Fin m)
 
 /-- The piece of the cover attached to a face: its `δ_k`-neighbourhood, with the
 neighbourhoods of all lower skeleta removed. -/
-noncomputable def brickPiece (m : ℕ) (i : BrickIndex m) : Set (Fin m → ℝ) :=
-  nbhd (brickDelta m i.2.card) (face i.1 i.2) \
-    ⋃ j ∈ Finset.range i.2.card, nbhd (brickDelta m j) (latticeSkeleton m j)
+noncomputable def piece (m : ℕ) (i : Index m) : Set (Fin m → ℝ) :=
+  closedNbhd (radius m i.2.card) (face i.1 i.2) \
+    ⋃ j ∈ Finset.range i.2.card, closedNbhd (radius m j) (skeleton m j)
 
 /-- The pieces cover `ℝᵐ`: take the smallest level whose neighbourhood already
 contains the point. -/
-theorem exists_mem_brickPiece (x : Fin m → ℝ) : ∃ i, x ∈ brickPiece m i := by
+theorem exists_mem_piece (x : Fin m → ℝ) : ∃ i, x ∈ piece m i := by
   classical
-  have huniv : x ∈ nbhd (brickDelta m m) (latticeSkeleton m m) := by
+  have huniv : x ∈ closedNbhd (radius m m) (skeleton m m) := by
     refine ⟨x, ⟨Finset.univ, by simp, fun i hi => absurd (Finset.mem_univ i) hi⟩, ?_⟩
     rw [dist_self]
-    exact brickDelta_nonneg le_rfl
-  have hex : ∃ j, x ∈ nbhd (brickDelta m j) (latticeSkeleton m j) := ⟨m, huniv⟩
+    exact radius_nonneg le_rfl
+  have hex : ∃ j, x ∈ closedNbhd (radius m j) (skeleton m j) := ⟨m, huniv⟩
   obtain ⟨p, hpk, hxp⟩ := Nat.find_spec hex
   have hkm : Nat.find hex ≤ m := Nat.find_min' hex huniv
   obtain ⟨a, S, hScard, hpface⟩ := exists_face_of_mem_skeleton hkm hpk
@@ -258,7 +261,7 @@ theorem exists_mem_brickPiece (x : Fin m → ℝ) : ∃ i, x ∈ brickPiece m i 
   rw [hScard, Finset.mem_range] at hjj
   exact Nat.find_min hex hjj hx'
 
-/-! ### The coloured cover -/
+/-! ### The colored cover -/
 
 /-- Two points of one face differ by at most `1` in every coordinate. -/
 theorem dist_le_one_of_mem_face {a : Fin m → ℤ} {S : Finset (Fin m)} {p q : Fin m → ℝ}
@@ -275,53 +278,53 @@ theorem dist_le_one_of_mem_face {a : Fin m → ℤ} {S : Finset (Fin m)} {p q : 
 
 /-- Each piece has diameter at most `3/2`: it sits within `δ_k` of a face, and a face
 has diameter `1`. -/
-theorem brickPiece_dist_le (i : BrickIndex m) {x y : Fin m → ℝ}
-    (hx : x ∈ brickPiece m i) (hy : y ∈ brickPiece m i) : dist x y ≤ 3 / 2 := by
+theorem dist_le_of_mem_piece (i : Index m) {x y : Fin m → ℝ}
+    (hx : x ∈ piece m i) (hy : y ∈ piece m i) : dist x y ≤ 3 / 2 := by
   obtain ⟨p, hp, hxp⟩ := hx.1
   obtain ⟨q, hq, hyq⟩ := hy.1
   have hpq : dist p q ≤ 1 := dist_le_one_of_mem_face hp hq
-  have hd : brickDelta m i.2.card ≤ brickDelta m 0 := brickDelta_le_zero m _
-  have hsum := two_brickDelta_zero_add_sep_lt m
-  have hsp := brickSep_pos m
+  have hd : radius m i.2.card ≤ radius m 0 := radius_le_radius_zero m _
+  have hsum := two_mul_radius_zero_add_sep_lt m
+  have hsp := sep_pos m
   have h1 := dist_triangle x p y
   have h2 := dist_triangle p q y
   rw [dist_comm q y] at h2
   linarith
 
-/-- **Distinct pieces of the same colour are `brickSep m` apart.**
+/-- **Distinct pieces of the same color are `sep m` apart.**
 
 If they were closer, the point `x` would be within `δ_{k-1}` of the two faces at once,
 and replacing one coordinate of the first face by the nearby integer would produce a
 point of the `(k-1)`-skeleton just as close — but the piece of `x` was built by
 *removing* the `δ_{k-1}`-neighbourhood of that skeleton. -/
-theorem brickPiece_separated (i j : BrickIndex m) (hij : i ≠ j)
+theorem sep_le_dist_of_ne (i j : Index m) (hij : i ≠ j)
     (hcard : i.2.card = j.2.card) {x y : Fin m → ℝ}
-    (hx : x ∈ brickPiece m i) (hy : y ∈ brickPiece m j) :
-    brickSep m ≤ dist x y := by
+    (hx : x ∈ piece m i) (hy : y ∈ piece m j) :
+    sep m ≤ dist x y := by
   classical
   by_contra hcon
   rw [not_le] at hcon
   obtain ⟨p, hp, hxp⟩ := hx.1
   obtain ⟨q, hq, hyq⟩ := hy.1
   have hkm : i.2.card ≤ m := by simpa using Finset.card_le_univ i.2
-  have hd0 : 0 ≤ brickDelta m i.2.card := brickDelta_nonneg hkm
-  have hsp := brickSep_pos m
-  have hle0 : brickDelta m i.2.card ≤ brickDelta m 0 := brickDelta_le_zero m _
-  have hsum := two_brickDelta_zero_add_sep_lt m
+  have hd0 : 0 ≤ radius m i.2.card := radius_nonneg hkm
+  have hsp := sep_pos m
+  have hle0 : radius m i.2.card ≤ radius m 0 := radius_le_radius_zero m _
+  have hsum := two_mul_radius_zero_add_sep_lt m
   -- `x` is close to the second face as well.
-  have hxq : dist x q ≤ brickDelta m i.2.card + brickSep m := by
+  have hxq : dist x q ≤ radius m i.2.card + sep m := by
     have h1 := dist_triangle x y q
-    have h2 : dist y q ≤ brickDelta m i.2.card := by rw [hcard]; exact hyq
+    have h2 : dist y q ≤ radius m i.2.card := by rw [hcard]; exact hyq
     linarith
   obtain ⟨i₀, hi₀, v, hv⟩ :=
-    exists_int_near_of_ne hij hcard hp hq hxp hxq (by linarith)
+    exists_int_abs_sub_le_of_ne hij hcard hp hq hxp hxq (by linarith)
   rw [max_eq_right (by linarith)] at hv
   -- The face has a direction, so its dimension is positive.
   have hkpos : 0 < i.2.card := Finset.card_pos.2 ⟨i₀, hi₀⟩
   obtain ⟨k', hk'⟩ : ∃ k', i.2.card = k' + 1 := ⟨i.2.card - 1, by omega⟩
   have hk'm : k' ≤ m := by omega
   -- Replacing the coordinate `i₀` of `p` by the integer `v` drops the dimension.
-  have hz : Function.update p i₀ (v : ℝ) ∈ latticeSkeleton m k' := by
+  have hz : Function.update p i₀ (v : ℝ) ∈ skeleton m k' := by
     refine ⟨i.2.erase i₀, ?_, ?_⟩
     · rw [Finset.card_erase_of_mem hi₀]; omega
     · intro l hl
@@ -329,42 +332,47 @@ theorem brickPiece_separated (i j : BrickIndex m) (hij : i ≠ j)
       · exact ⟨v, by rw [hli, Function.update_self]⟩
       · have hlS : l ∉ i.2 := fun h => hl (Finset.mem_erase.2 ⟨hli, h⟩)
         exact ⟨i.1 l, by rw [Function.update_of_ne hli, hp.2 l hlS]⟩
-  have hdist : dist x (Function.update p i₀ (v : ℝ)) ≤ brickDelta m k' := by
-    rw [dist_pi_le_iff (brickDelta_nonneg hk'm)]
+  have hdist : dist x (Function.update p i₀ (v : ℝ)) ≤ radius m k' := by
+    rw [dist_pi_le_iff (radius_nonneg hk'm)]
     intro l
     rw [Real.dist_eq]
     by_cases hli : l = i₀
     · subst hli
       rw [Function.update_self]
-      calc |x l - (v : ℝ)| ≤ brickDelta m i.2.card + brickSep m := hv
-        _ = brickDelta m k' := by rw [hk', brickDelta_succ_add]
+      calc |x l - (v : ℝ)| ≤ radius m i.2.card + sep m := hv
+        _ = radius m k' := by rw [hk', radius_succ_add_sep]
     · rw [Function.update_of_ne hli]
-      have h1 : |x l - p l| ≤ brickDelta m i.2.card := by
+      have h1 : |x l - p l| ≤ radius m i.2.card := by
         have hle := dist_le_pi_dist x p l
         rw [Real.dist_eq] at hle
         linarith
-      have h2 : brickDelta m i.2.card ≤ brickDelta m k' := by
-        rw [hk', ← brickDelta_succ_add m k']
+      have h2 : radius m i.2.card ≤ radius m k' := by
+        rw [hk', ← radius_succ_add_sep m k']
         linarith
       linarith
   exact hx.2 (Set.mem_iUnion₂.2 ⟨k', Finset.mem_range.2 (by omega), _, hz, hdist⟩)
 
-/-- **The brick partition as a coloured cover.**
+end LebesgueCover
 
-`ℝᵐ` with the maximum norm is covered by pieces of diameter at most `3/2`, coloured
-with `m + 1` colours, such that two distinct pieces of the same colour are at distance
+namespace ColoredCover
+
+/-- **The Lebesgue cover of `ℝᵐ`.**
+
+`ℝᵐ` with the maximum norm is covered by pieces of diameter at most `3/2`, colored
+with `m + 1` colors, such that two distinct pieces of the same color are at distance
 at least `1 / (4(m+2))`.
 
 Rescaling (`ColoredCover.scale`) turns this into covers of arbitrarily small diameter,
 which is what the recovery algorithm consumes. -/
-noncomputable def brickCover (m : ℕ) :
-    ColoredCover (Fin m → ℝ) (BrickIndex m) (m + 1) (3 / 2) (brickSep m) where
-  D := brickPiece m
-  t i := ⟨i.2.card, Nat.lt_succ_of_le (by simpa using Finset.card_le_univ i.2)⟩
-  cover := exists_mem_brickPiece
-  dist_le i x hx y hy := brickPiece_dist_le i hx hy
-  separated i j hij hcol x hx y hy := by
-    refine brickPiece_separated i j hij ?_ hx hy
+noncomputable def lebesgue (m : ℕ) :
+    ColoredCover (Fin m → ℝ) (LebesgueCover.Index m) (m + 1) (3 / 2)
+      (LebesgueCover.sep m) where
+  piece := LebesgueCover.piece m
+  color i := ⟨i.2.card, Nat.lt_succ_of_le (by simpa using Finset.card_le_univ i.2)⟩
+  exists_mem_piece := LebesgueCover.exists_mem_piece
+  dist_le_of_mem i x hx y hy := LebesgueCover.dist_le_of_mem_piece i hx hy
+  le_dist_of_color_eq i j hij hcol x hx y hy := by
+    refine LebesgueCover.sep_le_dist_of_ne i j hij ?_ hx hy
     simpa using congrArg Fin.val hcol
 
-end ContMeasurements
+end ColoredCover

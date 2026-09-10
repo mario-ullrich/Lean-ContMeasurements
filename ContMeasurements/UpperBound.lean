@@ -5,7 +5,7 @@ Authors: Mario Ullrich
 -/
 import ContMeasurements.Bisection
 import ContMeasurements.Identification
-import BasicResults.BrickPartition
+import BasicResults.LebesgueCover
 import BasicResults.Logistic
 import Mathlib.Analysis.Normed.Module.FiniteDimension
 import Mathlib.Data.Nat.Log
@@ -22,13 +22,13 @@ needs.
 
 Fix the target accuracy `ε > 0` and write the dimension as `d = m + 1`.
 
-1. Take the brick partition of `ℝᵐ` (`brickCover`), rescaled so that its pieces have
-   diameter well below `ε`.  It has `m + 1 = d` colours.
-2. Spend `⌈log₂ d⌉` measurements on a bisection over the colours (`Bisection.lean`).
-   Each measurement is the distance to the union of the colour classes of one half, a
+1. Take the Lebesgue cover of `ℝᵐ` (`ColoredCover.lebesgue`), rescaled so that its pieces have
+   diameter well below `ε`.  It has `m + 1 = d` colors.
+2. Spend `⌈log₂ d⌉` measurements on a bisection over the colors (`Bisection.lean`).
+   Each measurement is the distance to the union of the color classes of one half, a
    continuous functional whose vanishing decides the half.
-3. Spend **one** further measurement to pin down the piece inside the chosen colour
-   class (`Identification.lean`).  Because pieces of one colour are separated, a
+3. Spend **one** further measurement to pin down the piece inside the chosen color
+   class (`Identification.lean`).  Because pieces of one color are separated, a
    single continuous functional can take a different **integer** value near each of
    them.
 
@@ -67,49 +67,50 @@ theorem exists_recovery_scheme_pi (m : ℕ) {ε : ℝ} (hε : 0 < ε) :
   -- The projection onto the first `m` coordinates.
   set π : (Fin (m + 1) → ℝ) → (Fin m → ℝ) := fun x i => x i.castSucc with hπdef
   have hπ : Continuous π := continuous_pi fun i => continuous_apply i.castSucc
-  -- The brick cover of `ℝᵐ`, rescaled to the target accuracy.
+  -- The Lebesgue cover of `ℝᵐ`, rescaled to the target accuracy.
   have hs : (0 : ℝ) < ε / 2 := by linarith
-  set cc := (brickCover m).scale hs with hccdef
-  have hc : 0 < ε / 2 * brickSep m := mul_pos hs (brickSep_pos m)
-  have haccuracy : ε / 2 * (3 / 2) + ε / 2 * brickSep m / 8 ≤ ε := by
-    have h1 := brickSep_le_one m
-    have h2 := (brickSep_pos m).le
+  set cc := (ColoredCover.lebesgue m).scale hs with hccdef
+  have hc : 0 < ε / 2 * LebesgueCover.sep m := mul_pos hs (LebesgueCover.sep_pos m)
+  have haccuracy : ε / 2 * (3 / 2) + ε / 2 * LebesgueCover.sep m / 8 ≤ ε := by
+    have h1 := LebesgueCover.sep_le_one m
+    have h2 := (LebesgueCover.sep_pos m).le
     nlinarith
-  -- For each colour, the identification functional and its decoder.
+  -- For each color, the identification functional and its decoder.
   choose lam dec hlamc hlam using fun r => exists_identification cc hc r
   -- The leaf algorithms: the identification functional of the first `m` coordinates,
   -- offset by an injective encoding of the last coordinate into `(0,1)`.
   set leafFun : Fin (m + 1) → (Fin (m + 1) → ℝ) → ℝ :=
-    fun r x => lam r (π x) + logistic (x (Fin.last m)) with hleafFun
+    fun r x => lam r (π x) + Real.logistic (x (Fin.last m)) with hleafFun
   have hleafc : ∀ r, Continuous (leafFun r) := fun r =>
-    ((hlamc r).comp hπ).add (continuous_logistic.comp (continuous_apply (Fin.last m)))
+    ((hlamc r).comp hπ).add (Real.continuous_logistic.comp (continuous_apply (Fin.last m)))
   set leaf : Fin (m + 1) → AdaptiveScheme (Fin (m + 1) → ℝ) :=
     fun r => AdaptiveScheme.single (leafFun r) (hleafc r) with hleafdef
   set out : Fin (m + 1) → (Fin 1 → ℝ) → (Fin (m + 1) → ℝ) :=
-    fun r y => Fin.snoc (dec r ⌊y 0⌋) (logisticInv (Int.fract (y 0))) with houtdef
-  -- The colour classes, pulled back to `ℝ^{m+1}`.
-  set A : Fin (m + 1) → Set (Fin (m + 1) → ℝ) := fun r => π ⁻¹' cc.colourSet r with hAdef
-  -- Each leaf is accurate on the closure of its colour class.
+    fun r y => Fin.snoc (dec r ⌊y 0⌋) (Real.logit (Int.fract (y 0))) with houtdef
+  -- The color classes, pulled back to `ℝ^{m+1}`.
+  set A : Fin (m + 1) → Set (Fin (m + 1) → ℝ) := fun r => π ⁻¹' cc.colorClass r with hAdef
+  -- Each leaf is accurate on the closure of its color class.
   have hleafspec : ∀ r, ∀ x ∈ closure (A r),
       dist x (out r ((leaf r).info 1 x)) ≤ ε := by
     intro r x hx
-    have hπx : π x ∈ closure (cc.colourSet r) := hπ.closure_preimage_subset _ hx
+    have hπx : π x ∈ closure (cc.colorClass r) := hπ.closure_preimage_subset _ hx
     obtain ⟨n, hn, hdec⟩ := hlam r (π x) hπx
     -- The measured value is the integer `n` plus something in `(0,1)`.
-    have hval : (leaf r).info 1 x 0 = (n : ℝ) + logistic (x (Fin.last m)) := by
+    have hval : (leaf r).info 1 x 0 = (n : ℝ) + Real.logistic (x (Fin.last m)) := by
       have h1 : (leaf r).info 1 x = Fin.cons (leafFun r x) Fin.elim0 :=
         AdaptiveScheme.info_single_one _ _ _
       rw [h1, Fin.cons_zero]
-      show lam r (π x) + logistic (x (Fin.last m)) = (n : ℝ) + logistic (x (Fin.last m))
+      show lam r (π x) + Real.logistic (x (Fin.last m))
+        = (n : ℝ) + Real.logistic (x (Fin.last m))
       rw [hn]
-    obtain ⟨hlo, hhi⟩ := logistic_mem_Ioo (x (Fin.last m))
+    obtain ⟨hlo, hhi⟩ := Real.logistic_mem_Ioo (x (Fin.last m))
     have hfl : ⌊(leaf r).info 1 x 0⌋ = n := by
       rw [hval, Int.floor_intCast_add, Int.floor_eq_zero_iff.2 ⟨hlo.le, hhi⟩, add_zero]
-    have hfr : Int.fract ((leaf r).info 1 x 0) = logistic (x (Fin.last m)) := by
+    have hfr : Int.fract ((leaf r).info 1 x 0) = Real.logistic (x (Fin.last m)) := by
       rw [hval, Int.fract_intCast_add, Int.fract_eq_self.2 ⟨hlo.le, hhi⟩]
     have hout : out r ((leaf r).info 1 x) = Fin.snoc (dec r n) (x (Fin.last m)) := by
       rw [houtdef]
-      simp only [hfl, hfr, logisticInv_logistic]
+      simp only [hfl, hfr, Real.logit_logistic]
     rw [hout, dist_pi_le_iff hε.le]
     intro i
     refine Fin.lastCases ?_ ?_ i
@@ -120,18 +121,18 @@ theorem exists_recovery_scheme_pi (m : ℕ) {ε : ℝ} (hε : 0 < ε) :
       have hcoord : dist (x j.castSucc) (dec r n j) = dist (π x j) (dec r n j) := rfl
       rw [hcoord]
       exact le_trans (dist_le_pi_dist (π x) (dec r n) j) (le_trans hdec haccuracy)
-  -- Bisection over the `m + 1` colours costs `⌈log₂(m+1)⌉` measurements.
+  -- Bisection over the `m + 1` colors costs `⌈log₂(m+1)⌉` measurements.
   have hcard : (Finset.univ : Finset (Fin (m + 1))).card ≤ 2 ^ Nat.clog 2 (m + 1) := by
     rw [Finset.card_univ, Fintype.card_fin]
     exact Nat.le_pow_clog one_lt_two _
   obtain ⟨S, Φ, hSΦ⟩ :=
     exists_bisection_scheme hleafspec (Nat.clog 2 (m + 1)) Finset.univ hcard
-  -- Every point has a colour, so the guarantee is global.
+  -- Every point has a color, so the guarantee is global.
   have huniv : ∀ x : Fin (m + 1) → ℝ,
       x ∈ closure (⋃ r ∈ (Finset.univ : Finset (Fin (m + 1))), A r) := by
     intro x
     refine subset_closure ?_
-    obtain ⟨r, hr⟩ := cc.exists_mem_colourSet (π x)
+    obtain ⟨r, hr⟩ := cc.exists_mem_colorClass (π x)
     exact Set.mem_iUnion₂.2 ⟨r, Finset.mem_univ r, hr⟩
   have key : ∃ (S : AdaptiveScheme (Fin (m + 1) → ℝ))
       (Φ : (Fin (1 + Nat.clog 2 (m + 1)) → ℝ) → (Fin (m + 1) → ℝ)),

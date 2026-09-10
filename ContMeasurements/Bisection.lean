@@ -11,12 +11,12 @@ import Mathlib.Topology.MetricSpace.HausdorffDistance
 
 The general engine of the recovery algorithm.  Suppose the input space is covered by
 the closures of finitely many sets `A r`, `r` ranging over a finite set `C` of
-"colours", and suppose that for each colour there is already an algorithm — a scheme
+"colors", and suppose that for each color there is already an algorithm — a scheme
 of `ℓ` measurements and a reconstruction map — that is accurate on `closure (A r)`.
-Then `⌈log₂ |C|⌉` further measurements suffice to find a correct colour, so
+Then `⌈log₂ |C|⌉` further measurements suffice to find a correct color, so
 `ℓ + ⌈log₂ |C|⌉` measurements are accurate on the whole union.
 
-The colour is found by bisection.  Split `C` into two halves `C₁, C₂`, and measure the
+The color is found by bisection.  Split `C` into two halves `C₁, C₂`, and measure the
 continuous functional
 `x ↦ dist(x, ⋃_{r ∈ C₁} A r)`.
 Its value is `0` exactly on the closure of that union, so one real number decides
@@ -48,14 +48,14 @@ namespace ContMeasurements
 
 open Metric Set AdaptiveScheme
 
-/-- **Bisection over colours.**
+/-- **Bisection over colors.**
 
-Given, for each colour `r`, a scheme of `ℓ` measurements together with a
+Given, for each color `r`, a scheme of `ℓ` measurements together with a
 reconstruction map that is `η`-accurate on `closure (A r)`, and a finite set `C` of at
-most `2ᴸ` colours, there is a scheme of `ℓ + L` measurements together with a
+most `2ᴸ` colors, there is a scheme of `ℓ + L` measurements together with a
 reconstruction map that is `η`-accurate on `closure (⋃ r ∈ C, A r)`.
 
-The `L` extra measurements are the bisection steps that identify a colour. -/
+The `L` extra measurements are the bisection steps that identify a color. -/
 theorem exists_bisection_scheme {X : Type*} [PseudoMetricSpace X] [Nonempty X] {Kc : ℕ}
     {A : Fin Kc → Set X} {η : ℝ} {ℓ : ℕ} {leaf : Fin Kc → AdaptiveScheme X}
     {out : Fin Kc → (Fin ℓ → ℝ) → X}
@@ -68,7 +68,7 @@ theorem exists_bisection_scheme {X : Type*} [PseudoMetricSpace X] [Nonempty X] {
   induction L with
   | zero =>
     intro C hC
-    -- At most one colour is left; either none, and there is nothing to prove, or one,
+    -- At most one color is left; either none, and there is nothing to prove, or one,
     -- and its own algorithm does the job.
     have h := Finset.card_le_one.1 (by simpa using hC)
     rcases Finset.eq_empty_or_nonempty C with rfl | ⟨r, hr⟩
@@ -81,7 +81,7 @@ theorem exists_bisection_scheme {X : Type*} [PseudoMetricSpace X] [Nonempty X] {
       simpa using hleaf r x (by simpa using hx)
   | succ L ih =>
     intro C hC
-    -- Split `C` into two halves, each of at most `2ᴸ` colours.
+    -- Split `C` into two halves, each of at most `2ᴸ` colors.
     obtain ⟨C₁, hC₁sub, hC₁card⟩ :=
       Finset.exists_subset_card_eq (min_le_left C.card (2 ^ L))
     have hC₁ : C₁.card ≤ 2 ^ L := by rw [hC₁card]; exact min_le_right _ _
