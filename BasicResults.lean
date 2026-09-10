@@ -7,6 +7,7 @@ import BasicResults.BorsukUlam
 import BasicResults.SplitCover
 import BasicResults.Halving
 import BasicResults.ColoredCover
+import BasicResults.GridSimplex
 import BasicResults.LebesgueCover
 import BasicResults.Logistic
 
@@ -34,6 +35,8 @@ outside rather than a gap in the theory itself.
   if each is covered by `h` split sets, the whole set needs only `2h`.
 * `BasicResults.ColoredCover` — covers of a metric space by pieces of small diameter,
   colored so that distinct pieces of one color are separated, and their rescaling.
+* `BasicResults.GridSimplex` — the Kuhn triangulation of an integer cube, described by
+  the coordinatewise order, with the signs and directions of a simplex.
 * `BasicResults.LebesgueCover` — such a cover of `ℝᵐ` with `m + 1` colors, built from
   the skeleta of the integer grid. The number `m + 1` is the Lebesgue covering
   dimension bound and cannot be lowered.
