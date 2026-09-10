@@ -37,7 +37,7 @@ formalised here.
 ## The model
 
 An *adaptive scheme* (`ContMeasurements.AdaptiveScheme`) on a topological space `X`
-is a family of functionals `lam k y : X → ℝ`, one for each number `k` of values
+is a family of functionals `fct k y : X → ℝ`, one for each number `k` of values
 already observed and each vector `y : Fin k → ℝ` of those values. Every single
 functional is continuous **in the point being measured**; the dependence on `y` is
 completely arbitrary, and that is exactly what "adaptive" means.
@@ -69,7 +69,7 @@ entry reports `sorryAx`, every ✅ entry does not.
 | Result | Status |
 |---|---|
 | `AdaptiveScheme`, `first`, `tail`, `info` | ✅ defined |
-| Combinators `comap`, `single`, `branch` and their `info` lemmas | ✅ proved |
+| Combinators `comap`, `const`, `branch` and their `info` lemmas | ✅ proved |
 | `DistinguishesAntipodes` | ✅ defined |
 
 ### The lower bound
@@ -86,9 +86,9 @@ entry reports `sorryAx`, every ✅ entry does not.
 | **Covering proposition**: `n` measurements separating antipodes ⟹ a cover by `2ⁿ - 1` split sets (`DistinguishesAntipodes.hasSplitCover`) | ✅ proved |
 | Borsuk–Ulam, odd-map form (`borsukUlam`) | ❌ `sorry` |
 | Borsuk–Ulam for any norm and radius (`Function.Odd.exists_norm_eq_and_eq_zero_of_lt_finrank`) | ⚠️ proved |
-| Antipodal coincidence: `2ⁿ ≤ d` ⟹ some antipodal pair is indistinguishable (`exists_antipodal_coincidence`) | ⚠️ proved |
-| Counting form `2ⁿ ≥ d + 1` (`two_pow_ge_of_distinguishesAntipodes`) | ⚠️ proved |
-| Error `≥ R` on the sphere of radius `R` when `2ⁿ ≤ d` (`exists_error_ge`) | ⚠️ proved |
+| Antipodal coincidence: `2ⁿ ≤ d` ⟹ some antipodal pair is indistinguishable (`exists_norm_eq_and_info_eq_info_neg`) | ⚠️ proved |
+| Counting form `2ⁿ ≥ d + 1` (`DistinguishesAntipodes.finrank_add_one_le_two_pow`) | ⚠️ proved |
+| Error `≥ R` on the sphere of radius `R` when `2ⁿ ≤ d` (`exists_norm_eq_and_le_norm_sub`) | ⚠️ proved |
 
 ### The upper bound
 
@@ -112,7 +112,7 @@ entry reports `sorryAx`, every ✅ entry does not.
 | `n* ≤ ⌈log₂ d⌉ + 1` (`minMeasurements_le`) | ✅ proved |
 | `⌈log₂(d+1)⌉ ≤ n*` (`clog_le_minMeasurements`) | ⚠️ proved |
 | The sandwich `⌈log₂(d+1)⌉ ≤ n* ≤ ⌈log₂ d⌉ + 1` | ⚠️ proved |
-| `n* = k + 1` in dimension `2ᵏ` (`minMeasurements_eq_of_two_pow`) | ⚠️ proved |
+| `n* = k + 1` in dimension `2ᵏ` (`minMeasurements_eq_of_finrank_eq_two_pow`) | ⚠️ proved |
 
 The two bounds meet when `d` is a power of two and differ by one otherwise. For
 `d = 2` and `d = 4`, for instance, they pin `n*` down exactly at `2` and `3`.

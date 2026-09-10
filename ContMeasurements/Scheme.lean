@@ -31,7 +31,7 @@ be exponentially smaller than `dim X`.
 ## Main definitions
 
 * `ContMeasurements.AdaptiveScheme X` — the rule `λ` in bundled form: a family
-  `lam k y : X → ℝ` of continuous functionals, indexed by the number `k` of values
+  `fct k y : X → ℝ` of continuous functionals, indexed by the number `k` of values
   already observed and by those values `y : Fin k → ℝ`.
 * `ContMeasurements.AdaptiveScheme.first` — the first functional `λ₁`.
 * `ContMeasurements.AdaptiveScheme.tail` — the scheme that governs the remaining
@@ -46,7 +46,7 @@ be exponentially smaller than `dim X`.
 
 * `comap` — transport a scheme along a continuous map `π : Y → X`
   (used to move between a normed space and its coordinates);
-* `single` — the scheme that keeps asking one fixed functional;
+* `const` — the scheme that keeps asking one fixed functional;
 * `branch` — ask `f` first and then continue with a scheme chosen arbitrarily from
   the value of `f`.  This is the one place where adaptivity is *created*, and it is
   what the bisection algorithm of the upper bound is built from.
@@ -73,8 +73,8 @@ universe u v
 /-- An **adaptive scheme of continuous measurements** on `X`.
 
 After `k` values `y : Fin k → ℝ` have been observed, the next functional to be
-evaluated is `lam k y : X → ℝ`.  Each such functional is continuous in the point
-being measured; the dependence of `lam k y` on `y` is arbitrary, and that dependence
+evaluated is `fct k y : X → ℝ`.  Each such functional is continuous in the point
+being measured; the dependence of `fct k y` on `y` is arbitrary, and that dependence
 is precisely what "adaptive" means.
 
 The scheme carries no length: a scheme of any length is obtained by reading off only
@@ -82,9 +82,9 @@ the first `n` measurements, see `AdaptiveScheme.info`. -/
 @[ext]
 structure AdaptiveScheme (X : Type u) [TopologicalSpace X] where
   /-- The functional asked after the values `y : Fin k → ℝ` have been observed. -/
-  lam : (k : ℕ) → (Fin k → ℝ) → X → ℝ
+  fct : (k : ℕ) → (Fin k → ℝ) → X → ℝ
   /-- Every functional of the scheme is continuous. -/
-  continuous_lam : ∀ k y, Continuous (lam k y)
+  continuous_fct : ∀ k y, Continuous (fct k y)
 
 namespace AdaptiveScheme
 
@@ -92,11 +92,11 @@ variable {X : Type u} {Y : Type v} [TopologicalSpace X] [TopologicalSpace Y]
 
 /-- The first functional `λ₁` of a scheme, asked before anything has been observed. -/
 def first (S : AdaptiveScheme X) : X → ℝ :=
-  S.lam 0 Fin.elim0
+  S.fct 0 Fin.elim0
 
 /-- The first functional of a scheme is continuous. -/
 theorem continuous_first (S : AdaptiveScheme X) : Continuous S.first :=
-  S.continuous_lam 0 _
+  S.continuous_fct 0 _
 
 /-- The scheme governing the remaining measurements once the value `y` has been
 observed: its `k`-th functional is the `(k+1)`-st functional of `S`, asked after the
@@ -107,8 +107,8 @@ constant, the algorithm continues with one measurement less"; the crucial point 
 the lower bound is that `S.tail y` depends only on the *value* `y`, so two points
 producing the same first answer face literally the same continuation. -/
 def tail (S : AdaptiveScheme X) (y : ℝ) : AdaptiveScheme X where
-  lam k ys := S.lam (k + 1) (Fin.cons y ys)
-  continuous_lam _ _ := S.continuous_lam _ _
+  fct k ys := S.fct (k + 1) (Fin.cons y ys)
+  continuous_fct _ _ := S.continuous_fct _ _
 
 /-- The **information map** `N : X → ℝⁿ` of the first `n` measurements of a scheme:
 `N x = (λ₁ x, λ₂^{(y₁)} x, …)`, each functional being selected by the values already
@@ -145,8 +145,8 @@ theorem info_succ_succ (S : AdaptiveScheme X) (n : ℕ) (x : X) (i : Fin n) :
 /-- Transport a scheme along a continuous map `π : Y → X`: measure `π y` instead of
 `y`.  Used to carry a scheme from a space to another one it is homeomorphic to. -/
 def comap (π : Y → X) (hπ : Continuous π) (S : AdaptiveScheme X) : AdaptiveScheme Y where
-  lam k y := S.lam k y ∘ π
-  continuous_lam k y := (S.continuous_lam k y).comp hπ
+  fct k y := S.fct k y ∘ π
+  continuous_fct k y := (S.continuous_fct k y).comp hπ
 
 /-- The first functional of a transported scheme. -/
 @[simp]
@@ -166,18 +166,18 @@ theorem info_comap (π : Y → X) (hπ : Continuous π) (n : ℕ) (S : AdaptiveS
   | succ n ih => rw [info_succ, info_succ, first_comap, tail_comap, ih]
 
 /-- The scheme that asks the same functional `f` over and over. Only its first
-measurement is ever used, through `info_single_one`. -/
-def single (f : X → ℝ) (hf : Continuous f) : AdaptiveScheme X where
-  lam _ _ := f
-  continuous_lam _ _ := hf
+measurement is ever used, through `info_const_one`. -/
+def const (f : X → ℝ) (hf : Continuous f) : AdaptiveScheme X where
+  fct _ _ := f
+  continuous_fct _ _ := hf
 
-/-- The first functional of `single f hf` is `f`. -/
+/-- The first functional of `const f hf` is `f`. -/
 @[simp]
-theorem first_single (f : X → ℝ) (hf : Continuous f) : (single f hf).first = f := rfl
+theorem first_const (f : X → ℝ) (hf : Continuous f) : (const f hf).first = f := rfl
 
-/-- One measurement of `single f hf` returns the value of `f`. -/
-theorem info_single_one (f : X → ℝ) (hf : Continuous f) (x : X) :
-    (single f hf).info 1 x = Fin.cons (f x) Fin.elim0 := rfl
+/-- One measurement of `const f hf` returns the value of `f`. -/
+theorem info_const_one (f : X → ℝ) (hf : Continuous f) (x : X) :
+    (const f hf).info 1 x = Fin.cons (f x) Fin.elim0 := rfl
 
 /-- Ask `f` first, then continue with the scheme `choice y` selected from the observed
 value `y = f x`.  The selection rule `choice` is an arbitrary function `ℝ → _`; no
@@ -188,13 +188,13 @@ the upper bound branches on `choice`, and `tail_branch` is what lets the lower b
 analyse one measurement at a time. -/
 def branch (f : X → ℝ) (hf : Continuous f) (choice : ℝ → AdaptiveScheme X) :
     AdaptiveScheme X where
-  lam
+  fct
     | 0, _ => f
-    | k + 1, y => (choice (y 0)).lam k (Fin.tail y)
-  continuous_lam k y := by
+    | k + 1, y => (choice (y 0)).fct k (Fin.tail y)
+  continuous_fct k y := by
     cases k with
     | zero => exact hf
-    | succ k => exact (choice _).continuous_lam _ _
+    | succ k => exact (choice _).continuous_fct _ _
 
 /-- The first functional of a branching scheme is the branching functional. -/
 @[simp]

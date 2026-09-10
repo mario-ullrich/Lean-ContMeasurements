@@ -72,7 +72,7 @@ theorem exists_bisection_scheme {X : Type*} [PseudoMetricSpace X] [Nonempty X] {
     -- and its own algorithm does the job.
     have h := Finset.card_le_one.1 (by simpa using hC)
     rcases Finset.eq_empty_or_nonempty C with rfl | ⟨r, hr⟩
-    · exact ⟨AdaptiveScheme.single (fun _ => (0 : ℝ)) continuous_const,
+    · exact ⟨AdaptiveScheme.const (fun _ => (0 : ℝ)) continuous_const,
         fun _ => Classical.arbitrary X, by simp⟩
     · have hCr : C = {r} := Finset.eq_singleton_iff_unique_mem.2 ⟨hr, fun y hy => h y hy r hr⟩
       refine ⟨leaf r, out r, ?_⟩

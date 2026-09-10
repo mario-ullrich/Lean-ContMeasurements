@@ -76,15 +76,15 @@ theorem exists_recovery_scheme_pi (m : ℕ) {ε : ℝ} (hε : 0 < ε) :
     have h2 := (LebesgueCover.sep_pos m).le
     nlinarith
   -- For each color, the identification functional and its decoder.
-  choose lam dec hlamc hlam using fun r => exists_identification cc hc r
+  choose fct dec hfctc hfct using fun r => exists_identification cc hc r
   -- The leaf algorithms: the identification functional of the first `m` coordinates,
   -- offset by an injective encoding of the last coordinate into `(0,1)`.
   set leafFun : Fin (m + 1) → (Fin (m + 1) → ℝ) → ℝ :=
-    fun r x => lam r (π x) + Real.logistic (x (Fin.last m)) with hleafFun
+    fun r x => fct r (π x) + Real.logistic (x (Fin.last m)) with hleafFun
   have hleafc : ∀ r, Continuous (leafFun r) := fun r =>
-    ((hlamc r).comp hπ).add (Real.continuous_logistic.comp (continuous_apply (Fin.last m)))
+    ((hfctc r).comp hπ).add (Real.continuous_logistic.comp (continuous_apply (Fin.last m)))
   set leaf : Fin (m + 1) → AdaptiveScheme (Fin (m + 1) → ℝ) :=
-    fun r => AdaptiveScheme.single (leafFun r) (hleafc r) with hleafdef
+    fun r => AdaptiveScheme.const (leafFun r) (hleafc r) with hleafdef
   set out : Fin (m + 1) → (Fin 1 → ℝ) → (Fin (m + 1) → ℝ) :=
     fun r y => Fin.snoc (dec r ⌊y 0⌋) (Real.logit (Int.fract (y 0))) with houtdef
   -- The color classes, pulled back to `ℝ^{m+1}`.
@@ -94,13 +94,13 @@ theorem exists_recovery_scheme_pi (m : ℕ) {ε : ℝ} (hε : 0 < ε) :
       dist x (out r ((leaf r).info 1 x)) ≤ ε := by
     intro r x hx
     have hπx : π x ∈ closure (cc.colorClass r) := hπ.closure_preimage_subset _ hx
-    obtain ⟨n, hn, hdec⟩ := hlam r (π x) hπx
+    obtain ⟨n, hn, hdec⟩ := hfct r (π x) hπx
     -- The measured value is the integer `n` plus something in `(0,1)`.
     have hval : (leaf r).info 1 x 0 = (n : ℝ) + Real.logistic (x (Fin.last m)) := by
       have h1 : (leaf r).info 1 x = Fin.cons (leafFun r x) Fin.elim0 :=
-        AdaptiveScheme.info_single_one _ _ _
+        AdaptiveScheme.info_const_one _ _ _
       rw [h1, Fin.cons_zero]
-      show lam r (π x) + Real.logistic (x (Fin.last m))
+      show fct r (π x) + Real.logistic (x (Fin.last m))
         = (n : ℝ) + Real.logistic (x (Fin.last m))
       rw [hn]
     obtain ⟨hlo, hhi⟩ := Real.logistic_mem_Ioo (x (Fin.last m))

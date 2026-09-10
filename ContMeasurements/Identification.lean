@@ -80,7 +80,7 @@ color under consideration.
 
 The nonemptiness guard matters: `Metric.infDist x ∅ = 0`, so without it an empty
 piece would contribute its full label everywhere. -/
-noncomputable def weight (cc : ColoredCover X ι K ε c) (r : Fin K) (e : ι → ℕ) (i : ι)
+noncomputable def identifyTerm (cc : ColoredCover X ι K ε c) (r : Fin K) (e : ι → ℕ) (i : ι)
     (x : X) : ℝ :=
   if cc.color i = r ∧ (cc.piece i).Nonempty then
     ((e i : ℝ) + 1) * collar c (Metric.infDist x (cc.piece i))
@@ -89,7 +89,7 @@ noncomputable def weight (cc : ColoredCover X ι K ε c) (r : Fin K) (e : ι →
 /-- The **identification functional** of the color `r`. -/
 noncomputable def identify (cc : ColoredCover X ι K ε c) (r : Fin K) (e : ι → ℕ)
     (x : X) : ℝ :=
-  ∑ᶠ i, weight cc r e i x
+  ∑ᶠ i, identifyTerm cc r e i x
 
 open Classical in
 /-- The decoder: from the value `n = e i + 1` of the identification functional it
@@ -117,23 +117,23 @@ section Functional
 
 variable {cc : ColoredCover X ι K ε c} {r : Fin K} {e : ι → ℕ}
 
-/-- Each weight is continuous. -/
-theorem continuous_weight (i : ι) : Continuous (weight cc r e i) := by
+/-- Each identifyTerm is continuous. -/
+theorem continuous_identifyTerm (i : ι) : Continuous (identifyTerm cc r e i) := by
   classical
-  unfold weight
+  unfold identifyTerm
   by_cases h : cc.color i = r ∧ (cc.piece i).Nonempty
   · simp only [if_pos h]
     exact continuous_const.mul ((continuous_collar c).comp (Metric.continuous_infDist_pt _))
   · simp only [if_neg h]
     exact continuous_const
 
-/-- If the weight of a piece is nonzero somewhere in a small ball, the piece comes
+/-- If the identifyTerm of a piece is nonzero somewhere in a small ball, the piece comes
 close to the centre of that ball. -/
-theorem exists_mem_of_weight_ne_zero (hc : 0 < c) {i : ι} {x₀ z : X}
-    (hz : dist x₀ z < c / 8) (hw : weight cc r e i z ≠ 0) :
+theorem exists_mem_of_identifyTerm_ne_zero (hc : 0 < c) {i : ι} {x₀ z : X}
+    (hz : dist x₀ z < c / 8) (hw : identifyTerm cc r e i z ≠ 0) :
     cc.color i = r ∧ ∃ p ∈ cc.piece i, dist x₀ p < 3 * c / 8 := by
   classical
-  unfold weight at hw
+  unfold identifyTerm at hw
   by_cases h : cc.color i = r ∧ (cc.piece i).Nonempty
   · rw [if_pos h] at hw
     have hcol : collar c (Metric.infDist z (cc.piece i)) ≠ 0 := by
@@ -148,19 +148,19 @@ theorem exists_mem_of_weight_ne_zero (hc : 0 < c) {i : ι} {x₀ z : X}
   · rw [if_neg h] at hw
     exact absurd rfl hw
 
-/-- Near any point, at most one piece of the color `r` carries weight: two of them
+/-- Near any point, at most one piece of the color `r` carries identifyTerm: two of them
 would be closer than the separation constant `c`. -/
-theorem locallyFinite_weight (hc : 0 < c) :
-    LocallyFinite fun i => Function.support (weight cc r e i) := by
+theorem locallyFinite_identifyTerm (hc : 0 < c) :
+    LocallyFinite fun i => Function.support (identifyTerm cc r e i) := by
   intro x₀
   refine ⟨Metric.ball x₀ (c / 8), Metric.ball_mem_nhds _ (by positivity), ?_⟩
   refine Set.Subsingleton.finite ?_
   rintro i ⟨z, hzs, hzb⟩ j ⟨z', hzs', hzb'⟩
   by_contra hij
   obtain ⟨hti, p, hp, hxp⟩ :=
-    exists_mem_of_weight_ne_zero hc (Metric.mem_ball'.1 hzb) hzs
+    exists_mem_of_identifyTerm_ne_zero hc (Metric.mem_ball'.1 hzb) hzs
   obtain ⟨htj, q, hq, hxq⟩ :=
-    exists_mem_of_weight_ne_zero hc (Metric.mem_ball'.1 hzb') hzs'
+    exists_mem_of_identifyTerm_ne_zero hc (Metric.mem_ball'.1 hzb') hzs'
   have hsep := cc.le_dist_of_color_eq i j hij (hti.trans htj.symm) p hp q hq
   have := dist_triangle p x₀ q
   rw [dist_comm p x₀] at this
@@ -169,7 +169,7 @@ theorem locallyFinite_weight (hc : 0 < c) :
 /-- The identification functional is continuous: a locally finite sum of continuous weights. -/
 theorem continuous_identify (hc : 0 < c) : Continuous (identify cc r e) := by
   unfold identify
-  exact continuous_finsum (fun i => continuous_weight i) (locallyFinite_weight hc)
+  exact continuous_finsum (fun i => continuous_identifyTerm i) (locallyFinite_identifyTerm hc)
 
 /-- **The value of the identification functional.**  At a point within `c/8` of the
 piece `i` of color `r`, the functional takes the value `e i + 1`; every other piece
@@ -178,16 +178,16 @@ theorem identify_eq (hc : 0 < c) {i : ι} (hi : cc.color i = r) {x p : X} (hp : 
     (hxp : dist x p < c / 8) : identify cc r e x = (e i : ℝ) + 1 := by
   classical
   have hne : (cc.piece i).Nonempty := ⟨p, hp⟩
-  have hzero : ∀ j, j ≠ i → weight cc r e j x = 0 := by
+  have hzero : ∀ j, j ≠ i → identifyTerm cc r e j x = 0 := by
     intro j hji
     by_contra hw
     obtain ⟨htj, q, hq, hxq⟩ :=
-      exists_mem_of_weight_ne_zero hc (by rw [dist_self]; positivity) hw
+      exists_mem_of_identifyTerm_ne_zero hc (by rw [dist_self]; positivity) hw
     have hsep := cc.le_dist_of_color_eq i j (Ne.symm hji) (hi.trans htj.symm) p hp q hq
     have := dist_triangle p x q
     rw [dist_comm p x] at this
     linarith
-  rw [identify, finsum_eq_single _ i hzero, weight, if_pos ⟨hi, hne⟩,
+  rw [identify, finsum_eq_single _ i hzero, identifyTerm, if_pos ⟨hi, hne⟩,
     collar_eq_one hc (le_of_lt (lt_of_le_of_lt (Metric.infDist_le_dist_of_mem hp) hxp)),
     mul_one]
 
@@ -203,9 +203,9 @@ The functional is one measurement, and it is what the bisection over colors hand
 over to. -/
 theorem exists_identification [Nonempty X] [Countable ι] (cc : ColoredCover X ι K ε c)
     (hc : 0 < c) (r : Fin K) :
-    ∃ (lam : X → ℝ) (dec : ℤ → X), Continuous lam ∧
+    ∃ (fct : X → ℝ) (dec : ℤ → X), Continuous fct ∧
       ∀ x ∈ closure (cc.colorClass r),
-        ∃ n : ℤ, lam x = (n : ℝ) ∧ dist x (dec n) ≤ ε + c / 8 := by
+        ∃ n : ℤ, fct x = (n : ℝ) ∧ dist x (dec n) ≤ ε + c / 8 := by
   obtain ⟨e, he⟩ := Countable.exists_injective_nat ι
   refine ⟨identify cc r e, decodePoint cc r e, continuous_identify hc, ?_⟩
   intro x hx

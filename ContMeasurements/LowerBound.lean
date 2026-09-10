@@ -29,8 +29,8 @@ measurement `λ₁` into its odd and its even part:
   each level set the remaining `n-1` measurements still separate antipodes — crucially,
   every point of one level set faces the *same* next functional, so adaptivity is
   disarmed — and the induction hypothesis applies.  The halving lemma
-  (`hasSplitCover_two_mul_of_forall_fiber`) then pays a factor of `2` to pass from the level sets
-  to `Z` itself.
+  (`hasSplitCover_two_mul_of_forall_fiber`) then pays a factor of `2` to pass from
+  the level sets to `Z` itself.
 
 The count is therefore `c(n) = 2 c(n-1) + 1` with `c(0) = 0`, that is `c(n) = 2ⁿ - 1`.
 Distance functions turn the covering into a continuous odd map into `ℝ^{2ⁿ-1}`
@@ -41,14 +41,15 @@ forbids on the sphere of an `m`-dimensional space unless `2ⁿ - 1 ≥ m`.
 
 * `DistinguishesAntipodes.hasSplitCover` — the covering proposition. **Proved
   unconditionally**, no Borsuk–Ulam involved.
-* `exists_antipodal_coincidence` — if `2ⁿ ≤ m`, some antipodal pair on the sphere of
+* `exists_norm_eq_and_info_eq_info_neg` — if `2ⁿ ≤ m`, some antipodal pair on the sphere of
   radius `R` produces identical information.  This is the Borsuk–Ulam theorem for
   adaptive measurements: adaptivity moves the antipodal threshold from `m - 1` to
   `log₂ m`, and no further.
-* `two_pow_ge_of_distinguishesAntipodes` — the same as the counting statement
-  `2ⁿ ≥ m + 1`.
-* `exists_error_ge` — every algorithm using `n` measurements with `2ⁿ ≤ m` has error
-  at least `R` somewhere on the sphere of radius `R`; the measurements are useless.
+* `AdaptiveScheme.DistinguishesAntipodes.finrank_add_one_le_two_pow` — the same as
+  the counting statement `2ⁿ ≥ dim E + 1`.
+* `exists_norm_eq_and_le_norm_sub` — every algorithm using `n` measurements with
+  `2ⁿ ≤ m` has error at least `R` somewhere on the sphere of radius `R`; the
+  measurements are useless.
 
 The last three depend on `borsukUlam` and therefore on its `sorry`.
 -/
@@ -66,8 +67,8 @@ split sets.
 
 The proof is the induction described in the module docstring; it uses no topology
 beyond compactness, and in particular **no** Borsuk–Ulam. -/
-theorem DistinguishesAntipodes.hasSplitCover (n : ℕ) (S : AdaptiveScheme E) (K : Set E)
-    (hK : IsCompact K) (hsymm : ∀ x ∈ K, -x ∈ K)
+theorem AdaptiveScheme.DistinguishesAntipodes.hasSplitCover (n : ℕ)
+    (S : AdaptiveScheme E) (K : Set E) (hK : IsCompact K) (hsymm : ∀ x ∈ K, -x ∈ K)
     (hN : S.DistinguishesAntipodes n K) : HasSplitCover K (2 ^ n - 1) := by
   induction n generalizing S K with
   | zero =>
@@ -161,7 +162,7 @@ adaptivity moves it to `log₂ m`, and by the recovery algorithm of `UpperBound.
 no further.
 
 Depends on `borsukUlam`, hence on its `sorry`. -/
-theorem exists_antipodal_coincidence {m n : ℕ} (hm : Module.finrank ℝ E = m)
+theorem exists_norm_eq_and_info_eq_info_neg {m n : ℕ} (hm : Module.finrank ℝ E = m)
     (S : AdaptiveScheme E) (hn : 2 ^ n ≤ m) {R : ℝ} (hR : 0 < R) :
     ∃ x : E, ‖x‖ = R ∧ S.info n x = S.info n (-x) := by
   by_contra hcon
@@ -173,8 +174,8 @@ theorem exists_antipodal_coincidence {m n : ℕ} (hm : Module.finrank ℝ E = m)
     rw [mem_sphere_zero_iff_norm] at hx ⊢
     rwa [norm_neg]
   obtain ⟨Ψ, hΨc, hΨo, hΨ⟩ :=
-    (DistinguishesAntipodes.hasSplitCover n S (Metric.sphere (0 : E) R)
-      (isCompact_sphere 0 R) hsymm hdist).exists_odd_continuous_ne_zero
+    (hdist.hasSplitCover n S (Metric.sphere (0 : E) R)
+      (isCompact_sphere 0 R) hsymm).exists_odd_continuous_ne_zero
   have hlt : 2 ^ n - 1 < m := by
     have h1 : 1 ≤ 2 ^ n := Nat.one_le_two_pow
     omega
@@ -183,18 +184,19 @@ theorem exists_antipodal_coincidence {m n : ℕ} (hm : Module.finrank ℝ E = m)
   exact hΨ x (mem_sphere_zero_iff_norm.2 hxn) hx0
 
 /-- The counting form of the lower bound: `n` adaptive continuous measurements that
-separate every antipodal pair of a sphere in an `m`-dimensional normed space satisfy
-`2ⁿ ≥ m + 1`, that is `n ≥ ⌈log₂(m+1)⌉`.
+separate every antipodal pair of a sphere in a `d`-dimensional normed space satisfy
+`2ⁿ ≥ d + 1`, that is `n ≥ ⌈log₂(d+1)⌉`.
 
 Holds for **any** norm and any radius `R > 0`.
 
 Depends on `borsukUlam`, hence on its `sorry`. -/
-theorem two_pow_ge_of_distinguishesAntipodes {m n : ℕ} (hm : Module.finrank ℝ E = m)
+theorem AdaptiveScheme.DistinguishesAntipodes.finrank_add_one_le_two_pow {n : ℕ}
     (S : AdaptiveScheme E) {R : ℝ} (hR : 0 < R)
-    (hdist : S.DistinguishesAntipodes n (Metric.sphere (0 : E) R)) : m + 1 ≤ 2 ^ n := by
+    (hdist : S.DistinguishesAntipodes n (Metric.sphere (0 : E) R)) :
+    Module.finrank ℝ E + 1 ≤ 2 ^ n := by
   by_contra hcon
-  have hn : 2 ^ n ≤ m := by omega
-  obtain ⟨x, hxn, hxeq⟩ := exists_antipodal_coincidence hm S hn hR
+  have hn : 2 ^ n ≤ Module.finrank ℝ E := by omega
+  obtain ⟨x, hxn, hxeq⟩ := exists_norm_eq_and_info_eq_info_neg rfl S hn hR
   exact hdist x (mem_sphere_zero_iff_norm.2 hxn) hxeq
 
 /-- **The lower bound in the form used for complexity.**  If `2ⁿ ≤ dim E`, then every
@@ -205,10 +207,10 @@ In words: below `log₂(dim E)` measurements nothing at all can be achieved — 
 is no better than that of the trivial algorithm returning the centre.
 
 Depends on `borsukUlam`, hence on its `sorry`. -/
-theorem exists_error_ge {m n : ℕ} (hm : Module.finrank ℝ E = m) (S : AdaptiveScheme E)
-    (hn : 2 ^ n ≤ m) {R : ℝ} (hR : 0 < R) (Φ : (Fin n → ℝ) → E) :
+theorem exists_norm_eq_and_le_norm_sub {m n : ℕ} (hm : Module.finrank ℝ E = m)
+    (S : AdaptiveScheme E) (hn : 2 ^ n ≤ m) {R : ℝ} (hR : 0 < R) (Φ : (Fin n → ℝ) → E) :
     ∃ x : E, ‖x‖ = R ∧ R ≤ ‖x - Φ (S.info n x)‖ := by
-  obtain ⟨x, hxn, hxeq⟩ := exists_antipodal_coincidence hm S hn hR
+  obtain ⟨x, hxn, hxeq⟩ := exists_norm_eq_and_info_eq_info_neg hm S hn hR
   by_contra hcon
   have h1 : ‖x - Φ (S.info n x)‖ < R := by
     by_contra hge

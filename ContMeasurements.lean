@@ -30,7 +30,7 @@ covers, the Lebesgue cover of `ℝᵐ` — live in the separate `BasicResults` l
 Nothing there mentions measurements. This library holds the theory itself.
 
 * `ContMeasurements.Scheme` — the model: `AdaptiveScheme`, its information map, and
-  the combinators `tail`, `comap`, `single`, `branch`.
+  the combinators `tail`, `comap`, `const`, `branch`.
 * `ContMeasurements.LowerBound` — `n` measurements separating antipodes force
   `2ⁿ ≥ d + 1`, hence an error of at least `R` on the sphere of radius `R` when
   `2ⁿ ≤ d`.
