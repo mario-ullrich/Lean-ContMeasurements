@@ -85,6 +85,7 @@ entry reports `sorryAx`, every ✅ entry does not.
 | **Halving lemma**: level sets covered by `h` split sets ⟹ the set by `2h` (`hasSplitCover_two_mul_of_forall_fiber`) | ✅ proved |
 | **Covering proposition**: `n` measurements separating antipodes ⟹ a cover by `2ⁿ - 1` split sets (`AdaptiveScheme.DistinguishesAntipodes.hasSplitCover`) | ✅ proved |
 | Borsuk–Ulam, odd-map form (`borsukUlam`) | ❌ `sorry` |
+| The cases `k ≤ 1` of that same statement (`borsukUlam_of_le_one`) | ✅ proved |
 | Borsuk–Ulam for any norm and radius (`Function.Odd.exists_norm_eq_and_eq_zero_of_lt_finrank`) | ⚠️ proved |
 | Antipodal coincidence: `2ⁿ ≤ d` ⟹ some antipodal pair is indistinguishable (`exists_norm_eq_and_info_eq_info_neg`) | ⚠️ proved |
 | Counting form `2ⁿ ≥ d + 1` (`AdaptiveScheme.DistinguishesAntipodes.finrank_add_one_le_two_pow`) | ⚠️ proved |
@@ -132,12 +133,21 @@ returns exactly one line, and `lake build` emits exactly one `declaration uses '
 warning. Everything specific to this development — the covering proposition, the
 halving lemma, the whole upper bound — is proved unconditionally.
 
+The cases `k ≤ 1` of the very same statement are proved, in `borsukUlam_of_le_one`.
+They are there to check the statement rather than to be used: a `sorry` that says
+something subtly different from Borsuk–Ulam would invalidate every ⚠️ row above, and
+neither the build nor `#print axioms` would notice, whereas two proved instances of
+the statement do.
+
 If Borsuk–Ulam enters Mathlib, one `exact` replaces the `sorry` and nothing else
 changes.
 
 ## What is left to do
 
-* Prove Borsuk–Ulam, or import it once Mathlib has it.
+* Prove Borsuk–Ulam in general, or import it once Mathlib has it. The cases `k ≤ 1`
+  are proved; the theorem is applied only with `k = 2ⁿ - 1`, so the next case the
+  development needs is `k = 3`.
+
 * The Banach-space extension of the lower bound: `eₙᶜᵒⁿᵗ(F, Y) ≥ b_{2ⁿ-1}(F, Y)` in
   terms of Bernstein widths (Section 5 of the lower-bound paper). The proof is local —
   it uses only one sphere inside `F` — so the machinery here already covers it.

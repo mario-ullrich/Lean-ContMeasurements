@@ -18,11 +18,6 @@ a `d`-dimensional real normed space can be recovered to within `ε < R`,
 The two bounds coincide when `d` is a power of two, where `n* = log₂ d + 1` exactly,
 and differ by one otherwise.
 
-Both are remarkable next to the classical situation: with linear — or with
-nonadaptive continuous — measurements, fewer than `d` of them achieve nothing at all.
-Adaptivity together with nonlinearity is what buys the exponential saving, and neither
-alone does.
-
 ## Main results
 
 * `ContMeasurements.minMeasurements` — the quantity `n*`.

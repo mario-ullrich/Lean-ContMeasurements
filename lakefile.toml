@@ -1,6 +1,11 @@
 name = "contmeasurements"
 defaultTargets = ["ContMeasurements", "BasicResults"]
 
+# As Mathlib does for itself: an unknown identifier in a statement is an error.
+[leanOptions]
+autoImplicit = false
+relaxedAutoImplicit = false
+
 # Mathlib pinned to the v4.33.1 tag, matching lean-toolchain: a release tag has a
 # fully-published build cache, so `lake exe cache get` finds every olean.
 [[require]]

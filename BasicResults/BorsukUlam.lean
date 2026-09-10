@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mario Ullrich
 -/
 import Mathlib.Analysis.InnerProductSpace.EuclideanDist
+import Mathlib.Analysis.Normed.Module.Connected
 import Mathlib.Algebra.Group.EvenFunction
 
 /-!
@@ -19,18 +20,16 @@ Borsuk–Ulam theorem, and neither Brouwer's fixed point theorem nor Sperner's o
 Tucker's lemma, from which it is usually derived).  It is therefore stated here with
 a `sorry`, and it is the **only** `sorry` in this development.
 
-Everything else in the project is proved unconditionally.  The results that use
-Borsuk–Ulam are exactly the lower bounds; they are marked as such in the README, and
-`#print axioms` distinguishes them: the statements depending on this file report
-`sorryAx`, all others do not.
-
 If Borsuk–Ulam enters Mathlib, only `borsukUlam` has to be replaced by an
 `exact` of the library result; nothing downstream changes.
+
+The cases `k ≤ 1` are elementary and are proved below, in `borsukUlam_of_le_one`.
 
 ## Main statements
 
 * `borsukUlam` — the theorem itself, on the unit sphere of
   `EuclideanSpace ℝ (Fin m)`. **Contains the project's only `sorry`.**
+* `borsukUlam_of_le_one` — the same statement for `k ≤ 1`, proved.
 * `Function.Odd.exists_norm_eq_and_eq_zero_of_lt_finrank` — the form actually used: on
   *any* finite-dimensional real normed space `E` of dimension `m`, and on the sphere
   of *any* radius `R > 0`, a continuous odd map `E → ℝᵏ` with `k < m` has a zero.
@@ -41,21 +40,73 @@ If Borsuk–Ulam enters Mathlib, only `borsukUlam` has to be replaced by an
 
 open Metric
 
+/-- The Euclidean space `ℝᵐ` is nontrivial as soon as `m ≥ 1`. -/
+theorem EuclideanSpace.nontrivial_of_pos {m : ℕ} (hm : 0 < m) :
+    Nontrivial (EuclideanSpace ℝ (Fin m)) :=
+  Module.nontrivial_of_finrank_pos (R := ℝ) (by rw [finrank_euclideanSpace_fin]; omega)
+
+/-- The unit sphere of `ℝᵐ` is nonempty as soon as `m ≥ 1`. -/
+theorem EuclideanSpace.unitSphere_nonempty {m : ℕ} (hm : 0 < m) :
+    (Metric.sphere (0 : EuclideanSpace ℝ (Fin m)) 1).Nonempty :=
+  haveI := EuclideanSpace.nontrivial_of_pos hm
+  NormedSpace.sphere_nonempty.2 zero_le_one
+
+/-- The rank of `ℝᵐ` exceeds one as soon as `m ≥ 2`; this is what the connectedness of
+its spheres needs. -/
+theorem EuclideanSpace.one_lt_rank {m : ℕ} (hm : 1 < m) :
+    1 < Module.rank ℝ (EuclideanSpace ℝ (Fin m)) := by
+  rw [← Module.finrank_eq_rank, finrank_euclideanSpace_fin]
+  exact_mod_cast hm
+
 /-- **Borsuk–Ulam theorem** (odd-map form).  A map into `ℝᵏ` with `k < m` that is odd
 and continuous on the unit sphere of `ℝᵐ` vanishes at some point of that sphere.
 
 Equivalently: `k < m` continuous functionals cannot separate all antipodal pairs of
 `S^{m-1}`.
 
-**This is the only `sorry` of the development.**  Mathlib does not provide
-Borsuk–Ulam, and proving it would require a substantial piece of algebraic topology
-(or a combinatorial route through Tucker's lemma), which is outside the scope of this
-project. -/
+**This is the only `sorry` of the development.** -/
 theorem borsukUlam {m k : ℕ} (hk : k < m)
     (f : EuclideanSpace ℝ (Fin m) → (Fin k → ℝ))
     (hf : ContinuousOn f (Metric.sphere 0 1)) (hodd : Function.Odd f) :
     ∃ x ∈ Metric.sphere (0 : EuclideanSpace ℝ (Fin m)) 1, f x = 0 :=
   sorry
+
+/-- **Borsuk–Ulam for at most one functional**, proved unconditionally.
+
+With no functional the conclusion is empty and only needs a point on the sphere.  With
+one functional it is the intermediate value theorem: the sphere of `ℝᵐ` is connected
+for `m ≥ 2`, and an odd function takes opposite values at an antipodal pair, so it
+takes the value `0` in between. -/
+theorem borsukUlam_of_le_one {m k : ℕ} (hk1 : k ≤ 1) (hk : k < m)
+    (f : EuclideanSpace ℝ (Fin m) → (Fin k → ℝ))
+    (hf : ContinuousOn f (Metric.sphere 0 1)) (hodd : Function.Odd f) :
+    ∃ x ∈ Metric.sphere (0 : EuclideanSpace ℝ (Fin m)) 1, f x = 0 := by
+  rcases Nat.lt_or_ge k 1 with hk0 | hk1'
+  · -- No functional at all: every point of the sphere works, and there is one.
+    obtain ⟨x, hx⟩ := EuclideanSpace.unitSphere_nonempty (m := m) (by omega)
+    exact ⟨x, hx, funext fun i => absurd i.2 (by omega)⟩
+  · -- One functional: the intermediate value theorem on the connected sphere.
+    obtain rfl : k = 1 := le_antisymm hk1 hk1'
+    have hm : 1 < m := hk
+    set g : EuclideanSpace ℝ (Fin m) → ℝ := fun x => f x 0 with hg
+    have hgc : ContinuousOn g (Metric.sphere 0 1) :=
+      (continuous_apply (0 : Fin 1)).comp_continuousOn hf
+    have hpre : IsPreconnected (Metric.sphere (0 : EuclideanSpace ℝ (Fin m)) 1) :=
+      isPreconnected_sphere (EuclideanSpace.one_lt_rank hm) 0 1
+    obtain ⟨a, ha⟩ := EuclideanSpace.unitSphere_nonempty (m := m) (by omega)
+    have hna : -a ∈ Metric.sphere (0 : EuclideanSpace ℝ (Fin m)) 1 := by
+      rw [mem_sphere_zero_iff_norm] at ha ⊢
+      rwa [norm_neg]
+    have hgodd : g (-a) = -g a := by rw [hg]; simp [hodd a]
+    -- `0` lies between the two antipodal values, hence is attained on the sphere.
+    have hzero : ∃ y ∈ Metric.sphere (0 : EuclideanSpace ℝ (Fin m)) 1, g y = 0 := by
+      rcases le_total (g a) 0 with hga | hga
+      · have h0 : (0 : ℝ) ∈ Set.Icc (g a) (g (-a)) := ⟨hga, by rw [hgodd]; linarith⟩
+        exact hpre.intermediate_value ha hna hgc h0
+      · have h0 : (0 : ℝ) ∈ Set.Icc (g (-a)) (g a) := ⟨by rw [hgodd]; linarith, hga⟩
+        exact hpre.intermediate_value hna ha hgc h0
+    obtain ⟨y, hy, hgy⟩ := hzero
+    exact ⟨y, hy, funext fun i => by rw [Subsingleton.elim i 0]; exact hgy⟩
 
 variable {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E] [FiniteDimensional ℝ E]
 
