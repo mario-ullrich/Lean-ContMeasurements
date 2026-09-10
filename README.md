@@ -78,29 +78,29 @@ entry reports `sorryAx`, every ✅ entry does not.
 |---|---|
 | Split sets and `HasSplitCover`; monotonicity, padding, unions | ✅ proved |
 | A closed symmetric set with a nonvanishing odd function is one split set (`hasSplitCover_one_of_odd_ne_zero`) | ✅ proved |
-| Disjoint compact symmetric pieces **share** their split sets (`biUnion_of_pairwise_disjoint`) | ✅ proved |
-| Fattening a split cover to a neighbourhood (`exists_cthickening`) | ✅ proved |
-| A split cover gives a continuous odd map into `ℝᵏ` without zeros (`exists_odd_continuous_ne_zero`) | ✅ proved |
+| Disjoint compact symmetric pieces **share** their split sets (`HasSplitCover.biUnion_of_pairwise_disjoint`) | ✅ proved |
+| Fattening a split cover to a neighbourhood (`HasSplitCover.exists_cthickening`) | ✅ proved |
+| A split cover gives a continuous odd map into `ℝᵏ` without zeros (`HasSplitCover.exists_odd_continuous_ne_zero`) | ✅ proved |
 | Level set to slab (`HasSplitCover.exists_pos_inter_preimage_ball`) | ✅ proved |
 | **Halving lemma**: level sets covered by `h` split sets ⟹ the set by `2h` (`hasSplitCover_two_mul_of_forall_fiber`) | ✅ proved |
-| **Covering proposition**: `n` measurements separating antipodes ⟹ a cover by `2ⁿ - 1` split sets (`DistinguishesAntipodes.hasSplitCover`) | ✅ proved |
+| **Covering proposition**: `n` measurements separating antipodes ⟹ a cover by `2ⁿ - 1` split sets (`AdaptiveScheme.DistinguishesAntipodes.hasSplitCover`) | ✅ proved |
 | Borsuk–Ulam, odd-map form (`borsukUlam`) | ❌ `sorry` |
 | Borsuk–Ulam for any norm and radius (`Function.Odd.exists_norm_eq_and_eq_zero_of_lt_finrank`) | ⚠️ proved |
 | Antipodal coincidence: `2ⁿ ≤ d` ⟹ some antipodal pair is indistinguishable (`exists_norm_eq_and_info_eq_info_neg`) | ⚠️ proved |
-| Counting form `2ⁿ ≥ d + 1` (`DistinguishesAntipodes.finrank_add_one_le_two_pow`) | ⚠️ proved |
+| Counting form `2ⁿ ≥ d + 1` (`AdaptiveScheme.DistinguishesAntipodes.finrank_add_one_le_two_pow`) | ⚠️ proved |
 | Error `≥ R` on the sphere of radius `R` when `2ⁿ ≤ d` (`exists_norm_eq_and_le_norm_sub`) | ⚠️ proved |
 
 ### The upper bound
 
 | Result | Status |
 |---|---|
-| `ColoredCover`, color sets, rescaling (`scale`) | ✅ defined and proved |
+| `ColoredCover`, color classes, rescaling (`ColoredCover.scale`) | ✅ defined and proved |
 | **Bisection**: `⌈log₂ N⌉` measurements find the color among `N` (`exists_bisection_scheme`) | ✅ proved |
-| Collar function, locally finite weights, the identification functional (`identify`) | ✅ proved |
+| Collar function, locally finite terms, the identification functional (`identify`) | ✅ proved |
 | **Identification**: one measurement names the piece, with an integer value (`exists_identification`) | ✅ proved |
-| A continuous injection `ℝ → (0,1)` and its left inverse (`logistic`, `logisticInv`) | ✅ proved |
-| Skeleta, faces, and the geometric separation lemma (`exists_int_near_of_ne`) | ✅ proved |
-| **Brick partition**: `ℝᵐ` covered with `m + 1` colors, pieces of diameter `≤ 3/2`, separation `1/(4(m+2))` (`brickCover`) | ✅ proved |
+| A continuous injection `ℝ → (0,1)` and its inverse (`Real.logistic`, `Real.logit`) | ✅ proved |
+| Skeleta, faces, and the geometric separation lemma (`LebesgueCover.exists_int_abs_sub_le_of_ne`) | ✅ proved |
+| **Lebesgue cover**: `ℝᵐ` covered with `m + 1` colors, pieces of diameter `≤ 3/2`, separation `1/(4(m+2))` (`ColoredCover.lebesgue`) | ✅ proved |
 | **Upper bound in `ℝᵈ`**, maximum norm (`exists_recovery_scheme_pi`) | ✅ proved |
 | **Upper bound for any finite-dimensional real normed space** (`exists_recovery_scheme`) | ✅ proved |
 
@@ -157,8 +157,10 @@ changes.
   (`HasSplitCover.exists_pos_inter_preimage_ball`), which is generic.
 * The bisection lemma (`exists_bisection_scheme`): a finite family of "membership
   oracles" realised by distance functionals.
-* The brick partition (`brickCover`): a Lebesgue-type colored covering of `ℝᵐ` with
+* The Lebesgue cover (`ColoredCover.lebesgue`): a colored covering of `ℝᵐ` with
   `m + 1` colors and separated pieces of the same color.
+* The logistic function and the logit (`Real.logistic`, `Real.logit`), which Mathlib
+  does not have.
 
 ## Layout
 
@@ -166,6 +168,12 @@ Two libraries. `BasicResults` holds the general mathematics the theory consumes:
 nothing there mentions measurements, every statement is a candidate for Mathlib, and
 the single `sorry` sits there rather than among the results of the papers.
 `ContMeasurements` holds the theory itself.
+
+Names follow the Mathlib conventions: `UpperCamelCase` for types and Prop-valued
+definitions, `lowerCamelCase` for data, `snake_case` for theorems, spelled out of the
+statement with the conclusion first and the hypotheses after `of_`. The results of
+`BasicResults` live in root namespaces, as a Mathlib contribution would; the theory
+lives in `ContMeasurements`.
 
 ```
 .
@@ -175,11 +183,11 @@ the single `sorry` sits there rather than among the results of the papers.
 ├── BasicResults.lean           ← entry point of the general library
 ├── BasicResults/
 │   ├── BorsukUlam.lean         ← Borsuk–Ulam (the only `sorry`) + transfer
-│   ├── HasSplitCover.lean         ← split sets, split covers, odd maps
+│   ├── SplitCover.lean         ← split sets, split covers, odd maps
 │   ├── Halving.lean            ← level sets → slabs → the halving lemma
 │   ├── ColoredCover.lean       ← colored covers and rescaling
-│   ├── LebesgueCover.lean     ← the m+1 color cover of ℝᵐ
-│   └── Logistic.lean           ← a continuous injection ℝ → (0,1)
+│   ├── LebesgueCover.lean      ← the m+1 color cover of ℝᵐ
+│   └── Logistic.lean           ← the logistic function and the logit
 ├── ContMeasurements.lean       ← entry point of the theory
 ├── ContMeasurements/
 │   ├── Scheme.lean             ← the model: AdaptiveScheme, info, combinators

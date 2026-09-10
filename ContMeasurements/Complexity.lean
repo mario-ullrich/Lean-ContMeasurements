@@ -27,10 +27,13 @@ alone does.
 
 * `ContMeasurements.minMeasurements` — the quantity `n*`.
 * `ContMeasurements.minMeasurements_le` — the upper bound. Proved unconditionally.
-* `ContMeasurements.clog_le_minMeasurements` — the lower bound. Depends on
-  `borsukUlam`, hence on its `sorry`.
-* `ContMeasurements.minMeasurements_eq_of_finrank_eq_two_pow` — equality in dimension `2ᵏ`.
-  Depends on the same `sorry`.
+* `ContMeasurements.finrank_add_one_le_two_pow_minMeasurements` — the lower bound in
+  counting form. Depends on `borsukUlam`, hence on its `sorry`.
+* `ContMeasurements.clog_le_minMeasurements` — the lower bound, and
+  `ContMeasurements.clog_le_minMeasurements_and_le` the two bounds together. Depend
+  on the same `sorry`.
+* `ContMeasurements.minMeasurements_eq_of_finrank_eq_two_pow` — equality in dimension
+  `2ᵏ`. Depends on the same `sorry`.
 -/
 
 namespace ContMeasurements

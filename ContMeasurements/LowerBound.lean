@@ -16,7 +16,7 @@ it is taken from, unless `2ⁿ ≥ m + 1`.
 
 ## The argument
 
-The heart of the matter is `DistinguishesAntipodes.hasSplitCover`: if `n` adaptive
+The heart of the matter is `AdaptiveScheme.DistinguishesAntipodes.hasSplitCover`: if `n` adaptive
 continuous measurements separate every antipodal pair of a compact symmetric set `K`,
 then `K` is covered by `2ⁿ - 1` split sets.  The induction on `n` splits the first
 measurement `λ₁` into its odd and its even part:
@@ -39,7 +39,8 @@ forbids on the sphere of an `m`-dimensional space unless `2ⁿ - 1 ≥ m`.
 
 ## Main results
 
-* `DistinguishesAntipodes.hasSplitCover` — the covering proposition. **Proved
+* `AdaptiveScheme.DistinguishesAntipodes.hasSplitCover` — the covering proposition.
+  **Proved
   unconditionally**, no Borsuk–Ulam involved.
 * `exists_norm_eq_and_info_eq_info_neg` — if `2ⁿ ≤ m`, some antipodal pair on the sphere of
   radius `R` produces identical information.  This is the Borsuk–Ulam theorem for

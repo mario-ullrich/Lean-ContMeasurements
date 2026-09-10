@@ -16,9 +16,9 @@ measurement pins down the piece itself.  The pieces of color `r` are `c`-separat
 so a *single* continuous functional can take a different constant value near each of
 them without ever having to interpolate between two of them.
 
-Concretely, number the pieces of color `r` by natural numbers `e i` (possible because
-the index set is countable) and set
-`λ(x) = Σᶠ i  (e i + 1) · φ(dist(x, D i))`,
+Concretely, write `Aᵢ` for the pieces of the cover, number those of color `r` by
+natural numbers `e i` (possible because the index set is countable) and set
+`λ(x) = Σᶠ i  (e i + 1) · φ(dist(x, Aᵢ))`,
 where `φ` is a continuous collar function that equals `1` up to distance `c/8` and
 vanishes from distance `c/4` on.  Near any point at most one summand is nonzero — two
 would put two pieces of the same color closer than `c` — so the sum is locally finite
@@ -31,6 +31,7 @@ measurement, see `UpperBound.lean`.
 
 ## Main results
 
+* `ContMeasurements.identify` — the functional itself, a locally finite sum.
 * `ContMeasurements.exists_identification` — the functional and its decoder.
 -/
 
