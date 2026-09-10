@@ -10,6 +10,7 @@ import BasicResults.ColoredCover
 import BasicResults.GridSimplex
 import BasicResults.LebesgueCover
 import BasicResults.Logistic
+import BasicResults.Tucker
 
 /-!
 # Basic results
@@ -42,4 +43,6 @@ outside rather than a gap in the theory itself.
   dimension bound and cannot be lowered.
 * `BasicResults.Logistic` — the logistic function, a continuous injection `ℝ → (0,1)`,
   and the logit inverting it.
+* `BasicResults.Tucker` — labellings of the grid and the happy simplices on which the
+  combinatorial proof of the Borsuk–Ulam theorem runs.
 -/

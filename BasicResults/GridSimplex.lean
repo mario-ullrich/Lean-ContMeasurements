@@ -245,9 +245,39 @@ theorem exists_isLeast_of_isChain {t : Finset (Fin n → ℤ)} (ht : t.Nonempty)
         Finset.sum_lt_sum (fun i _ => h i) ⟨j, Finset.mem_univ j, lt_of_le_of_ne (h j) hj⟩
       exact absurd (hmin x hx) (not_le.2 hlt)
 
+/-- A nonempty finite chain of integer vectors has a greatest element. -/
+theorem exists_isGreatest_of_isChain {t : Finset (Fin n → ℤ)} (ht : t.Nonempty)
+    (hc : IsChain (· ≤ ·) (t : Set (Fin n → ℤ))) : ∃ b ∈ t, ∀ x ∈ t, x ≤ b := by
+  obtain ⟨b, hb, hmax⟩ := t.exists_max_image (fun x => ∑ i, x i) ht
+  refine ⟨b, hb, fun x hx => ?_⟩
+  rcases eq_or_ne b x with rfl | hne
+  · exact le_rfl
+  · rcases hc hb hx hne with h | h
+    · exfalso
+      obtain ⟨j, hj⟩ := Function.ne_iff.1 hne
+      have hlt : ∑ i, b i < ∑ i, x i :=
+        Finset.sum_lt_sum (fun i _ => h i) ⟨j, Finset.mem_univ j, lt_of_le_of_ne (h j) hj⟩
+      exact absurd (hmax x hx) (not_le.2 hlt)
+    · exact h
+
 /-- A simplex has a least vertex. -/
 theorem IsSimplex.exists_bot (hs : IsSimplex N s) : ∃ a ∈ s, ∀ x ∈ s, a ≤ x :=
   exists_isLeast_of_isChain hs.nonempty hs.chain
+
+/-- A simplex has a greatest vertex. -/
+theorem IsSimplex.exists_top (hs : IsSimplex N s) : ∃ b ∈ s, ∀ x ∈ s, x ≤ b :=
+  exists_isGreatest_of_isChain hs.nonempty hs.chain
+
+/-- The grid is an order interval: a point between two grid points is a grid point. -/
+theorem mem_grid_of_le_of_le {u w v : Fin n → ℤ} (hu : u ∈ grid n N) (hv : v ∈ grid n N)
+    (huw : u ≤ w) (hwv : w ≤ v) : w ∈ grid n N := by
+  rw [mem_grid] at hu hv ⊢
+  intro i
+  have h1 := hu i
+  have h2 := hv i
+  have h3 : u i ≤ w i := Pi.le_def.1 huw i
+  have h4 : w i ≤ v i := Pi.le_def.1 hwv i
+  omega
 
 /-- Measured from the least vertex, every coordinate of every vertex is either the base
 value or one more. -/
@@ -423,6 +453,92 @@ theorem IsSimplex.exists_eq_add_single (hs : IsSimplex N s) {a x y : Fin n → �
   · intro j hj
     rw [hs.eq_add_ite ha hbot hx j, hs.eq_add_ite ha hbot hy j, hstep]
     simp [Finset.mem_insert, hj]
+
+/-! ### Extending a simplex by one vertex
+
+A vertex added to a simplex sits below all of it, above all of it, or strictly between two
+consecutive vertices.  In each position the added vertex is adjacent in the chain to a
+vertex of the original simplex, so in a simplex of maximal length it differs from that
+vertex by a single unit step. -/
+
+/-- A new vertex that is neither below some vertex nor above another lies strictly between
+two consecutive vertices.  Applied to the least and the greatest vertex, this is the
+trichotomy for the position of a new vertex in the chain. -/
+theorem exists_between_of_insert {w a b : Fin n → ℤ}
+    (hchain : IsChain (· ≤ ·) ((insert w s : Finset (Fin n → ℤ)) : Set (Fin n → ℤ)))
+    (hws : w ∉ s) (ha : a ∈ s) (hb : b ∈ s) (h1 : ¬ w < a) (h2 : ¬ b < w) :
+    ∃ x ∈ s, ∃ y ∈ s, x < w ∧ w < y ∧ ∀ z ∈ s, ¬(x < z ∧ z < y) := by
+  classical
+  have hsub : (s : Set (Fin n → ℤ)) ⊆ ((insert w s : Finset (Fin n → ℤ)) : Set _) := by
+    intro z hz
+    exact_mod_cast Finset.mem_insert_of_mem (by exact_mod_cast hz)
+  have hchain' : IsChain (· ≤ ·) (s : Set (Fin n → ℤ)) := hchain.mono hsub
+  have hmemw : w ∈ (insert w s : Finset (Fin n → ℤ)) := Finset.mem_insert_self _ _
+  have hcomp : ∀ z ∈ s, z < w ∨ w < z := by
+    intro z hz
+    have hzw : z ≠ w := fun h => hws (h ▸ hz)
+    rcases hchain (hsub (by exact_mod_cast hz)) (by exact_mod_cast hmemw) hzw with h | h
+    · exact Or.inl (lt_of_le_of_ne h hzw)
+    · exact Or.inr (lt_of_le_of_ne h (Ne.symm hzw))
+  -- `w` is above the least vertex and below the greatest one.
+  have haw : a < w := by
+    rcases hcomp a ha with h | h
+    · exact h
+    · exact absurd h h1
+  have hwb : w < b := by
+    rcases hcomp b hb with h | h
+    · exact absurd h h2
+    · exact h
+  -- The largest vertex below `w` and the smallest one above it.
+  set L : Finset (Fin n → ℤ) := s.filter (fun z => z < w) with hL
+  set R : Finset (Fin n → ℤ) := s.filter (fun z => w < z) with hR
+  have hLs : L ⊆ s := Finset.filter_subset _ _
+  have hRs : R ⊆ s := Finset.filter_subset _ _
+  have hLne : L.Nonempty := ⟨a, Finset.mem_filter.2 ⟨ha, haw⟩⟩
+  have hRne : R.Nonempty := ⟨b, Finset.mem_filter.2 ⟨hb, hwb⟩⟩
+  obtain ⟨x, hxL, hxmax⟩ :=
+    exists_isGreatest_of_isChain hLne (hchain'.mono (by exact_mod_cast hLs))
+  obtain ⟨y, hyR, hymin⟩ :=
+    exists_isLeast_of_isChain hRne (hchain'.mono (by exact_mod_cast hRs))
+  obtain ⟨hxs, hxw⟩ := Finset.mem_filter.1 hxL
+  obtain ⟨hys, hwy⟩ := Finset.mem_filter.1 hyR
+  refine ⟨x, hxs, y, hys, hxw, hwy, ?_⟩
+  rintro z hz ⟨hxz, hzy⟩
+  rcases hcomp z hz with h | h
+  · exact absurd (lt_of_lt_of_le hxz (hxmax z (Finset.mem_filter.2 ⟨hz, h⟩))) (lt_irrefl x)
+  · exact absurd (lt_of_lt_of_le hzy (hymin z (Finset.mem_filter.2 ⟨hz, h⟩))) (lt_irrefl z)
+
+/-- A vertex above the whole simplex is one unit step above its greatest vertex. -/
+theorem IsSimplex.exists_eq_top_add_single {w b : Fin n → ℤ}
+    (ht : IsSimplex N (insert w s)) (hws : w ∉ s)
+    (hcard : (insert w s).card = (directions (insert w s)).card + 1)
+    (hb : b ∈ s) (htop : ∀ z ∈ s, z ≤ b) (hbw : b < w) :
+    ∃ i, b i + 1 = w i ∧ ∀ j, j ≠ i → b j = w j := by
+  obtain ⟨a, ha, hbot⟩ := ht.exists_bot
+  refine ht.exists_eq_add_single ha hbot hcard (Finset.mem_insert_of_mem hb)
+    (Finset.mem_insert_self _ _) hbw ?_
+  rintro z hz ⟨hbz, hzw⟩
+  rcases Finset.mem_insert.1 hz with rfl | hzs
+  · exact absurd hzw (lt_irrefl _)
+  · exact absurd (lt_of_lt_of_le hbz (htop z hzs)) (lt_irrefl b)
+
+/-- A vertex below the whole simplex is one unit step below its least vertex. -/
+theorem IsSimplex.exists_eq_add_single_bot {w a : Fin n → ℤ}
+    (ht : IsSimplex N (insert w s)) (hws : w ∉ s)
+    (hcard : (insert w s).card = (directions (insert w s)).card + 1)
+    (ha : a ∈ s) (hbot : ∀ z ∈ s, a ≤ z) (hwa : w < a) :
+    ∃ i, w i + 1 = a i ∧ ∀ j, j ≠ i → w j = a j := by
+  have hbot' : ∀ z ∈ insert w s, w ≤ z := by
+    intro z hz
+    rcases Finset.mem_insert.1 hz with rfl | hzs
+    · exact le_rfl
+    · exact le_of_lt (lt_of_lt_of_le hwa (hbot z hzs))
+  refine ht.exists_eq_add_single (Finset.mem_insert_self _ _) hbot' hcard
+    (Finset.mem_insert_self _ _) (Finset.mem_insert_of_mem ha) hwa ?_
+  rintro z hz ⟨hwz, hza⟩
+  rcases Finset.mem_insert.1 hz with rfl | hzs
+  · exact absurd hwz (lt_irrefl _)
+  · exact absurd (lt_of_lt_of_le hza (hbot z hzs)) (lt_irrefl z)
 
 /-! ### Reflection -/
 
