@@ -600,15 +600,9 @@ theorem signs_neg (s : Finset (Fin n → ℤ)) : signs (-s) = (signs s).image ne
   ext p
   rw [mem_signs_neg, mem_image_negLabel]
 
-/-- Reflection preserves the directions. -/
+/-- Reflection preserves the directions, since reversing a label keeps its coordinate. -/
 theorem directions_neg (s : Finset (Fin n → ℤ)) : directions (-s) = directions s := by
-  ext i
-  simp only [mem_directions]
-  constructor
-  · rintro ⟨x, hx, hxi⟩
-    obtain ⟨y, hy, rfl⟩ := Finset.mem_neg.1 hx
-    exact ⟨y, hy, by simpa using hxi⟩
-  · rintro ⟨y, hy, hyi⟩
-    exact ⟨-y, Finset.mem_neg.2 ⟨y, hy, rfl⟩, by simpa using hyi⟩
+  rw [directions, directions, signs_neg, Finset.image_image]
+  exact Finset.image_congr fun p _ => negLabel_fst p
 
 end GridSimplex

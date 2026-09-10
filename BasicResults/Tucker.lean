@@ -4,6 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mario Ullrich
 -/
 import BasicResults.GridSimplex
+import Mathlib.Data.Finset.Powerset
+import Mathlib.Algebra.BigOperators.Ring.Nat
 
 /-!
 # Tucker's lemma
@@ -98,6 +100,95 @@ theorem IsHappy.shape (h : IsHappy N lam s) :
   have h2 : (labels lam s).card ≤ s.card := card_labels_le
   have h3 : s.card ≤ (directions s).card + 1 := h.isSimplex.card_le_card_directions_succ
   omega
+
+/-! ### Doors
+
+Two happy simplices are joined when one is obtained from the other by deleting a vertex
+and already carries all of its signs.  The parity argument counts these incidences twice,
+once from each end. -/
+
+/-- `σ` is a **door** of `τ`: it is `τ` with one vertex deleted, still nonempty, and it
+already carries every sign of `τ`. -/
+structure IsDoor (N : ℕ) (lam : (Fin n → ℤ) → Label n) (σ τ : Finset (Fin n → ℤ)) :
+    Prop where
+  /-- The larger set is a simplex. -/
+  isSimplex : IsSimplex N τ
+  /-- The smaller one is contained in it. -/
+  subset : σ ⊆ τ
+  /-- with one vertex fewer. -/
+  card_succ : σ.card + 1 = τ.card
+  /-- The smaller one is not empty. -/
+  nonempty : σ.Nonempty
+  /-- Every sign of the larger one already occurs as a label on the smaller one. -/
+  signs_subset : signs τ ⊆ labels lam σ
+
+/-- The smaller end of a door is happy. -/
+theorem IsDoor.happy_left {σ τ : Finset (Fin n → ℤ)} (h : IsDoor N lam σ τ) :
+    IsHappy N lam σ where
+  isSimplex := h.isSimplex.subset h.subset h.nonempty
+  signs_subset := (_root_.GridSimplex.signs_subset h.subset).trans h.signs_subset
+
+/-- The larger end of a door is happy. -/
+theorem IsDoor.happy_right {σ τ : Finset (Fin n → ℤ)} (h : IsDoor N lam σ τ) :
+    IsHappy N lam τ where
+  isSimplex := h.isSimplex
+  signs_subset := h.signs_subset.trans (_root_.GridSimplex.labels_subset h.subset)
+
+/-! ### Counting incidences -/
+
+open scoped Classical in
+/-- The happy simplices of the grid, as a finite set. -/
+noncomputable def happySet (N : ℕ) (lam : (Fin n → ℤ) → Label n) :
+    Finset (Finset (Fin n → ℤ)) :=
+  (grid n N).powerset.filter (IsHappy N lam)
+
+/-- A happy simplex belongs to `happySet`. -/
+theorem mem_happySet {N : ℕ} : s ∈ happySet N lam ↔ IsHappy N lam s := by
+  classical
+  rw [happySet, Finset.mem_filter, Finset.mem_powerset]
+  exact ⟨fun h => h.2, fun h => ⟨h.isSimplex.subset_grid, h⟩⟩
+
+open scoped Classical in
+/-- The number of doors above a happy simplex. -/
+noncomputable def upDeg (N : ℕ) (lam : (Fin n → ℤ) → Label n)
+    (σ : Finset (Fin n → ℤ)) : ℕ :=
+  ((happySet N lam).filter (IsDoor N lam σ)).card
+
+open scoped Classical in
+/-- The number of doors below a happy simplex. -/
+noncomputable def downDeg (N : ℕ) (lam : (Fin n → ℤ) → Label n)
+    (τ : Finset (Fin n → ℤ)) : ℕ :=
+  ((happySet N lam).filter fun σ => IsDoor N lam σ τ).card
+
+/-- The degree of a happy simplex in the incidence graph. -/
+noncomputable def deg (N : ℕ) (lam : (Fin n → ℤ) → Label n)
+    (σ : Finset (Fin n → ℤ)) : ℕ :=
+  upDeg N lam σ + downDeg N lam σ
+
+/-- **Every door is counted once from each end**, so the two degree sums agree.  Both are
+the number of doors, summed in the two possible orders. -/
+theorem sum_upDeg_eq_sum_downDeg (N : ℕ) (lam : (Fin n → ℤ) → Label n) :
+    ∑ σ ∈ happySet N lam, upDeg N lam σ = ∑ τ ∈ happySet N lam, downDeg N lam τ := by
+  classical
+  simp only [upDeg, downDeg, Finset.card_eq_sum_ones, Finset.sum_filter]
+  exact Finset.sum_comm
+
+/-- The total degree is even, because it counts every door twice. -/
+theorem even_sum_deg (N : ℕ) (lam : (Fin n → ℤ) → Label n) :
+    Even (∑ σ ∈ happySet N lam, deg N lam σ) := by
+  have hsplit : ∑ σ ∈ happySet N lam, deg N lam σ =
+      (∑ σ ∈ happySet N lam, upDeg N lam σ) +
+        ∑ σ ∈ happySet N lam, downDeg N lam σ := by
+    rw [← Finset.sum_add_distrib]
+    exact Finset.sum_congr rfl fun σ _ => rfl
+  rw [hsplit, ← sum_upDeg_eq_sum_downDeg]
+  exact ⟨_, rfl⟩
+
+/-- **The number of happy simplices of odd degree is even.** -/
+theorem even_card_odd_deg (N : ℕ) (lam : (Fin n → ℤ) → Label n) :
+    Even ((happySet N lam).filter fun σ => Odd (deg N lam σ)).card := by
+  classical
+  exact (Finset.even_sum_iff_even_card_odd _).1 (even_sum_deg N lam)
 
 /-- In the two shapes with as many labels as vertices, the labelling is injective on the
 simplex. -/
