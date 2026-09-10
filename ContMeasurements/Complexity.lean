@@ -45,10 +45,12 @@ variable {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E]
 /-- The least number of adaptive continuous measurements that suffice to recover every
 vector of the closed ball of radius `R` to within `ε`.
 
-`Nat.sInf` returns `0` when no such number exists; the bounds below always come with
+Only the norm of `E` enters, so no scalar action is assumed here; the bounds below add
+what they need.
+
+`Nat.sInf` returns `0` when no such number exists; those bounds always come with
 hypotheses that exclude this. -/
-noncomputable def minMeasurements (E : Type*) [NormedAddCommGroup E] [NormedSpace ℝ E]
-    (R ε : ℝ) : ℕ :=
+noncomputable def minMeasurements (E : Type*) [NormedAddCommGroup E] (R ε : ℝ) : ℕ :=
   sInf {n | ∃ (S : AdaptiveScheme E) (Φ : (Fin n → ℝ) → E),
     ∀ x ∈ Metric.closedBall (0 : E) R, ‖x - Φ (S.info n x)‖ ≤ ε}
 

@@ -118,7 +118,7 @@ section Functional
 
 variable {cc : ColoredCover X ι K ε c} {r : Fin K} {e : ι → ℕ}
 
-/-- Each identifyTerm is continuous. -/
+/-- Each term of the sum is continuous. -/
 theorem continuous_identifyTerm (i : ι) : Continuous (identifyTerm cc r e i) := by
   classical
   unfold identifyTerm
@@ -128,7 +128,7 @@ theorem continuous_identifyTerm (i : ι) : Continuous (identifyTerm cc r e i) :=
   · simp only [if_neg h]
     exact continuous_const
 
-/-- If the identifyTerm of a piece is nonzero somewhere in a small ball, the piece comes
+/-- If the term of a piece is nonzero somewhere in a small ball, the piece comes
 close to the centre of that ball. -/
 theorem exists_mem_of_identifyTerm_ne_zero (hc : 0 < c) {i : ι} {x₀ z : X}
     (hz : dist x₀ z < c / 8) (hw : identifyTerm cc r e i z ≠ 0) :
@@ -149,8 +149,8 @@ theorem exists_mem_of_identifyTerm_ne_zero (hc : 0 < c) {i : ι} {x₀ z : X}
   · rw [if_neg h] at hw
     exact absurd rfl hw
 
-/-- Near any point, at most one piece of the color `r` carries identifyTerm: two of them
-would be closer than the separation constant `c`. -/
+/-- Near any point, at most one piece of the color `r` contributes a nonzero term:
+two of them would be closer than the separation constant `c`. -/
 theorem locallyFinite_identifyTerm (hc : 0 < c) :
     LocallyFinite fun i => Function.support (identifyTerm cc r e i) := by
   intro x₀
@@ -167,7 +167,8 @@ theorem locallyFinite_identifyTerm (hc : 0 < c) :
   rw [dist_comm p x₀] at this
   linarith
 
-/-- The identification functional is continuous: a locally finite sum of continuous weights. -/
+/-- The identification functional is continuous: a locally finite sum of continuous
+terms. -/
 theorem continuous_identify (hc : 0 < c) : Continuous (identify cc r e) := by
   unfold identify
   exact continuous_finsum (fun i => continuous_identifyTerm i) (locallyFinite_identifyTerm hc)

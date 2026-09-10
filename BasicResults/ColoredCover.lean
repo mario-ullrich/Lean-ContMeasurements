@@ -118,8 +118,8 @@ theorem mem_scale_piece {cc : ColoredCover V ι K ε c} {s : ℝ} (hs : 0 < s) {
 theorem scale_color {cc : ColoredCover V ι K ε c} {s : ℝ} (hs : 0 < s) :
     (cc.scale hs).color = cc.color := rfl
 
-/-- Membership in a rescaled color set, unfolded. -/
-@[simp]
+/-- Membership in a rescaled color set, unfolded.  Not a `simp` lemma: `simp` reaches
+the same normal form through `mem_colorClass`, `scale_color` and `mem_scale_piece`. -/
 theorem mem_scale_colorClass {cc : ColoredCover V ι K ε c} {s : ℝ} (hs : 0 < s)
     {r : Fin K} {x : V} :
     x ∈ (cc.scale hs).colorClass r ↔ s⁻¹ • x ∈ cc.colorClass r := Iff.rfl

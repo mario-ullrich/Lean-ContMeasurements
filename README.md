@@ -210,6 +210,14 @@ The Mathlib revision is pinned in `lake-manifest.json`; `lake exe cache get` fet
 the matching precompiled oleans. Do **not** run `lake update`: it re-resolves the
 dependencies and makes the build non-reproducible.
 
+Both libraries pass the Mathlib style linter, which checks among other things that
+every declaration is documented and that no hypothesis goes unused:
+
+```
+lake exe runLinter BasicResults
+lake exe runLinter ContMeasurements
+```
+
 ## AI assistance
 
 The Lean proofs in this project were produced with AI assistance. What is checked by
