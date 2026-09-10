@@ -121,11 +121,11 @@ The two bounds meet when `d` is a power of two and differ by one otherwise. For
 
 Mathlib does not contain the Borsuk–Ulam theorem, nor Brouwer's fixed point theorem,
 nor Sperner's or Tucker's lemma from which it is usually derived. It is therefore
-stated in `ContMeasurements/BorsukUlam.lean` with a `sorry`, and that is the **only**
+stated in `BasicResults/BorsukUlam.lean` with a `sorry`, and that is the **only**
 `sorry` in the project:
 
 ```
-grep -rn "^ *sorry$" ContMeasurements ContMeasurements.lean
+grep -rn "^ *sorry$" BasicResults ContMeasurements
 ```
 
 returns exactly one line, and `lake build` emits exactly one `declaration uses 'sorry'`
@@ -162,22 +162,30 @@ changes.
 
 ## Layout
 
+Two libraries. `BasicResults` holds the general mathematics the theory consumes:
+nothing there mentions measurements, every statement is a candidate for Mathlib, and
+the single `sorry` sits there rather than among the results of the papers.
+`ContMeasurements` holds the theory itself.
+
 ```
 .
 ├── lakefile.toml               ← Lake configuration; depends on Mathlib
 ├── lean-toolchain              ← Lean 4 version (v4.33.1)
 ├── lake-manifest.json          ← the pinned Mathlib revision
-├── ContMeasurements.lean       ← library entry point
-├── ContMeasurements/
-│   ├── Scheme.lean             ← the model: AdaptiveScheme, info, combinators
+├── BasicResults.lean           ← entry point of the general library
+├── BasicResults/
+│   ├── BorsukUlam.lean         ← Borsuk–Ulam (the only `sorry`) + transfer
 │   ├── SplitCover.lean         ← split sets, split covers, odd maps
 │   ├── Halving.lean            ← level sets → slabs → the halving lemma
-│   ├── BorsukUlam.lean         ← Borsuk–Ulam (the only `sorry`) + transfer
-│   ├── LowerBound.lean         ← 2ⁿ ≥ d+1; antipodal coincidence; error ≥ R
 │   ├── ColoredCover.lean       ← coloured covers and rescaling
+│   ├── BrickPartition.lean     ← the m+1 colour cover of ℝᵐ
+│   └── Logistic.lean           ← a continuous injection ℝ → (0,1)
+├── ContMeasurements.lean       ← entry point of the theory
+├── ContMeasurements/
+│   ├── Scheme.lean             ← the model: AdaptiveScheme, info, combinators
+│   ├── LowerBound.lean         ← 2ⁿ ≥ d+1; antipodal coincidence; error ≥ R
 │   ├── Bisection.lean          ← finding a colour by bisection
 │   ├── Identification.lean     ← naming a piece with one measurement
-│   ├── BrickPartition.lean     ← the m+1 colour cover of ℝᵐ
 │   ├── UpperBound.lean         ← ⌈log₂ d⌉ + 1 measurements suffice
 │   └── Complexity.lean         ← the minimal number n* and the sandwich
 └── refs/                       ← the two papers, plus the noisy companion

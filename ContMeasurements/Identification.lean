@@ -3,11 +3,10 @@ Copyright (c) 2026 Mario Ullrich. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mario Ullrich
 -/
-import ContMeasurements.ColoredCover
+import BasicResults.ColoredCover
 import Mathlib.Algebra.BigOperators.Finprod
 import Mathlib.Topology.Algebra.InfiniteSum.Constructions
 import Mathlib.Topology.Algebra.Monoid
-import Mathlib.Analysis.SpecialFunctions.Exp
 
 /-!
 # Identifying a piece with a single measurement
@@ -33,8 +32,6 @@ measurement, see `UpperBound.lean`.
 ## Main results
 
 * `ContMeasurements.exists_identification` — the functional and its decoder.
-* `ContMeasurements.logistic` — a continuous injection `ℝ → (0,1)`, used to carry one
-  real coordinate inside the fractional part.
 -/
 
 open Metric Set
@@ -217,48 +214,5 @@ theorem exists_identification [Nonempty X] [Countable ι] (cc : ColoredCover X �
     have hdiam := cc.dist_le i _ hyi _ hmem
     have := dist_triangle x y (decodePoint cc r e ((e i : ℤ) + 1))
     linarith
-
-/-! ### A continuous injection into the unit interval -/
-
-/-- A continuous injection `ℝ → (0,1)`: the logistic function `s ↦ eˢ / (1 + eˢ)`.
-
-It lets one real coordinate be carried in the fractional part of a measurement whose
-integer part carries the identity of a piece.  This is the device that saves one
-measurement in the upper bound. -/
-noncomputable def logistic (s : ℝ) : ℝ := Real.exp s / (1 + Real.exp s)
-
-theorem one_add_exp_pos (s : ℝ) : 0 < 1 + Real.exp s := by
-  have := Real.exp_pos s
-  linarith
-
-theorem continuous_logistic : Continuous logistic := by
-  unfold logistic
-  exact Real.continuous_exp.div (continuous_const.add Real.continuous_exp) fun s =>
-    (one_add_exp_pos s).ne'
-
-theorem logistic_mem_Ioo (s : ℝ) : logistic s ∈ Set.Ioo (0 : ℝ) 1 := by
-  have hpos := Real.exp_pos s
-  have hden := one_add_exp_pos s
-  refine ⟨div_pos hpos hden, ?_⟩
-  show Real.exp s / (1 + Real.exp s) < 1
-  rw [div_lt_one hden]
-  linarith
-
-theorem injective_logistic : Function.Injective logistic := by
-  intro a b hab
-  have hda := one_add_exp_pos a
-  have hdb := one_add_exp_pos b
-  have hab' : Real.exp a / (1 + Real.exp a) = Real.exp b / (1 + Real.exp b) := hab
-  have hcross : Real.exp a * (1 + Real.exp b) = Real.exp b * (1 + Real.exp a) :=
-    (div_eq_div_iff hda.ne' hdb.ne').1 hab'
-  have hexp : Real.exp a = Real.exp b := by nlinarith [hcross]
-  exact Real.exp_eq_exp.1 hexp
-
-/-- A left inverse of `logistic`, used to read the smuggled coordinate back off. -/
-noncomputable def logisticInv : ℝ → ℝ := Function.invFun logistic
-
-@[simp]
-theorem logisticInv_logistic (s : ℝ) : logisticInv (logistic s) = s :=
-  Function.leftInverse_invFun injective_logistic s
 
 end ContMeasurements

@@ -1,5 +1,5 @@
 name = "contmeasurements"
-defaultTargets = ["ContMeasurements"]
+defaultTargets = ["ContMeasurements", "BasicResults"]
 
 # Mathlib pinned to the v4.33.1 tag, matching lean-toolchain: a release tag has a
 # fully-published build cache, so `lake exe cache get` finds every olean.
@@ -7,6 +7,12 @@ defaultTargets = ["ContMeasurements"]
 name = "mathlib"
 scope = "leanprover-community"
 version = "git#v4.33.1"
+
+# The general ingredients the theory consumes: Borsuk–Ulam, split covers, the halving
+# lemma, coloured covers, the brick partition. Nothing here mentions measurements, and
+# the development's only `sorry` lives in this library.
+[[lean_lib]]
+name = "BasicResults"
 
 [[lean_lib]]
 name = "ContMeasurements"

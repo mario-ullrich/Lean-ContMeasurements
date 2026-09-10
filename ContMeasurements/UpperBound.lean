@@ -5,7 +5,8 @@ Authors: Mario Ullrich
 -/
 import ContMeasurements.Bisection
 import ContMeasurements.Identification
-import ContMeasurements.BrickPartition
+import BasicResults.BrickPartition
+import BasicResults.Logistic
 import Mathlib.Analysis.Normed.Module.FiniteDimension
 import Mathlib.Data.Nat.Log
 

@@ -4,8 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mario Ullrich
 -/
 import ContMeasurements.Scheme
-import ContMeasurements.Halving
-import ContMeasurements.BorsukUlam
+import BasicResults.Halving
+import BasicResults.BorsukUlam
 
 /-!
 # The lower bound
