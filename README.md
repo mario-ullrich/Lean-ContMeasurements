@@ -84,6 +84,8 @@ entry reports `sorryAx`, every ✅ entry does not.
 | Level set to slab (`HasSplitCover.exists_pos_inter_preimage_ball`) | ✅ proved |
 | **Halving lemma**: level sets covered by `h` split sets ⟹ the set by `2h` (`hasSplitCover_two_mul_of_forall_fiber`) | ✅ proved |
 | **Covering proposition**: `n` measurements separating antipodes ⟹ a cover by `2ⁿ - 1` split sets (`AdaptiveScheme.DistinguishesAntipodes.hasSplitCover`) | ✅ proved |
+| Kuhn triangulation of the integer cube: signs, directions, extensions (`GridSimplex`) | ✅ proved |
+| **Tucker's lemma**: a labelling antipodal on the boundary gives one simplex two opposite labels (`GridSimplex.tucker`) | ✅ proved |
 | Borsuk–Ulam, odd-map form (`borsukUlam`) | ❌ `sorry` |
 | The cases `k ≤ 1` of that same statement (`borsukUlam_of_le_one`) | ✅ proved |
 | Borsuk–Ulam for any norm and radius (`Function.Odd.exists_norm_eq_and_eq_zero_of_lt_finrank`) | ⚠️ proved |
@@ -196,8 +198,10 @@ lives in `ContMeasurements`.
 │   ├── SplitCover.lean         ← split sets, split covers, odd maps
 │   ├── Halving.lean            ← level sets → slabs → the halving lemma
 │   ├── ColoredCover.lean       ← colored covers and rescaling
+│   ├── GridSimplex.lean        ← the Kuhn triangulation of an integer cube
 │   ├── LebesgueCover.lean      ← the m+1 color cover of ℝᵐ
-│   └── Logistic.lean           ← the logistic function and the logit
+│   ├── Logistic.lean           ← the logistic function and the logit
+│   └── Tucker.lean             ← Tucker's lemma
 ├── ContMeasurements.lean       ← entry point of the theory
 ├── ContMeasurements/
 │   ├── Scheme.lean             ← the model: AdaptiveScheme, info, combinators

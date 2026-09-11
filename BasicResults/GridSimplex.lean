@@ -158,6 +158,23 @@ theorem IsSimplex.subset {t : Finset (Fin n → ℤ)} (hs : IsSimplex N s) (hts 
   chain := hs.chain.mono (by exact_mod_cast hts)
   sub_le_one x hx y hy i := hs.sub_le_one x (hts hx) y (hts hy) i
 
+/-- A single grid point is a simplex. -/
+theorem isSimplex_singleton {v : Fin n → ℤ} (hv : v ∈ grid n N) :
+    IsSimplex N ({v} : Finset (Fin n → ℤ)) where
+  nonempty := Finset.singleton_nonempty v
+  subset_grid := Finset.singleton_subset_iff.2 hv
+  chain := by
+    rintro x hx y hy hne
+    rw [Finset.coe_singleton, Set.mem_singleton_iff] at hx hy
+    exact absurd (hx.trans hy.symm) hne
+  sub_le_one := by
+    intro x hx y hy i
+    rw [Finset.mem_singleton] at hx hy
+    subst hx
+    subst hy
+    omega
+
+
 /-! ### Signs and directions -/
 
 /-- The signs of `s`: the label `(i, true)` occurs when some vertex has positive `i`-th
@@ -238,6 +255,37 @@ theorem IsSimplex.card_signs (hs : IsSimplex N s) :
   · exact absurd hq (hs.not_mem_signs_negLabel hp)
   · exact absurd hq (hs.not_mem_signs_negLabel hp)
   · rfl
+
+/-- The origin alone carries no sign. -/
+@[simp]
+theorem signs_singleton_zero : signs ({0} : Finset (Fin n → ℤ)) = ∅ := by
+  ext p
+  obtain ⟨i, c⟩ := p
+  cases c
+  · simp [mem_signs_false]
+  · simp [mem_signs_true]
+
+/-- The origin alone has no direction. -/
+@[simp]
+theorem directions_singleton_zero : directions ({0} : Finset (Fin n → ℤ)) = ∅ := by
+  rw [directions, signs_singleton_zero, Finset.image_empty]
+
+/-- A simplex with no direction and a single vertex is the origin alone. -/
+theorem eq_singleton_zero (hs : IsSimplex N s) (h1 : s.card = 1)
+    (hd : (directions s).card = 0) : s = {0} := by
+  obtain ⟨x, rfl⟩ := Finset.card_eq_one.1 h1
+  have hzero : ∀ i, x i = 0 := by
+    intro i
+    by_contra hcon
+    have hmem : i ∈ directions ({x} : Finset (Fin n → ℤ)) :=
+      mem_directions.2 ⟨x, Finset.mem_singleton_self x, hcon⟩
+    rw [Finset.card_eq_zero.1 hd] at hmem
+    exact absurd hmem (Finset.notMem_empty i)
+  have : x = 0 := by
+    ext i
+    exact hzero i
+  rw [this]
+
 
 /-! ### The least vertex -/
 

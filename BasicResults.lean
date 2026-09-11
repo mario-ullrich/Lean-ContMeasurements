@@ -37,12 +37,14 @@ outside rather than a gap in the theory itself.
 * `BasicResults.ColoredCover` — covers of a metric space by pieces of small diameter,
   colored so that distinct pieces of one color are separated, and their rescaling.
 * `BasicResults.GridSimplex` — the Kuhn triangulation of an integer cube, described by
-  the coordinatewise order, with the signs and directions of a simplex.
+  the coordinatewise order, with the signs and directions of a simplex and the count of
+  the ways of extending one by a vertex.
 * `BasicResults.LebesgueCover` — such a cover of `ℝᵐ` with `m + 1` colors, built from
   the skeleta of the integer grid. The number `m + 1` is the Lebesgue covering
   dimension bound and cannot be lowered.
 * `BasicResults.Logistic` — the logistic function, a continuous injection `ℝ → (0,1)`,
   and the logit inverting it.
-* `BasicResults.Tucker` — labellings of the grid and the happy simplices on which the
-  combinatorial proof of the Borsuk–Ulam theorem runs.
+* `BasicResults.Tucker` — Tucker's lemma: a labelling of the grid that is antipodal on
+  the boundary gives one simplex two opposite labels.  This is the combinatorial form of
+  the Borsuk–Ulam theorem.
 -/
