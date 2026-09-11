@@ -1277,7 +1277,7 @@ theorem card_extensions_eq_one (hs : IsSimplex N s) (hN : 0 < N)
 /-! ### Simplices with as many vertices as directions
 
 The remaining shape.  Such a simplex is one vertex short of filling its chain, and the
-missing vertex can be supplied in exactly two ways — unless one coordinate sits at the
+missing vertex can be supplied in exactly two ways, unless one coordinate sits at the
 boundary of the cube, which blocks one of them. -/
 
 /-- A point has rank zero relative to itself. -/

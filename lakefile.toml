@@ -1,6 +1,12 @@
 name = "contmeasurements"
 defaultTargets = ["ContMeasurements", "BasicResults"]
 
+# All Lake dependencies live in one folder outside the repository, shared with the other
+# projects of this workspace that pin the same toolchain, so a single built Mathlib serves
+# all of them. The folder is named after the version it holds, which lets several Mathlib
+# versions coexist. A fresh clone creates `lake-packages/v4.33.1` next to this folder.
+packagesDir = "../lake-packages/v4.33.1"
+
 # As Mathlib does for itself: an unknown identifier in a statement is an error.
 [leanOptions]
 autoImplicit = false

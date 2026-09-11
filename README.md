@@ -13,7 +13,7 @@ You want to know a vector `x` of a `d`-dimensional real normed space, up to an e
 `ε` in the norm. You cannot see `x`; you may only compute real numbers
 `λ₁(x), …, λₙ(x)`. How large must `n` be?
 
-* If the `λᵢ` are **linear**, fewer than `d` measurements are useless — even if each
+* If the `λᵢ` are **linear**, fewer than `d` measurements are useless, even if each
   is chosen after seeing the previous values. Whatever you learn, a whole affine
   subspace is consistent with it.
 * If the `λᵢ` are **continuous but fixed in advance**, fewer than `d` are useless
@@ -124,7 +124,7 @@ The two bounds meet when `d` is a power of two and differ by one otherwise. For
 
 ## One note on provenance
 
-The Borsuk–Ulam development — `GridSimplex.lean`, `Tucker.lean`, `BorsukUlam.lean` — was
+The Borsuk–Ulam development (`GridSimplex.lean`, `Tucker.lean`, `BorsukUlam.lean`) was
 produced with substantial AI assistance, and I have checked the statements rather than
 the proof scripts line by line; what guarantees them is the kernel check. The argument
 is the classical one: Tucker's lemma by a parity count over the Kuhn triangulation of
@@ -134,8 +134,8 @@ then the sphere.
 ## What is left to do
 
 * The Banach-space extension of the lower bound: `eₙᶜᵒⁿᵗ(F, Y) ≥ b_{2ⁿ-1}(F, Y)` in
-  terms of Bernstein widths (Section 5 of the lower-bound paper). The proof is local —
-  it uses only one sphere inside `F` — so the machinery here already covers it.
+  terms of Bernstein widths (Section 5 of the lower-bound paper). The proof is local:
+  it uses only one sphere inside `F`, so the machinery here already covers it.
 * The **noisy** setting of the companion paper, where the answer is governed by
   entropy numbers instead.
 * The Lipschitz variant: all functionals used here are `1`-Lipschitz except the
@@ -198,16 +198,22 @@ lives in `ContMeasurements`.
     └── Complexity.lean         ← the minimal number n* and the sandwich
 ```
 
+The dependencies live **outside** the repository, in `../lake-packages/v4.33.1`, so that
+all projects of this workspace that pin the same toolchain share one built Mathlib. The
+`packagesDir` line of `lakefile.toml` says so, and the folder is named after the version
+it holds, which lets several Mathlib versions coexist.
+
 ## Building
 
 ```
-lake exe cache get
+lake exe cache get   # only if ../lake-packages/v4.33.1 does not exist yet
 lake build
 ```
 
 The Mathlib revision is pinned in `lake-manifest.json`; `lake exe cache get` fetches
 the matching precompiled oleans. Do **not** run `lake update`: it re-resolves the
-dependencies and makes the build non-reproducible.
+dependencies and makes the build non-reproducible. Run `lake` from inside this folder,
+since `elan` reads `lean-toolchain` from the working directory.
 
 Both libraries pass the Mathlib style linter, which checks among other things that
 every declaration is documented and that no hypothesis goes unused:
