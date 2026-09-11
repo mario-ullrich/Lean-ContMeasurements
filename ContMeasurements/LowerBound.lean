@@ -51,8 +51,6 @@ forbids on the sphere of an `m`-dimensional space unless `2ⁿ - 1 ≥ m`.
 * `exists_norm_eq_and_le_norm_sub` — every algorithm using `n` measurements with
   `2ⁿ ≤ m` has error at least `R` somewhere on the sphere of radius `R`; the
   measurements are useless.
-
-The last three depend on `borsukUlam` and therefore on its `sorry`.
 -/
 
 namespace ContMeasurements
@@ -160,9 +158,7 @@ same information.
 
 Classical Borsuk–Ulam is the nonadaptive case and gives the threshold `m - 1`;
 adaptivity moves it to `log₂ m`, and by the recovery algorithm of `UpperBound.lean`
-no further.
-
-Depends on `borsukUlam`, hence on its `sorry`. -/
+no further. -/
 theorem exists_norm_eq_and_info_eq_info_neg {m n : ℕ} (hm : Module.finrank ℝ E = m)
     (S : AdaptiveScheme E) (hn : 2 ^ n ≤ m) {R : ℝ} (hR : 0 < R) :
     ∃ x : E, ‖x‖ = R ∧ S.info n x = S.info n (-x) := by
@@ -188,9 +184,7 @@ theorem exists_norm_eq_and_info_eq_info_neg {m n : ℕ} (hm : Module.finrank ℝ
 separate every antipodal pair of a sphere in a `d`-dimensional normed space satisfy
 `2ⁿ ≥ d + 1`, that is `n ≥ ⌈log₂(d+1)⌉`.
 
-Holds for **any** norm and any radius `R > 0`.
-
-Depends on `borsukUlam`, hence on its `sorry`. -/
+Holds for **any** norm and any radius `R > 0`. -/
 theorem AdaptiveScheme.DistinguishesAntipodes.finrank_add_one_le_two_pow {n : ℕ}
     (S : AdaptiveScheme E) {R : ℝ} (hR : 0 < R)
     (hdist : S.DistinguishesAntipodes n (Metric.sphere (0 : E) R)) :
@@ -205,9 +199,7 @@ algorithm built from `n` adaptive continuous measurements and an arbitrary
 reconstruction map `Φ` errs by at least `R` at some point of the sphere of radius `R`.
 
 In words: below `log₂(dim E)` measurements nothing at all can be achieved — the error
-is no better than that of the trivial algorithm returning the centre.
-
-Depends on `borsukUlam`, hence on its `sorry`. -/
+is no better than that of the trivial algorithm returning the centre. -/
 theorem exists_norm_eq_and_le_norm_sub {m n : ℕ} (hm : Module.finrank ℝ E = m)
     (S : AdaptiveScheme E) (hn : 2 ^ n ≤ m) {R : ℝ} (hR : 0 < R) (Φ : (Fin n → ℝ) → E) :
     ∃ x : E, ‖x‖ = R ∧ R ≤ ‖x - Φ (S.info n x)‖ := by

@@ -20,15 +20,11 @@ None of the statements in this library mentions measurements; each is about metr
 geometry, equivariant topology or the real line, and each is a candidate for Mathlib.
 They live in root namespaces, as a Mathlib contribution would.
 
-Keeping them apart has a second purpose: the development's **only** `sorry` — the
-Borsuk–Ulam theorem — lives here, so it is visibly a classical result imported from
-outside rather than a gap in the theory itself.
-
 ## Contents
 
-* `BasicResults.BorsukUlam` — the Borsuk–Ulam theorem in odd-map form (**the only
-  `sorry`**), and its transfer to the sphere of any radius in any finite-dimensional
-  real normed space.
+* `BasicResults.BorsukUlam` — the Borsuk–Ulam theorem in odd-map form, proved from
+  Tucker's lemma, and its transfer to the sphere of any radius in any
+  finite-dimensional real normed space.
 * `BasicResults.SplitCover` — split sets, covers by them, and the sign functions
   turning such a cover into a continuous odd map without zeros. This is the covering
   form of the Krasnosel'skiĭ genus.

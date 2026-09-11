@@ -23,12 +23,11 @@ and differ by one otherwise.
 * `ContMeasurements.minMeasurements` — the quantity `n*`.
 * `ContMeasurements.minMeasurements_le` — the upper bound. Proved unconditionally.
 * `ContMeasurements.finrank_add_one_le_two_pow_minMeasurements` — the lower bound in
-  counting form. Depends on `borsukUlam`, hence on its `sorry`.
+  counting form.
 * `ContMeasurements.clog_le_minMeasurements` — the lower bound, and
-  `ContMeasurements.clog_le_minMeasurements_and_le` the two bounds together. Depend
-  on the same `sorry`.
+  `ContMeasurements.clog_le_minMeasurements_and_le` the two bounds together.
 * `ContMeasurements.minMeasurements_eq_of_finrank_eq_two_pow` — equality in dimension
-  `2ᵏ`. Depends on the same `sorry`.
+  `2ᵏ`.
 -/
 
 namespace ContMeasurements
@@ -60,9 +59,7 @@ theorem minMeasurements_le {d : ℕ} (hd : Module.finrank ℝ E = d) (hd0 : 0 < 
   exact ⟨S, Φ, fun x _ => hSΦ x⟩
 
 /-- **The lower bound, in counting form.**  An algorithm accurate to within `ε < R` on
-the ball of radius `R` uses `n` measurements with `2ⁿ ≥ d + 1`.
-
-Depends on `borsukUlam`, hence on its `sorry`. -/
+the ball of radius `R` uses `n` measurements with `2ⁿ ≥ d + 1`. -/
 theorem finrank_add_one_le_two_pow_minMeasurements {d : ℕ} (hd : Module.finrank ℝ E = d)
     (hd0 : 0 < d) {R ε : ℝ} (hε : 0 < ε) (hεR : ε < R) :
     d + 1 ≤ 2 ^ minMeasurements E R ε := by
@@ -84,9 +81,7 @@ theorem finrank_add_one_le_two_pow_minMeasurements {d : ℕ} (hd : Module.finran
   have hle := hSΦ x hmem
   linarith
 
-/-- **The lower bound.**  At least `⌈log₂(d+1)⌉` measurements are needed.
-
-Depends on `borsukUlam`, hence on its `sorry`. -/
+/-- **The lower bound.**  At least `⌈log₂(d+1)⌉` measurements are needed. -/
 theorem clog_le_minMeasurements {d : ℕ} (hd : Module.finrank ℝ E = d) (hd0 : 0 < d)
     {R ε : ℝ} (hε : 0 < ε) (hεR : ε < R) :
     Nat.clog 2 (d + 1) ≤ minMeasurements E R ε :=
@@ -101,9 +96,7 @@ theorem clog_le_minMeasurements_and_le {d : ℕ} (hd : Module.finrank ℝ E = d)
       minMeasurements E R ε ≤ Nat.clog 2 d + 1 :=
   ⟨clog_le_minMeasurements hd hd0 hε hεR, minMeasurements_le hd hd0 R hε⟩
 
-/-- **In dimension a power of two the two bounds meet:** `n*(2ᵏ) = k + 1`.
-
-Depends on `borsukUlam`, hence on its `sorry`. -/
+/-- **In dimension a power of two the two bounds meet:** `n*(2ᵏ) = k + 1`. -/
 theorem minMeasurements_eq_of_finrank_eq_two_pow {k : ℕ} (hd : Module.finrank ℝ E = 2 ^ k)
     {R ε : ℝ} (hε : 0 < ε) (hεR : ε < R) : minMeasurements E R ε = k + 1 := by
   have hd0 : 0 < 2 ^ k := Nat.one_le_two_pow

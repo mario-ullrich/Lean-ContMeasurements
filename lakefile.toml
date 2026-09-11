@@ -15,8 +15,7 @@ version = "git#v4.33.1"
 
 # The general ingredients the theory consumes: Borsuk–Ulam, split covers, the halving
 # lemma, colored covers, the Lebesgue cover of R^m. Nothing here mentions measurements,
-# it uses root namespaces as a Mathlib contribution would, and the development's only
-# `sorry` lives in this library.
+# and it uses root namespaces as a Mathlib contribution would.
 [[lean_lib]]
 name = "BasicResults"
 
