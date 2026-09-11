@@ -21,6 +21,19 @@ lake-packages/
 *.out
 *.pdf
 
+# leanblueprint outputs (regenerated on every build)
+blueprint/print/
+blueprint/web/
+blueprint/src/print.aux
+blueprint/src/print.log
+blueprint/src/print.out
+blueprint/src/print.pdf
+blueprint/src/print.toc
+blueprint/src/web.aux
+blueprint/src/web.log
+blueprint/src/web.paux
+blueprint/src/web.pdf
+
 # Paper sources and working notes: not GitHub material
 refs/
 

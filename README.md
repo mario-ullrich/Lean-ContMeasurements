@@ -3,6 +3,10 @@
 A Lean 4 / Mathlib formalisation of the upper and lower bounds for **recovery from
 adaptively chosen continuous measurements**, in the noise-free setting.
 
+**Blueprint**: a human-readable account of the same mathematics, with every statement
+linked to the Lean declaration proving it, in `blueprint/`. Built locally with
+`leanblueprint`; see *Building the blueprint* below.
+
 ## The question
 
 You want to know a vector `x` of a `d`-dimensional real normed space, up to an error
@@ -181,6 +185,9 @@ lives in `ContMeasurements`.
 │   ├── LebesgueCover.lean      ← the m+1 color cover of ℝᵐ
 │   ├── Logistic.lean           ← the logistic function and the logit
 │   └── Tucker.lean             ← Tucker's lemma
+├── blueprint/
+│   ├── src/                    ← plastex config, LaTeX masters, content.tex
+│   └── scripts/                ← rewrites the Lean links into source permalinks
 ├── ContMeasurements.lean       ← entry point of the theory
 └── ContMeasurements/
     ├── Scheme.lean             ← the model: AdaptiveScheme, info, combinators
@@ -209,6 +216,21 @@ every declaration is documented and that no hypothesis goes unused:
 lake exe runLinter BasicResults
 lake exe runLinter ContMeasurements
 ```
+
+## Building the blueprint
+
+The blueprint follows the [leanblueprint](https://github.com/PatrickMassot/leanblueprint)
+convention. It needs `leanblueprint` with its plasTeX plugins, Graphviz, and a LaTeX
+installation:
+
+```
+leanblueprint pdf      # produces blueprint/print/print.pdf
+leanblueprint web      # produces blueprint/web/index.html and the dependency graph
+```
+
+Every `\lean{...}` tag names a declaration of this project; `leanblueprint checkdecls`
+verifies that they all resolve, once the `checkdecls` package is among the Lake
+dependencies.
 
 ## AI assistance
 

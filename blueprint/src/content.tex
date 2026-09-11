@@ -1,0 +1,1026 @@
+% !TEX root = print.tex
+
+\chapter{Setting and the model}
+\label{ch:model}
+
+Throughout, $E$ is a real normed space, finite-dimensional where a dimension is
+named, and $d = \dim E$. We write $S_R = \{x \in E : \|x\| = R\}$ for the sphere of
+radius $R$ and $B_R$ for the closed ball.
+
+A point $x \in E$ is to be recovered from $n$ real numbers, each of which may be
+chosen after the previous ones have been seen. Every single measurement is continuous
+in $x$; the rule choosing it from the observed values is arbitrary. The resulting
+information map is therefore in general discontinuous, which is what lets $n$ be
+exponentially smaller than $d$.
+
+Each statement below names the Lean declaration that formalises it. Every statement
+and every proof is formalised: the project compiles without \texttt{sorry}, so each
+result is verified by the Lean kernel.
+
+\begin{definition}[Adaptive scheme]
+\label{def:adaptive-scheme}
+\lean{ContMeasurements.AdaptiveScheme}
+\leanok
+An \emph{adaptive scheme} on a topological space $X$ is a family
+\[
+  \lambda_k^{(y)} : X \longrightarrow \mathbb{R},
+  \qquad k \in \mathbb{N}_0, \quad y \in \mathbb{R}^k,
+\]
+of continuous functionals, one for every number $k$ of values already observed and
+every such vector of values.
+\end{definition}
+
+The functional asked first is $\lambda_1 = \lambda_0^{()}$, and after observing the
+value $y$ the scheme continues with the family $\lambda_{k+1}^{(y, \cdot)}$; these are
+\texttt{first} and \texttt{tail} in the formalisation.
+
+\begin{definition}[Information map]
+\label{def:info}
+\lean{ContMeasurements.AdaptiveScheme.info}
+\leanok
+\uses{def:adaptive-scheme}
+For an adaptive scheme $S$ on $X$ and $n \in \mathbb{N}_0$, the \emph{information map}
+$N_n : X \to \mathbb{R}^n$ is defined by recursion on $n$: $N_0(x)$ is the empty
+tuple, and
+\[
+  N_{n+1}(x) = \bigl( \lambda_1(x), \, N_n'(x) \bigr),
+\]
+where $N_n'$ is the information map of the scheme that continues after the value
+$\lambda_1(x)$.
+\end{definition}
+
+An \emph{algorithm} is $\Phi \circ N_n$ with an arbitrary map
+$\Phi : \mathbb{R}^n \to X$. Errors are stated pointwise rather than through a
+supremum, which avoids side conditions and says the same thing.
+
+\begin{definition}[Distinguishing antipodes]
+\label{def:distinguishes-antipodes}
+\lean{ContMeasurements.AdaptiveScheme.DistinguishesAntipodes}
+\leanok
+\uses{def:info}
+A scheme $S$ \emph{distinguishes antipodes} on a set $K \subseteq X$ with $n$
+measurements if $N_n(x) \neq N_n(-x)$ for every $x \in K$.
+\end{definition}
+
+The scheme is built up from three combinators: transport along a continuous map, the
+scheme that repeats one fixed functional, and \texttt{branch}, which asks one
+functional and then continues with a scheme chosen arbitrarily from its value. The
+last is where adaptivity is created, and the bisection algorithm of
+Chapter~\ref{ch:bisection} is built from it.
+
+\chapter{Split covers}
+\label{ch:split}
+
+The lower bound rests on a covering notion that measures how far a set is from being
+antipodally symmetric.
+
+\begin{definition}[Split half, split cover]
+\label{def:split-cover}
+\lean{HasSplitCover, IsSplitHalf}
+\leanok
+A set $P \subseteq E$ is a \emph{split half} if it is closed and disjoint from $-P$;
+the associated \emph{split set} is $P \cup (-P)$. A set $K \subseteq E$
+\emph{has a split cover with $k$ sets}, written $\mathrm{SC}(K) \le k$, if there are
+split halves $P_1, \dots, P_k$ with
+\[
+  K \subseteq \bigcup_{i=1}^{k} \bigl( P_i \cup (-P_i) \bigr).
+\]
+\end{definition}
+
+On a split set a sign is available: $+$ on $P$ and $-$ on $-P$. The next lemma is the
+elementary engine of the lower bound; applied to the odd part
+$\delta(x) = \lambda(x) - \lambda(-x)$ of a measurement, it says that wherever a
+measurement separates an antipodal pair, one split set settles the matter.
+
+\begin{lemma}[One nonvanishing odd function]
+\label{lem:split-cover-odd}
+\lean{hasSplitCover_one_of_odd_ne_zero}
+\leanok
+\uses{def:split-cover}
+Let $W \subseteq E$ be closed and symmetric and let $\delta : E \to \mathbb{R}$ be
+continuous and odd with $\delta(x) \neq 0$ for every $x \in W$. Then
+$\mathrm{SC}(W) \le 1$.
+\end{lemma}
+\begin{proof}
+\leanok
+Take $P = W \cap \{\delta \ge 0\}$. It is closed, and disjoint from $-P$ because
+$\delta$ is odd and nonvanishing on $W$.
+\end{proof}
+
+\begin{lemma}[Disjoint pieces share their split sets]
+\label{lem:split-cover-union}
+\lean{HasSplitCover.biUnion_of_pairwise_disjoint}
+\leanok
+\uses{def:split-cover}
+Let $s$ be a finite index set and let $Z_j$, $j \in s$, be compact, symmetric and
+pairwise disjoint with $\mathrm{SC}(Z_j) \le h$ for every $j \in s$. Then
+$\mathrm{SC}\bigl( \bigcup_{j \in s} Z_j \bigr) \le h$.
+\end{lemma}
+\begin{proof}
+\leanok
+\uses{def:split-cover}
+Normalise the halves of each $Z_j$ to lie inside $Z_j$ and to be compact, then take
+the union over $j$ in each of the $h$ slots. Halves in different slots of different
+pieces stay disjoint from each other's reflections because the pieces are disjoint,
+compact and symmetric.
+\end{proof}
+
+\begin{lemma}[Fattening a split cover]
+\label{lem:split-cover-thickening}
+\lean{HasSplitCover.exists_cthickening}
+\leanok
+\uses{def:split-cover}
+Let $K \subseteq E$ be compact and symmetric with $\mathrm{SC}(K) \le k$. Then there
+is $r > 0$ with $\mathrm{SC}\bigl( \overline{K^r} \bigr) \le k$, where $K^r$ is the
+$r$-neighbourhood of $K$.
+\end{lemma}
+\begin{proof}
+\leanok
+The halves may be taken compact. A compact set and its reflection are disjoint and
+closed, so they stay disjoint after thickening by a small enough radius.
+\end{proof}
+
+The next proposition is what converts a covering count into a dimension bound, once
+Borsuk--Ulam is available.
+
+\begin{proposition}[A split cover gives an odd map without zeros]
+\label{prop:split-cover-odd-map}
+\lean{HasSplitCover.exists_odd_continuous_ne_zero}
+\leanok
+\uses{def:split-cover}
+If $\mathrm{SC}(K) \le k$, then there is a continuous odd map
+$\Psi : E \to \mathbb{R}^k$ with $\Psi(x) \neq 0$ for every $x \in K$.
+\end{proposition}
+\begin{proof}
+\leanok
+Put $\Psi_i(x) = \operatorname{dist}(x, -P_i) - \operatorname{dist}(x, P_i)$. Each
+$\Psi_i$ is continuous, and odd because reflection is an isometry. On the split set of
+$P_i$ it is nonzero, the two halves being closed and disjoint.
+\end{proof}
+
+\chapter{The halving lemma}
+\label{ch:halving}
+
+One real value costs a factor of two, and no more. This is the inductive step of the
+lower bound.
+
+\begin{lemma}[From a level set to a slab]
+\label{lem:split-cover-slab}
+\lean{HasSplitCover.exists_pos_inter_preimage_ball}
+\leanok
+\uses{def:split-cover, lem:split-cover-thickening}
+Let $Z \subseteq E$ be compact and symmetric, let $\mu : E \to \mathbb{R}$ be
+continuous and even on $Z$, and let $y \in \mathbb{R}$ with
+$\mathrm{SC}\bigl( Z \cap \mu^{-1}(y) \bigr) \le h$. Then there is $\rho > 0$ with
+$\mathrm{SC}\bigl( Z \cap \mu^{-1}(B(y, \rho)) \bigr) \le h$.
+\end{lemma}
+\begin{proof}
+\leanok
+\uses{lem:split-cover-thickening}
+Fatten the split cover of the level set to a closed neighbourhood of it. The points of
+$Z$ outside that neighbourhood form a compact set whose image under $\mu$ misses $y$,
+so their values are bounded away from $y$.
+\end{proof}
+
+\begin{theorem}[Halving lemma]
+\label{thm:halving}
+\lean{hasSplitCover_two_mul_of_forall_fiber}
+\leanok
+\uses{def:split-cover, lem:split-cover-slab, lem:split-cover-union}
+Let $Z \subseteq E$ be compact and symmetric and let $\mu : E \to \mathbb{R}$ be
+continuous and even on $Z$. If $\mathrm{SC}\bigl( Z \cap \mu^{-1}(y) \bigr) \le h$ for
+every $y \in \mathbb{R}$, then $\mathrm{SC}(Z) \le 2h$.
+\end{theorem}
+\begin{proof}
+\leanok
+\uses{lem:split-cover-slab, lem:split-cover-union}
+Every value has a ball of values whose slab is still covered by $h$ split sets
+(Lemma~\ref{lem:split-cover-slab}). A Lebesgue number for this cover of the compact
+set of attained values yields a partition of $\mathbb{R}$ into intervals of that
+length; the slabs over the odd-numbered intervals are pairwise disjoint, and so are
+those over the even-numbered ones. Lemma~\ref{lem:split-cover-union} covers each of
+the two families with $h$ split sets.
+\end{proof}
+
+Iterating the halving lemma over the $n$ measurements gives the covering proposition,
+which is the whole combinatorial content of the lower bound. Its proof uses no
+topology beyond compactness.
+
+\begin{proposition}[Covering proposition]
+\label{prop:covering}
+\lean{ContMeasurements.AdaptiveScheme.DistinguishesAntipodes.hasSplitCover}
+\leanok
+\uses{def:distinguishes-antipodes, def:split-cover, thm:halving, lem:split-cover-odd}
+Let $K \subseteq E$ be compact and symmetric. If a scheme distinguishes antipodes on
+$K$ with $n$ measurements, then $\mathrm{SC}(K) \le 2^n - 1$.
+\end{proposition}
+\begin{proof}
+\leanok
+\uses{thm:halving, lem:split-cover-odd}
+Induction on $n$. With no measurement, $K$ is empty. For the step, write $\mu$ for the
+even part and $\delta$ for the odd part of the first functional. Where $\delta \neq 0$,
+one split set suffices (Lemma~\ref{lem:split-cover-odd}). On each level set of $\mu$
+where $\delta = 0$, the first measurement gives the same value at $x$ and $-x$, so the
+remaining $n - 1$ measurements already distinguish antipodes there, and the inductive
+hypothesis covers it with $2^{n-1} - 1$ split sets. The halving lemma turns this into
+$2(2^{n-1} - 1)$ for all of $K$ minus the first piece, and
+$2(2^{n-1} - 1) + 1 = 2^n - 1$.
+\end{proof}
+
+\chapter{The Kuhn triangulation of an integer cube}
+\label{ch:grid}
+
+Mathlib contains neither Borsuk--Ulam nor Brouwer's fixed point theorem nor Sperner's
+lemma, so the theorem is proved here, combinatorially. The route is Tucker's lemma
+\cite{Tucker46} on the triangulation of the cube due to Freudenthal \cite{Freudenthal42}
+and Kuhn \cite{Kuhn60}. Describing a simplex by the order relation alone removes every
+pseudomanifold argument.
+
+\begin{definition}[Grid and boundary]
+\label{def:grid}
+\lean{GridSimplex.grid, GridSimplex.IsBoundary}
+\leanok
+For $n, N \in \mathbb{N}$ the \emph{grid} is
+$G = \{ v \in \mathbb{Z}^n : |v_i| \le N \text{ for every } i \}$, and $v \in G$ is a
+\emph{boundary point} if $v_c = N$ or $v_c = -N$ for some coordinate $c$.
+\end{definition}
+
+\begin{definition}[Labels]
+\label{def:label}
+\lean{GridSimplex.Label, GridSimplex.negLabel}
+\leanok
+A \emph{label} is a pair $(i, b)$ with $i$ a coordinate and $b \in \{+, -\}$. The
+\emph{opposite} label is $\operatorname{neg}(i, b) = (i, -b)$.
+\end{definition}
+
+\begin{definition}[Simplex]
+\label{def:simplex}
+\lean{GridSimplex.IsSimplex}
+\leanok
+\uses{def:grid}
+A finite set $s \subseteq G$ is a \emph{simplex} if it is nonempty, is a chain for the
+coordinatewise order, and satisfies $y_i - x_i \le 1$ for all $x, y \in s$ and every
+coordinate $i$.
+\end{definition}
+
+These are exactly the faces of the Kuhn triangulation; a top-dimensional one is a
+chain $v < v + e_{i_1} < v + e_{i_1} + e_{i_2} < \dots$.
+
+\begin{definition}[Signs and directions]
+\label{def:signs}
+\lean{GridSimplex.signs, GridSimplex.directions}
+\leanok
+\uses{def:label}
+The label $(i, +)$ is a \emph{sign} of $s$ if $x_i > 0$ for some $x \in s$, and
+$(i, -)$ is a sign of $s$ if $x_i < 0$ for some $x \in s$. The \emph{directions} of
+$s$ are the coordinates occurring in its signs.
+\end{definition}
+
+\begin{lemma}[A simplex lies in one closed orthant]
+\label{lem:orthant}
+\lean{GridSimplex.IsSimplex.not_mem_signs_negLabel}
+\leanok
+\uses{def:simplex, def:signs}
+For every simplex $s$ and every label $\ell$: if $\ell$ is a sign of $s$, then
+$\operatorname{neg} \ell$ is not.
+\end{lemma}
+\begin{proof}
+\leanok
+Two vertices with $x_i > 0 > y_i$ would differ by at least $2$ in the coordinate $i$.
+\end{proof}
+
+\begin{lemma}[As many signs as directions]
+\label{lem:card-signs}
+\lean{GridSimplex.IsSimplex.card_signs}
+\leanok
+\uses{lem:orthant}
+For every simplex $s$, the number of signs of $s$ equals the number of directions of
+$s$.
+\end{lemma}
+\begin{proof}
+\leanok
+\uses{lem:orthant}
+By Lemma~\ref{lem:orthant} the coordinate determines the label, so passing from signs
+to directions is injective.
+\end{proof}
+
+Measured from the least vertex $a$ of a simplex, every vertex $x$ is $a$ raised by one
+in the coordinates of its \emph{step set} $\{ i : a_i < x_i \}$; the \emph{rank} of
+$x$ is the size of that set. The rank is strictly increasing along the chain, which
+bounds the length of a simplex.
+
+\begin{lemma}[Length of a simplex]
+\label{lem:card-simplex}
+\lean{GridSimplex.IsSimplex.card_le_card_directions_succ}
+\leanok
+\uses{def:simplex, def:signs}
+Every simplex has at most one more vertex than it has directions.
+\end{lemma}
+\begin{proof}
+\leanok
+The rank relative to the least vertex is injective on the simplex and takes values
+between $0$ and the number of directions.
+\end{proof}
+
+Call a simplex \emph{saturated} if it has exactly one more vertex than its total step
+set has coordinates. Its ranks then run through every value from $0$ upwards.
+
+\begin{lemma}[Consecutive vertices of a saturated simplex]
+\label{lem:unit-step}
+\lean{GridSimplex.IsSimplex.exists_eq_add_single}
+\leanok
+\uses{lem:card-simplex}
+In a saturated simplex, two consecutive vertices $x < y$ satisfy $y = x + e_i$ for
+exactly one coordinate $i$.
+\end{lemma}
+\begin{proof}
+\leanok
+\uses{lem:card-simplex}
+Consecutive vertices have consecutive ranks, so the step set of the later one adds
+exactly one coordinate.
+\end{proof}
+
+The counting argument of Chapter~\ref{ch:tucker} runs over the ways of adding one
+vertex to a simplex without adding a sign outside a prescribed set of labels.
+
+\begin{definition}[Extensions]
+\label{def:extensions}
+\lean{GridSimplex.extensions}
+\leanok
+\uses{def:simplex, def:signs}
+For a simplex $s$ and a set $t$ of labels, the \emph{extensions} of $s$ within $t$ are
+the grid points $w \notin s$ such that $s \cup \{w\}$ is a simplex all of whose signs
+lie in $t$.
+\end{definition}
+
+\begin{definition}[Extremal simplex]
+\label{def:extremal}
+\lean{GridSimplex.IsExtremal}
+\leanok
+\uses{def:grid}
+A set $s$ of grid points is \emph{extremal} if some coordinate $c$ satisfies $z_c = N$
+for every $z \in s$, or $z_c = -N$ for every $z \in s$.
+\end{definition}
+
+A simplex can meet the boundary of the cube through a different coordinate at each
+vertex without being extremal; extremality is the stronger condition, and it is the
+one the counting needs.
+
+\begin{lemma}[No extension]
+\label{lem:extensions-empty}
+\lean{GridSimplex.extensions_eq_empty}
+\leanok
+\uses{def:extensions, lem:card-simplex}
+A simplex with one more vertex than it has directions has no extension within its own
+signs.
+\end{lemma}
+\begin{proof}
+\leanok
+\uses{lem:card-simplex}
+Such an extension would have two more vertices than directions.
+\end{proof}
+
+\begin{lemma}[One extension]
+\label{lem:extensions-one}
+\lean{GridSimplex.card_extensions_eq_one}
+\leanok
+\uses{def:extensions, lem:card-simplex, lem:orthant}
+Let $N \ge 1$, let $s$ be a simplex with one more vertex than it has directions, and
+let $\ell$ be a label such that neither $\ell$ nor $\operatorname{neg} \ell$ is a sign
+of $s$. Then $s$ has exactly one extension within $\{\ell\} \cup \operatorname{signs}(s)$.
+\end{lemma}
+\begin{proof}
+\leanok
+\uses{lem:card-simplex, lem:unit-step}
+The coordinate of $\ell$ vanishes on $s$, and a new vertex must be nonzero there, hence
+equal to $\pm 1$ there. It therefore sits above the greatest or below the least vertex
+of the chain, and by Lemma~\ref{lem:unit-step} at a single unit step from it. The sign
+of $\ell$ decides which end, and $N \ge 1$ keeps the point in the grid.
+\end{proof}
+
+\begin{lemma}[Two extensions]
+\label{lem:extensions-two}
+\lean{GridSimplex.card_extensions_eq_two}
+\leanok
+\uses{def:extensions, def:extremal, lem:card-simplex}
+A simplex with as many vertices as directions and without an extremal coordinate has
+exactly two extensions within its own signs.
+\end{lemma}
+\begin{proof}
+\leanok
+\uses{lem:unit-step, def:extremal}
+Either the total step set already spans all directions, and then the ranks miss a
+single value: the two vertices on either side of the gap differ by two unit steps, and
+the new vertex takes one of the two intermediate positions. Or one direction is
+constant on the simplex, and then the chain grows at either end in that coordinate;
+both points stay in the grid precisely because the coordinate is not extremal.
+\end{proof}
+
+\begin{lemma}[One extension at the boundary]
+\label{lem:extensions-one-extremal}
+\lean{GridSimplex.card_extensions_eq_one_of_isExtremal}
+\leanok
+\uses{def:extensions, def:extremal, lem:card-simplex}
+Let $N \ge 1$. A simplex with as many vertices as directions and with an extremal
+coordinate has exactly one extension within its own signs.
+\end{lemma}
+\begin{proof}
+\leanok
+\uses{lem:extensions-two}
+As in Lemma~\ref{lem:extensions-two} the two candidates lie at the two ends of the
+chain in the constant direction; the cube blocks the one that would leave the grid.
+\end{proof}
+
+\begin{lemma}[Reflection]
+\label{lem:simplex-neg}
+\lean{GridSimplex.IsSimplex.neg, GridSimplex.signs_neg, GridSimplex.directions_neg}
+\leanok
+\uses{def:simplex, def:signs}
+For every simplex $s$, the reflection $-s$ is a simplex, its signs are the opposites of
+the signs of $s$, and its directions are those of $s$.
+\end{lemma}
+\begin{proof}
+\leanok
+Reflection reverses the order and negates every coordinate.
+\end{proof}
+
+\chapter{Tucker's lemma}
+\label{ch:tucker}
+
+Tucker's lemma \cite{Tucker46} is the combinatorial form of the Borsuk--Ulam theorem.
+The proof is a parity argument over the simplices on which the labelling is, in the
+sense below, complete.
+
+\begin{definition}[Labels on a simplex, happy simplex]
+\label{def:happy}
+\lean{GridSimplex.labels, GridSimplex.IsHappy}
+\leanok
+\uses{def:simplex, def:signs}
+Let $\lambda$ assign a label to every grid point. The \emph{labels} of a set $s$ are
+the values of $\lambda$ on $s$. A simplex $s$ is \emph{happy} if every sign of $s$ is a
+label of $s$.
+\end{definition}
+
+\begin{definition}[Separating labelling]
+\label{def:separates}
+\lean{GridSimplex.Separates}
+\leanok
+\uses{def:simplex, def:label}
+A labelling $\lambda$ \emph{separates} if no simplex carries a pair of opposite labels,
+that is, $\lambda(x) \neq \operatorname{neg} \lambda(y)$ for all $x, y$ in a common
+simplex.
+\end{definition}
+
+Tucker's lemma asserts that a labelling antipodal on the boundary never separates.
+Everything up to the end of this chapter assumes that one does, and derives a
+contradiction.
+
+\begin{lemma}[The three shapes of a happy simplex]
+\label{lem:happy-shape}
+\lean{GridSimplex.IsHappy.shape}
+\leanok
+\uses{def:happy, lem:card-signs, lem:card-simplex}
+Let $s$ be happy and let $k$ be the number of its directions. Then $s$ has $k+1$
+vertices and $k+1$ labels, or $k+1$ vertices and $k$ labels, or $k$ vertices and $k$
+labels.
+\end{lemma}
+\begin{proof}
+\leanok
+\uses{lem:card-signs, lem:card-simplex}
+The signs of $s$ are among its labels, there are as many signs as directions
+(Lemma~\ref{lem:card-signs}), a set has at most as many labels as elements, and a
+simplex has at most one more vertex than directions (Lemma~\ref{lem:card-simplex}).
+\end{proof}
+
+\begin{definition}[Door, degree]
+\label{def:door}
+\lean{GridSimplex.IsDoor, GridSimplex.deg}
+\leanok
+\uses{def:happy}
+A happy simplex $\sigma$ is a \emph{door} of a happy simplex $\tau$ if $\sigma$ is
+$\tau$ with one vertex deleted and every sign of $\tau$ is a label of $\sigma$. The
+\emph{degree} of a happy simplex is the number of doors it has, counted from both
+sides: the happy simplices of which it is a door, plus its own doors.
+\end{definition}
+
+\begin{lemma}[Counting the doors twice]
+\label{lem:door-count}
+\lean{GridSimplex.sum_upDeg_eq_sum_downDeg}
+\leanok
+\uses{def:door}
+Summed over all happy simplices, the number of doors above equals the number of doors
+below.
+\end{lemma}
+\begin{proof}
+\leanok
+Both sums count the pairs $(\sigma, \tau)$ with $\sigma$ a door of $\tau$, in the two
+possible orders.
+\end{proof}
+
+\begin{lemma}[An even number of odd degrees]
+\label{lem:even-odd-degree}
+\lean{GridSimplex.even_card_odd_deg}
+\leanok
+\uses{def:door, lem:door-count}
+The number of happy simplices of odd degree is even.
+\end{lemma}
+\begin{proof}
+\leanok
+\uses{lem:door-count}
+By Lemma~\ref{lem:door-count} the total degree is twice the number of doors, hence
+even, and a sum of natural numbers is even exactly when an even number of its terms
+are odd.
+\end{proof}
+
+\begin{lemma}[A fixed-point-free involution]
+\label{lem:involution}
+\lean{Finset.even_card_of_involutive}
+\leanok
+A finite set carrying an involution without fixed points has an even number of
+elements.
+\end{lemma}
+\begin{proof}
+\leanok
+Induction on the cardinality: remove a point and its image, which are distinct.
+\end{proof}
+
+\begin{theorem}[Which happy simplices have odd degree]
+\label{thm:odd-degree}
+\lean{GridSimplex.odd_deg_iff}
+\leanok
+\uses{def:door, def:separates, def:extremal, lem:happy-shape, lem:extensions-empty,
+lem:extensions-one, lem:extensions-two, lem:extensions-one-extremal}
+Let $N \ge 1$ and let $\lambda$ separate. A happy simplex has odd degree if and only if
+it is the origin alone, or it has as many vertices as directions and an extremal
+coordinate.
+\end{theorem}
+\begin{proof}
+\leanok
+\uses{lem:happy-shape, lem:extensions-empty, lem:extensions-one, lem:extensions-two,
+lem:extensions-one-extremal}
+Take the three shapes of Lemma~\ref{lem:happy-shape} in turn. With $k+1$ vertices and
+$k+1$ labels, the labels are distinct and exceed the signs by exactly one label
+$\ell$; deleting the vertex carrying $\ell$ is the only door below, and since $\lambda$
+separates, $\operatorname{neg}\ell$ is not a sign either, so
+Lemma~\ref{lem:extensions-one} gives exactly one door above. The degree is $2$, except
+for the simplex $\{0\}$, which has no door below. With $k+1$ vertices and $k$ labels,
+the labels are the signs and exactly one label is repeated: the two vertices carrying
+it give two doors below, and Lemma~\ref{lem:extensions-empty} leaves none above. With
+$k$ vertices and $k$ labels, the labels are again the signs, so no vertex may be
+deleted, and Lemmas~\ref{lem:extensions-two} and~\ref{lem:extensions-one-extremal}
+give two doors above, or one when a coordinate is extremal.
+\end{proof}
+
+\begin{theorem}[Tucker's lemma]
+\label{thm:tucker}
+\lean{GridSimplex.tucker}
+\leanok
+\uses{def:grid, def:label, def:separates, thm:odd-degree, lem:even-odd-degree,
+lem:involution, lem:simplex-neg}
+Let $n \ge 0$ and $N \ge 1$, and let $\lambda$ assign a label to every point of the
+grid $G \subseteq \mathbb{Z}^n$ so that
+$\lambda(-v) = \operatorname{neg} \lambda(v)$ for every boundary point $v$. Then there
+are $u, w \in G$ with $u \le w$, with $w_i - u_i \le 1$ for every coordinate $i$, and
+with $\lambda(u) = \operatorname{neg} \lambda(w)$.
+\end{theorem}
+\begin{proof}
+\leanok
+\uses{thm:odd-degree, lem:even-odd-degree, lem:involution, lem:simplex-neg}
+Suppose not. Any two points of a simplex are comparable and differ by at most one in
+each coordinate, so $\lambda$ separates, and Theorem~\ref{thm:odd-degree} applies. The
+happy simplices of odd degree are then the origin alone together with the extremal
+ones. An extremal simplex has all its vertices on the boundary, so the labelling is
+antipodal there, and reflection maps the extremal happy simplices to themselves
+(Lemma~\ref{lem:simplex-neg}); it has no fixed point, since the extremal coordinate
+would have to take both values $N$ and $-N$. By Lemma~\ref{lem:involution} their number
+is even, so the number of happy simplices of odd degree is odd, contradicting
+Lemma~\ref{lem:even-odd-degree}.
+\end{proof}
+
+\chapter{The Borsuk--Ulam theorem}
+\label{ch:borsuk}
+
+The odd-map form of the Borsuk--Ulam theorem \cite{Borsuk33} states that a continuous
+odd map from $S^{m-1}$ into $\mathbb{R}^k$ with $k < m$ vanishes somewhere. It is
+reached from Tucker's lemma in three steps: the cube, the sphere of the sup norm, and
+the Euclidean sphere.
+
+In this chapter $\mathbb{R}^n$ carries the sup norm, so the closed unit ball is the
+cube $[-1, 1]^n$ and the unit sphere is its boundary.
+
+\begin{definition}[Label of a point]
+\label{def:max-label}
+\lean{CubeLabel.label, CubeLabel.maxIdx}
+\leanok
+\uses{def:label}
+For $y \in \mathbb{R}^n$ with $n \ge 1$, let $i(y)$ be the least coordinate with
+$|y_{i(y)}| = \|y\|$. The \emph{label} of $y$ is $\bigl( i(y), \operatorname{sign}
+y_{i(y)} \bigr)$.
+\end{definition}
+
+Taking the least such coordinate is what makes the labelling antipodal: reflection
+reverses every coordinate without moving the set of largest ones.
+
+\begin{lemma}[Reflection reverses the label]
+\label{lem:label-neg}
+\lean{CubeLabel.label_neg}
+\leanok
+\uses{def:max-label}
+For every $y \neq 0$, the label of $-y$ is the opposite of the label of $y$.
+\end{lemma}
+\begin{proof}
+\leanok
+The coordinates attaining the sup norm are the same for $y$ and $-y$, so the chosen
+coordinate is the same, and the sign there is reversed.
+\end{proof}
+
+\begin{theorem}[Borsuk's antipodal theorem for the cube]
+\label{thm:borsuk-cube}
+\lean{borsukUlam_cube}
+\leanok
+\uses{thm:tucker, def:max-label, lem:label-neg}
+Let $n \ge 1$ and let $g : \mathbb{R}^n \to \mathbb{R}^n$ be continuous on the cube
+$[-1, 1]^n$ and odd on its boundary. Then $g(x) = 0$ for some $x$ in the cube.
+\end{theorem}
+\begin{proof}
+\leanok
+\uses{thm:tucker, lem:label-neg}
+Suppose $g$ never vanishes on the cube. Then $\varepsilon = \min_{[-1,1]^n} \|g\| > 0$.
+Choose a mesh $1/N$ below the modulus of continuity of $g$ for $2\varepsilon$ and label
+each point $v$ of the grid $[-N, N]^n$ by the label of $g(v/N)$. On the boundary of the
+grid $\|v/N\| = 1$, so $g$ is odd there and the labelling is antipodal
+(Lemma~\ref{lem:label-neg}). Tucker's lemma gives two grid points $u, w$ with opposite
+labels and $\|u/N - w/N\| \le 1/N$. Their images then differ by at least $2\varepsilon$
+in one coordinate, although the points are closer than the mesh.
+\end{proof}
+
+The unit sphere of the sup norm in $\mathbb{R}^{n+1}$ is reached from the cube
+$[-1, 1]^n$ by adding the slack of the sup norm as a further coordinate and projecting
+radially.
+
+\begin{definition}[Lift and radial projection]
+\label{def:lift}
+\lean{CubeSphere.lift, CubeSphere.proj}
+\leanok
+For $x \in \mathbb{R}^n$ put $\operatorname{lift}(x) = (x, 1 - \|x\|) \in
+\mathbb{R}^{n+1}$ and
+$\operatorname{proj}(x) = \operatorname{lift}(x) / \|\operatorname{lift}(x)\|$.
+\end{definition}
+
+\begin{lemma}[The lift stays away from the origin]
+\label{lem:lift-pos}
+\lean{CubeSphere.half_le_norm_lift}
+\leanok
+\uses{def:lift}
+For every $x \in \mathbb{R}^n$, $\|\operatorname{lift}(x)\| \ge 1/2$.
+\end{lemma}
+\begin{proof}
+\leanok
+Either $\|x\| \ge 1/2$, and the lift is at least as long, or $\|x\| < 1/2$ and the last
+coordinate exceeds $1/2$.
+\end{proof}
+
+So $\operatorname{proj}$ is continuous on all of $\mathbb{R}^n$ and takes values in the
+unit sphere; on the boundary of the cube the slack vanishes, so it is odd there.
+
+\begin{theorem}[Borsuk--Ulam for the sup norm]
+\label{thm:borsuk-pi}
+\lean{borsukUlam_pi}
+\leanok
+\uses{thm:borsuk-cube, def:lift, lem:lift-pos}
+Let $k < m$ and let $f : \mathbb{R}^m \to \mathbb{R}^k$ be odd and continuous on the
+unit sphere of the sup norm. Then $f(x) = 0$ for some $x$ of that sphere.
+\end{theorem}
+\begin{proof}
+\leanok
+\uses{thm:borsuk-cube, lem:lift-pos}
+For $k = 0$ any point of the sphere will do. Otherwise write $m = n + 1$ with
+$n \ge k$, pad the values of $f$ with zeros to $n$ coordinates, and apply
+Theorem~\ref{thm:borsuk-cube} to the composition with $\operatorname{proj}$, which is
+continuous on the cube and odd on its boundary.
+\end{proof}
+
+\begin{theorem}[Borsuk--Ulam theorem]
+\label{thm:borsuk-ulam}
+\lean{borsukUlam}
+\leanok
+\uses{thm:borsuk-pi}
+Let $k < m$ and let $f : \mathbb{R}^m \to \mathbb{R}^k$ be odd and continuous on the
+Euclidean unit sphere. Then $f(x) = 0$ for some $x$ of that sphere.
+\end{theorem}
+\begin{proof}
+\leanok
+\uses{thm:borsuk-pi}
+The map $u \mapsto u / \|u\|_2$ sends the sphere of the sup norm to the Euclidean one,
+continuously and oddly. Compose and apply Theorem~\ref{thm:borsuk-pi}.
+\end{proof}
+
+The form the lower bound consumes drops both the Euclidean norm and the radius. No
+property of the norm is used beyond homogeneity, which is why the lower bound holds for
+any norm.
+
+\begin{corollary}[Borsuk--Ulam for an arbitrary norm and radius]
+\label{cor:borsuk-ulam-norm}
+\lean{Function.Odd.exists_norm_eq_and_eq_zero_of_lt_finrank}
+\leanok
+\uses{thm:borsuk-ulam}
+Let $E$ be a real normed space with $\dim E = m$, let $k < m$, let $R > 0$ and let
+$\Psi : E \to \mathbb{R}^k$ be continuous and odd. Then there is $x \in E$ with
+$\|x\| = R$ and $\Psi(x) = 0$.
+\end{corollary}
+\begin{proof}
+\leanok
+\uses{thm:borsuk-ulam}
+A linear homeomorphism carries the Euclidean unit sphere onto a compact symmetric set,
+and $u \mapsto (R / \|e(u)\|) \, e(u)$ sends that set onto the sphere of radius $R$,
+oddly and continuously.
+\end{proof}
+
+\chapter{The lower bound}
+\label{ch:lower}
+
+The lower bound is due to Ullrich \cite{U26}. Combining the covering proposition with
+Borsuk--Ulam turns a count of split sets into a bound on the dimension.
+
+\begin{theorem}[Antipodal coincidence]
+\label{thm:antipodal-coincidence}
+\lean{ContMeasurements.exists_norm_eq_and_info_eq_info_neg}
+\leanok
+\uses{def:info, prop:covering, prop:split-cover-odd-map, cor:borsuk-ulam-norm}
+Let $E$ be a real normed space with $\dim E = m$, let $S$ be an adaptive scheme on $E$,
+let $n \in \mathbb{N}_0$ with $2^n \le m$, and let $R > 0$. Then there is $x \in E$ with
+$\|x\| = R$ and $N_n(x) = N_n(-x)$.
+\end{theorem}
+\begin{proof}
+\leanok
+\uses{prop:covering, prop:split-cover-odd-map, cor:borsuk-ulam-norm}
+If not, the scheme distinguishes antipodes on the sphere of radius $R$, which is
+compact and symmetric, so Proposition~\ref{prop:covering} covers that sphere with
+$2^n - 1$ split sets. Proposition~\ref{prop:split-cover-odd-map} turns the cover into a
+continuous odd map into $\mathbb{R}^{2^n - 1}$ without zeros on the sphere. Since
+$2^n - 1 < m$, Corollary~\ref{cor:borsuk-ulam-norm} produces a zero of norm $R$.
+\end{proof}
+
+\begin{corollary}[Counting form]
+\label{cor:counting}
+\lean{ContMeasurements.AdaptiveScheme.DistinguishesAntipodes.finrank_add_one_le_two_pow}
+\leanok
+\uses{def:distinguishes-antipodes, thm:antipodal-coincidence}
+Let $E$ be a finite-dimensional real normed space, $R > 0$, and let a scheme
+distinguish antipodes on the sphere of radius $R$ with $n$ measurements. Then
+$\dim E + 1 \le 2^n$.
+\end{corollary}
+\begin{proof}
+\leanok
+\uses{thm:antipodal-coincidence}
+Otherwise $2^n \le \dim E$, and Theorem~\ref{thm:antipodal-coincidence} produces an
+antipodal pair on the sphere with the same information.
+\end{proof}
+
+\begin{corollary}[Below the threshold nothing is achieved]
+\label{cor:lower-error}
+\lean{ContMeasurements.exists_norm_eq_and_le_norm_sub}
+\leanok
+\uses{thm:antipodal-coincidence}
+Let $E$ be a real normed space with $\dim E = m$, let $S$ be an adaptive scheme on $E$,
+let $n \in \mathbb{N}_0$ with $2^n \le m$, let $R > 0$ and let
+$\Phi : \mathbb{R}^n \to E$ be arbitrary. Then there is $x \in E$ with $\|x\| = R$ and
+$R \le \|x - \Phi(N_n(x))\|$.
+\end{corollary}
+\begin{proof}
+\leanok
+\uses{thm:antipodal-coincidence}
+Take an antipodal pair with the same information. Both points receive the same output,
+and they are $2R$ apart, so one of them is at distance at least $R$ from it.
+\end{proof}
+
+\chapter{Coloured covers}
+\label{ch:colored}
+
+The upper bound is due to Krieg, Novak and Ullrich \cite{KNU26}. Its combinatorial
+input is a covering of the space by small pieces whose colours can be told apart
+cheaply.
+
+\begin{definition}[Coloured cover]
+\label{def:colored-cover}
+\lean{ColoredCover}
+\leanok
+A \emph{coloured cover} of a metric space $X$ with $K$ colours, diameter $\varepsilon$
+and separation $c$ consists of pieces $A_i$ covering $X$ and a colour
+$\kappa(i) \in \{1, \dots, K\}$ for each piece, such that
+$\operatorname{dist}(x, y) \le \varepsilon$ for all $x, y$ in one piece, and
+$\operatorname{dist}(x, y) \ge c$ whenever $x \in A_i$, $y \in A_j$ with $i \neq j$ and
+$\kappa(i) = \kappa(j)$.
+\end{definition}
+
+The \emph{colour class} of a colour is the union of the pieces carrying it. Within one
+colour class the pieces are $c$-separated, which is what makes a single measurement
+enough to name the piece.
+
+\begin{lemma}[Rescaling]
+\label{lem:scale}
+\lean{ColoredCover.scale}
+\leanok
+\uses{def:colored-cover}
+For every $s > 0$, a coloured cover with $K$ colours, diameter $\varepsilon$ and
+separation $c$ yields one with $K$ colours, diameter $s\varepsilon$ and separation
+$sc$.
+\end{lemma}
+\begin{proof}
+\leanok
+Replace each piece $A$ by $sA$.
+\end{proof}
+
+\begin{theorem}[The Lebesgue cover of $\mathbb{R}^m$]
+\label{thm:lebesgue-cover}
+\lean{ColoredCover.lebesgue}
+\leanok
+\uses{def:colored-cover}
+The space $\mathbb{R}^m$ with the maximum norm has a coloured cover with $m + 1$
+colours, diameter $3/2$ and a positive separation.
+\end{theorem}
+\begin{proof}
+\leanok
+The pieces are indexed by an integer point together with a subset of the coordinates,
+and are neighbourhoods of the faces of the integer grid; the colour is the size of the
+subset. Two distinct pieces of the same colour meet different faces of the same
+dimension and are therefore separated.
+\end{proof}
+
+The number $m + 1$ is the Lebesgue covering dimension bound and cannot be lowered.
+
+\begin{definition}[Logistic function and logit]
+\label{def:logistic}
+\lean{Real.logistic, Real.logit}
+\leanok
+The \emph{logistic function} is $\ell(s) = e^s / (1 + e^s)$ and the \emph{logit} is
+$\ell^{-1}(p) = \log\bigl( p / (1 - p) \bigr)$.
+\end{definition}
+
+The logistic function is a continuous injection $\mathbb{R} \to (0,1)$; it is what
+compresses a countable family of values into a bounded range in the identification
+measurement below.
+
+\chapter{Bisection and identification}
+\label{ch:bisection}
+
+Two ingredients turn a coloured cover into an algorithm: one measurement names the
+piece within a colour class, and $\lceil \log_2 K \rceil$ adaptive measurements find
+the colour.
+
+\begin{theorem}[The identification measurement]
+\label{thm:identification}
+\lean{ContMeasurements.exists_identification}
+\leanok
+\uses{def:colored-cover, def:logistic}
+Let $X$ be a nonempty metric space, let $cc$ be a coloured cover of $X$ with countable
+index set, diameter $\varepsilon$ and separation $c > 0$, and let $r$ be a colour.
+Then there are a continuous functional $\varphi : X \to \mathbb{R}$ and a map
+$\mathrm{dec} : \mathbb{Z} \to X$ such that for every $x$ in the closure of the colour
+class of $r$ there is $n \in \mathbb{Z}$ with $\varphi(x) = n$ and
+$\operatorname{dist}\bigl( x, \mathrm{dec}(n) \bigr) \le \varepsilon + c/8$.
+\end{theorem}
+\begin{proof}
+\leanok
+\uses{def:logistic}
+Enumerate the pieces of the colour class and attach to the $j$-th piece a collar
+function, supported in its $c/8$-neighbourhood and equal to $1$ on the piece. The
+functional is the sum of the collar functions weighted by the logit of an injective
+encoding of $j$; the weights make the sum locally finite and continuous, and its value
+on a point of the colour class names the piece.
+\end{proof}
+
+\begin{theorem}[Bisection over colours]
+\label{thm:bisection}
+\lean{ContMeasurements.exists_bisection_scheme}
+\leanok
+\uses{def:adaptive-scheme, def:info}
+Let $X$ be a nonempty metric space, let $A_1, \dots, A_{K}$ be sets, and suppose that
+for each $r$ there are a scheme of $\ell$ measurements and a reconstruction map that is
+$\eta$-accurate on $\overline{A_r}$. Then for every $L \in \mathbb{N}_0$ and every set
+$C$ of at most $2^L$ colours there are a scheme of $\ell + L$ measurements and a
+reconstruction map that is $\eta$-accurate on $\overline{\bigcup_{r \in C} A_r}$.
+\end{theorem}
+\begin{proof}
+\leanok
+\uses{def:adaptive-scheme}
+Induction on $L$. Split $C$ into two halves of at most $2^{L-1}$ colours, take the
+schemes the inductive hypothesis provides for each half, and put them together with the
+branch combinator, asking first a functional that separates the two halves.
+\end{proof}
+
+\chapter{The upper bound and the two bounds together}
+\label{ch:upper}
+
+\begin{theorem}[Upper bound]
+\label{thm:upper-bound}
+\lean{ContMeasurements.exists_recovery_scheme}
+\leanok
+\uses{def:adaptive-scheme, def:info, thm:lebesgue-cover, lem:scale, thm:identification,
+thm:bisection}
+Let $E$ be a real normed space with $\dim E = d \ge 1$ and let $\varepsilon > 0$. Then
+there are an adaptive scheme $S$ on $E$ and a map
+$\Phi : \mathbb{R}^{\lceil \log_2 d \rceil + 1} \to E$ with
+\[
+  \| x - \Phi( N_{\lceil \log_2 d \rceil + 1}(x) ) \| \le \varepsilon
+  \qquad \text{for every } x \in E .
+\]
+\end{theorem}
+\begin{proof}
+\leanok
+\uses{thm:lebesgue-cover, lem:scale, thm:identification, thm:bisection}
+In coordinates: rescale the Lebesgue cover of $\mathbb{R}^d$
+(Theorem~\ref{thm:lebesgue-cover}, Lemma~\ref{lem:scale}) to diameter below
+$\varepsilon$. One identification measurement is $\varepsilon$-accurate on each of the
+$d + 1$ colour classes (Theorem~\ref{thm:identification}), and
+$\lceil \log_2 (d+1) \rceil$ bisection measurements find the colour
+(Theorem~\ref{thm:bisection}), which is
+$\lceil \log_2 d \rceil + 1$ measurements in total. For a general norm, transport the
+coordinate algorithm along a linear homeomorphism and rescale the accuracy by the norm
+of its inverse.
+\end{proof}
+
+\begin{definition}[Measurement complexity]
+\label{def:min-measurements}
+\lean{ContMeasurements.minMeasurements}
+\leanok
+\uses{def:info}
+For a normed space $E$ and $R, \varepsilon > 0$, let $n^*(E, R, \varepsilon)$ be the
+least $n$ for which there are an adaptive scheme $S$ on $E$ and a map
+$\Phi : \mathbb{R}^n \to E$ with
+$\|x - \Phi(N_n(x))\| \le \varepsilon$ for every $x$ of the closed ball of radius $R$.
+\end{definition}
+
+\begin{corollary}[The two bounds]
+\label{cor:sandwich}
+\lean{ContMeasurements.clog_le_minMeasurements_and_le,
+ContMeasurements.finrank_add_one_le_two_pow_minMeasurements}
+\leanok
+\uses{def:min-measurements, thm:upper-bound, cor:lower-error}
+Let $E$ be a finite-dimensional real normed space with $\dim E = d \ge 1$ and let
+$0 < \varepsilon < R$. Then $d + 1 \le 2^{\,n^*(E, R, \varepsilon)}$ and
+\[
+  \lceil \log_2 (d+1) \rceil \;\le\; n^*(E, R, \varepsilon)
+  \;\le\; \lceil \log_2 d \rceil + 1 .
+\]
+\end{corollary}
+\begin{proof}
+\leanok
+\uses{thm:upper-bound, cor:lower-error}
+The upper bound is Theorem~\ref{thm:upper-bound}. For the lower bound, an algorithm
+accurate to within $\varepsilon < R$ on the ball of radius $R$ cannot err by $R$ on the
+sphere of radius $R$, so Corollary~\ref{cor:lower-error} forbids
+$2^{n} \le d$.
+\end{proof}
+
+\begin{corollary}[Equality in dimension a power of two]
+\label{cor:power-of-two}
+\lean{ContMeasurements.minMeasurements_eq_of_finrank_eq_two_pow}
+\leanok
+\uses{cor:sandwich}
+Let $E$ be a real normed space with $\dim E = 2^k$ and let $0 < \varepsilon < R$. Then
+$n^*(E, R, \varepsilon) = k + 1$.
+\end{corollary}
+\begin{proof}
+\leanok
+\uses{cor:sandwich}
+Both bounds of Corollary~\ref{cor:sandwich} equal $k + 1$.
+\end{proof}
+
+The two bounds meet when $d$ is a power of two and differ by one otherwise.
+
+\bpbibheading
+\begin{thebibliography}{99}
+
+\bibitem{Borsuk33}
+K.~Borsuk,
+\emph{Drei S\"atze \"uber die $n$-dimensionale euklidische Sph\"are},
+Fund.\ Math.\ \textbf{20} (1933), 177--190.
+
+\bibitem{Freudenthal42}
+H.~Freudenthal,
+\emph{Simplizialzerlegungen von beschr\"ankter Flachheit},
+Ann.\ of Math.\ (2) \textbf{43} (1942), 580--582.
+
+\bibitem{KNU26}
+D.~Krieg, E.~Novak, M.~Ullrich,
+\emph{How many questions do you need to find a vector?},
+preprint, 2026.
+
+\bibitem{Kuhn60}
+H.~W.~Kuhn,
+\emph{Some combinatorial lemmas in topology},
+IBM J.\ Res.\ Develop.\ \textbf{4} (1960), 518--524.
+
+\bibitem{Tucker46}
+A.~W.~Tucker,
+\emph{Some topological properties of disk and sphere},
+in: Proc.\ First Canadian Math.\ Congress (Montreal, 1945),
+University of Toronto Press, 1946, 285--309.
+
+\bibitem{U26}
+M.~Ullrich,
+\emph{Optimal learning based on adaptive continuous measurements},
+preprint, 2026.
+
+\end{thebibliography}
