@@ -21,6 +21,9 @@ lake-packages/
 *.out
 *.pdf
 
+# Paper sources and working notes: not GitHub material
+refs/
+
 # Editor / OS clutter
 .DS_Store
 .vscode/

@@ -24,15 +24,15 @@ reason the classical obstruction disappears is that the information map
 `x ↦ (λ₁(x), …, λₙ(x))` of an adaptive scheme is in general **discontinuous**, so
 Borsuk–Ulam does not apply to it.
 
-The formalisation follows two papers, whose sources are in [`refs/`](refs/):
+The formalisation follows two papers:
 
 * the upper bound: D. Krieg, E. Novak, M. Ullrich, *How many questions do you need to
-  find a vector?* (`refs/2026-06-18-main.tex`);
+  find a vector?*;
 * the lower bound: M. Ullrich, *Optimal learning based on adaptive continuous
-  measurements* (`refs/Continuous-lower.tex`).
+  measurements*.
 
-`refs/paper-current.tex` is the companion paper on **noisy** measurements; it is not
-formalised here.
+A companion paper treats **noisy** measurements, where entropy numbers govern the
+answer; that setting is left for later.
 
 ## The model
 
@@ -118,12 +118,21 @@ beyond `propext`, `Classical.choice` and `Quot.sound`.
 The two bounds meet when `d` is a power of two and differ by one otherwise. For
 `d = 2` and `d = 4`, for instance, they pin `n*` down exactly at `2` and `3`.
 
+## One note on provenance
+
+The Borsuk–Ulam development — `GridSimplex.lean`, `Tucker.lean`, `BorsukUlam.lean` — was
+produced with substantial AI assistance, and I have checked the statements rather than
+the proof scripts line by line; what guarantees them is the kernel check. The argument
+is the classical one: Tucker's lemma by a parity count over the Kuhn triangulation of
+the integer cube, then Borsuk's antipodal theorem for the cube by uniform continuity,
+then the sphere.
+
 ## What is left to do
 
 * The Banach-space extension of the lower bound: `eₙᶜᵒⁿᵗ(F, Y) ≥ b_{2ⁿ-1}(F, Y)` in
   terms of Bernstein widths (Section 5 of the lower-bound paper). The proof is local —
   it uses only one sphere inside `F` — so the machinery here already covers it.
-* The **noisy** setting of `refs/paper-current.tex`, where the answer is governed by
+* The **noisy** setting of the companion paper, where the answer is governed by
   entropy numbers instead.
 * The Lipschitz variant: all functionals used here are `1`-Lipschitz except the
   identification measurement; the paper's Lipschitz version costs one more
@@ -173,14 +182,13 @@ lives in `ContMeasurements`.
 │   ├── Logistic.lean           ← the logistic function and the logit
 │   └── Tucker.lean             ← Tucker's lemma
 ├── ContMeasurements.lean       ← entry point of the theory
-├── ContMeasurements/
-│   ├── Scheme.lean             ← the model: AdaptiveScheme, info, combinators
-│   ├── LowerBound.lean         ← 2ⁿ ≥ d+1; antipodal coincidence; error ≥ R
-│   ├── Bisection.lean          ← finding a color by bisection
-│   ├── Identification.lean     ← naming a piece with one measurement
-│   ├── UpperBound.lean         ← ⌈log₂ d⌉ + 1 measurements suffice
-│   └── Complexity.lean         ← the minimal number n* and the sandwich
-└── refs/                       ← the two papers, plus the noisy companion
+└── ContMeasurements/
+    ├── Scheme.lean             ← the model: AdaptiveScheme, info, combinators
+    ├── LowerBound.lean         ← 2ⁿ ≥ d+1; antipodal coincidence; error ≥ R
+    ├── Bisection.lean          ← finding a color by bisection
+    ├── Identification.lean     ← naming a piece with one measurement
+    ├── UpperBound.lean         ← ⌈log₂ d⌉ + 1 measurements suffice
+    └── Complexity.lean         ← the minimal number n* and the sandwich
 ```
 
 ## Building
