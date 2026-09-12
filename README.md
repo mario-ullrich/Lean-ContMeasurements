@@ -161,14 +161,14 @@ statement with the conclusion first and the hypotheses after `of_`.
 ├── lake-manifest.json          ← the pinned Mathlib revision
 ├── BasicResults.lean           ← entry point of the general library
 ├── BasicResults/
-│   ├── BorsukUlam.lean         ← Borsuk–Ulam, from Tucker's lemma, + transfer
 │   ├── SplitCover.lean         ← split sets, split covers, odd maps
 │   ├── Halving.lean            ← level sets → slabs → the halving lemma
-│   ├── ColoredCover.lean       ← colored covers and rescaling
 │   ├── GridSimplex.lean        ← the Kuhn triangulation of an integer cube
+│   ├── Tucker.lean             ← Tucker's lemma
+│   ├── BorsukUlam.lean         ← Borsuk–Ulam, from Tucker's lemma, + transfer
+│   ├── ColoredCover.lean       ← colored covers and rescaling
 │   ├── LebesgueCover.lean      ← the m+1 color cover of ℝᵐ
-│   ├── Logistic.lean           ← the logistic function and the logit
-│   └── Tucker.lean             ← Tucker's lemma
+│   └── Logistic.lean           ← the logistic function and the logit
 ├── blueprint/
 │   ├── src/                    ← plastex config, LaTeX masters, content.tex
 │   └── scripts/                ← rewrites the Lean links into source permalinks

@@ -27,9 +27,9 @@ measurement `λ₁` into its odd and its even part:
   (`hasSplitCover_one_of_odd_ne_zero`).
 * On the coincidence set `Z = δ⁻¹{0}` the measurement is **even**, so it says nothing
   about the antipodal question; all it does is sort the points into level sets.  On
-  each level set the remaining `n-1` measurements still separate antipodes — crucially,
-  every point of one level set faces the *same* next functional, so adaptivity is
-  disarmed — and the induction hypothesis applies.  The halving lemma
+  each level set the remaining `n-1` measurements still separate antipodes, and the
+  induction hypothesis applies: every point of one level set faces the *same* next
+  functional, so adaptivity is disarmed.  The halving lemma
   (`hasSplitCover_two_mul_of_forall_fiber`) then pays a factor of `2` to pass from
   the level sets to `Z` itself.
 
@@ -152,8 +152,8 @@ theorem AdaptiveScheme.DistinguishesAntipodes.hasSplitCover (n : ℕ)
 variable [FiniteDimensional ℝ E]
 
 /-- **Borsuk–Ulam for adaptive measurements.**  If `2ⁿ ≤ m = dim E`, then no matter how
-the `n` continuous measurements are chosen — adaptively and with no regularity in the
-observed values — some antipodal pair on the sphere of radius `R` produces exactly the
+the `n` continuous measurements are chosen, adaptively and with no regularity in the
+observed values, some antipodal pair on the sphere of radius `R` produces exactly the
 same information.
 
 Classical Borsuk–Ulam is the nonadaptive case and gives the threshold `m - 1`;
@@ -198,8 +198,8 @@ theorem AdaptiveScheme.DistinguishesAntipodes.finrank_add_one_le_two_pow {n : �
 algorithm built from `n` adaptive continuous measurements and an arbitrary
 reconstruction map `Φ` errs by at least `R` at some point of the sphere of radius `R`.
 
-In words: below `log₂(dim E)` measurements nothing at all can be achieved — the error
-is no better than that of the trivial algorithm returning the centre. -/
+In words: below `log₂(dim E)` measurements nothing at all can be achieved, since the
+error is no better than that of the trivial algorithm returning the centre. -/
 theorem exists_norm_eq_and_le_norm_sub {m n : ℕ} (hm : Module.finrank ℝ E = m)
     (S : AdaptiveScheme E) (hn : 2 ^ n ≤ m) {R : ℝ} (hR : 0 < R) (Φ : (Fin n → ℝ) → E) :
     ∃ x : E, ‖x‖ = R ∧ R ≤ ‖x - Φ (S.info n x)‖ := by

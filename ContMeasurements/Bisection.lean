@@ -11,8 +11,8 @@ import Mathlib.Topology.MetricSpace.HausdorffDistance
 
 The general engine of the recovery algorithm.  Suppose the input space is covered by
 the closures of finitely many sets `A r`, `r` ranging over a finite set `C` of
-"colors", and suppose that for each color there is already an algorithm — a scheme
-of `ℓ` measurements and a reconstruction map — that is accurate on `closure (A r)`.
+"colors", and suppose that for each color there is already an algorithm (a scheme of
+`ℓ` measurements and a reconstruction map) that is accurate on `closure (A r)`.
 Then `⌈log₂ |C|⌉` further measurements suffice to find a correct color, so
 `ℓ + ⌈log₂ |C|⌉` measurements are accurate on the whole union.
 
@@ -25,7 +25,7 @@ functional is continuous (indeed `1`-Lipschitz), yet the decision it feeds is
 discrete, and the choice of the next functional depends on it.  That is precisely
 the adaptivity the model allows and the lower bound has to fight.
 
-The recursion halves `|C|`, so it terminates after `⌈log₂ |C|⌉` steps — this is the
+The recursion halves `|C|`, so it terminates after `⌈log₂ |C|⌉` steps. That is the
 `2ᴸ` in the statement below, and the source of the logarithm in the upper bound.
 
 ## Main result

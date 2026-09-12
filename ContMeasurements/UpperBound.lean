@@ -14,7 +14,7 @@ import Mathlib.Data.Nat.Log
 # The upper bound
 
 `⌈log₂ d⌉ + 1` adaptively chosen continuous measurements recover every vector of a
-`d`-dimensional real normed space to within any prescribed accuracy — exponentially
+`d`-dimensional real normed space to within any prescribed accuracy, exponentially
 fewer than the `d` measurements that linear (or nonadaptive continuous) information
 needs.
 

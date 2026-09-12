@@ -20,8 +20,8 @@ Concretely, write `Aᵢ` for the pieces of the cover, number those of color `r` 
 natural numbers `e i` (possible because the index set is countable) and set
 `λ(x) = Σᶠ i  (e i + 1) · φ(dist(x, Aᵢ))`,
 where `φ` is a continuous collar function that equals `1` up to distance `c/8` and
-vanishes from distance `c/4` on.  Near any point at most one summand is nonzero — two
-would put two pieces of the same color closer than `c` — so the sum is locally finite
+vanishes from distance `c/4` on.  Near any point at most one summand is nonzero, since
+two would put two pieces of the same color closer than `c`, so the sum is locally finite
 and hence continuous, and its value at a point within `c/8` of the piece `i` is
 exactly `e i + 1`.
 

@@ -26,7 +26,7 @@ positive half alone:
 
 `HasSplitCover K k` says that `K` is covered by `k` such split sets.  This is the
 covering form of the Krasnosel'skiĭ genus, and it is the quantity that one adaptive
-continuous measurement can at most double (plus one) — see `Halving.lean` and
+continuous measurement can at most double (plus one); see `Halving.lean` and
 `LowerBound.lean`.
 
 ## Main results
@@ -121,7 +121,7 @@ theorem exists_isCompact_halves {K : Set E} {k : ℕ} (hK : IsCompact K)
 /-- **Pairwise disjoint pieces share their split sets.**
 
 If compact symmetric sets `Z j` are pairwise disjoint and each is covered by `h`
-split sets, then their union is covered by `h` split sets — not by `h` times the
+split sets, then their union is covered by `h` split sets, not by `h` times the
 number of pieces.  The `i`-th split set of the union is the union of the `i`-th split
 sets of the pieces; it is again split because a point and its reflection lie in the
 same piece.

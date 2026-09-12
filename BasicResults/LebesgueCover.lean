@@ -30,7 +30,7 @@ both of them is close to a face of dimension `k - 1`: it would then lie in the
 `δ_{k-1}`-neighbourhood of `F_{k-1}`, which `C_k` has removed.  Making this precise is
 `LebesgueCover.exists_int_abs_sub_le_of_ne`, the geometric heart of the file.
 
-The number `m + 1` of colors cannot be lowered — that is the Lebesgue covering
+The number `m + 1` of colors cannot be lowered: it is the Lebesgue covering
 dimension of `ℝᵐ`.  The recovery algorithm therefore spends `⌈log₂(m+1)⌉` measurements
 on the bisection over colors; the extra coordinate trick of `UpperBound.lean` is what
 brings the total down to `⌈log₂ m⌉ + 1`.
@@ -152,7 +152,7 @@ theorem two_mul_radius_zero_add_sep_lt (m : ℕ) :
 If a point `x` is close to two *distinct* faces of the same dimension `k`, then one of
 the directions `i₀` spanned by the first face carries an integer very near `x i₀`.
 Replacing that coordinate of the first face by the integer produces a point of the
-`(k-1)`-skeleton just as close to `x` — which is what the construction of the pieces
+`(k-1)`-skeleton just as close to `x`, which is what the construction of the pieces
 has excluded.
 
 The bound `δ + δ' < 1` is what makes the argument work: two lattice points that differ
@@ -295,7 +295,7 @@ theorem dist_le_of_mem_piece (i : Index m) {x y : Fin m → ℝ}
 
 If they were closer, the point `x` would be within `δ_{k-1}` of the two faces at once,
 and replacing one coordinate of the first face by the nearby integer would produce a
-point of the `(k-1)`-skeleton just as close — but the piece of `x` was built by
+point of the `(k-1)`-skeleton just as close, but the piece of `x` was built by
 *removing* the `δ_{k-1}`-neighbourhood of that skeleton. -/
 theorem sep_le_dist_of_ne (i j : Index m) (hij : i ≠ j)
     (hcard : i.2.card = j.2.card) {x y : Fin m → ℝ}

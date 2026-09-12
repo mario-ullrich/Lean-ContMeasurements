@@ -114,8 +114,8 @@ def tail (S : AdaptiveScheme X) (y : ℝ) : AdaptiveScheme X where
 `N x = (λ₁ x, λ₂^{(y₁)} x, …)`, each functional being selected by the values already
 produced.
 
-The recursion peels off the first measurement, so the scheme — not the point — is
-what changes in the recursive call. -/
+The recursion peels off the first measurement, so what changes in the recursive call
+is the scheme, not the point. -/
 def info : (n : ℕ) → AdaptiveScheme X → X → (Fin n → ℝ)
   | 0, _, _ => Fin.elim0
   | n + 1, S, x => Fin.cons (S.first x) (info n (S.tail (S.first x)) x)
