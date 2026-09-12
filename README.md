@@ -3,9 +3,13 @@
 A Lean 4 / Mathlib formalisation of the upper and lower bounds for **recovery from
 adaptively chosen continuous measurements**, in the noise-free setting.
 
+**Repository**: <https://github.com/mario-ullrich/Lean-ContMeasurements>
+
 **Blueprint**: a human-readable account of the same mathematics, with every statement
-linked to the Lean declaration proving it, in `blueprint/`. Built locally with
-`leanblueprint`; see *Building the blueprint* below.
+linked to the Lean declaration proving it, in `blueprint/`. GitHub Actions builds it on
+every push and offers it under *Actions → latest run → blueprint-YYYYMMDD*, which
+contains the PDF and the web pages; see *Building the blueprint* below for building it
+by hand. Once the repository is public, the same pages are deployed to GitHub Pages.
 
 ## The question
 
@@ -169,9 +173,10 @@ statement with the conclusion first and the hypotheses after `of_`.
 │   ├── ColoredCover.lean       ← colored covers and rescaling
 │   ├── LebesgueCover.lean      ← the m+1 color cover of ℝᵐ
 │   └── Logistic.lean           ← the logistic function and the logit
+├── .github/workflows/          ← CI: builds the project and the blueprint
 ├── blueprint/
 │   ├── src/                    ← plastex config, LaTeX masters, content.tex
-│   └── scripts/                ← rewrites the Lean links into source permalinks
+│   └── scripts/                ← check the Lean names, link them to their sources
 ├── ContMeasurements.lean       ← entry point of the theory
 └── ContMeasurements/
     ├── Scheme.lean             ← the model: AdaptiveScheme, info, combinators
