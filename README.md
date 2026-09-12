@@ -49,16 +49,10 @@ completely arbitrary, and that is exactly what "adaptive" means.
 The information map `S.info n x : Fin n → ℝ` evaluates the first `n` measurements in
 sequence. An algorithm is `Φ ∘ S.info n` with an arbitrary reconstruction map `Φ`.
 
-Three conventions:
-
-* **Indexing is 0-based**: `S.info n x 0` is the value of the first measurement.
-* Functionals are continuous on the whole space, whereas the papers only require
-  continuity on the set `F` of admissible inputs. For closed `F` this is no loss, by
-  the Tietze extension theorem, and it keeps the model free of a set parameter.
-* Errors are stated **pointwise**, not through a supremum: an upper bound reads
-  `∀ x, ‖x - Φ (S.info n x)‖ ≤ ε` and a lower bound
-  `∃ x, R ≤ ‖x - Φ (S.info n x)‖`. This avoids `sSup` side conditions and says the
-  same thing as the worst-case error.
+Three conventions are fixed in `ContMeasurements/Scheme.lean`, whose module docstring
+explains each: indexing is 0-based, functionals are continuous on the whole space rather
+than only on the admissible inputs, and errors are stated pointwise rather than through
+a supremum.
 
 ## What is formalised
 
@@ -122,15 +116,6 @@ beyond `propext`, `Classical.choice` and `Quot.sound`.
 The two bounds meet when `d` is a power of two and differ by one otherwise. For
 `d = 2` and `d = 4`, for instance, they pin `n*` down exactly at `2` and `3`.
 
-## One note on provenance
-
-The Borsuk–Ulam development (`GridSimplex.lean`, `Tucker.lean`, `BorsukUlam.lean`) was
-produced with substantial AI assistance, and I have checked the statements rather than
-the proof scripts line by line; what guarantees them is the kernel check. The argument
-is the classical one: Tucker's lemma by a parity count over the Kuhn triangulation of
-the integer cube, then Borsuk's antipodal theorem for the cube by uniform continuity,
-then the sphere.
-
 ## What is left to do
 
 * The Banach-space extension of the lower bound: `eₙᶜᵒⁿᵗ(F, Y) ≥ b_{2ⁿ-1}(F, Y)` in
@@ -161,14 +146,13 @@ then the sphere.
 ## Layout
 
 Two libraries. `BasicResults` holds the general mathematics the theory consumes:
-nothing there mentions measurements and every statement is a candidate for Mathlib.
-`ContMeasurements` holds the theory itself.
+nothing there mentions measurements, every statement is a candidate for Mathlib, and the
+results live in root namespaces as a Mathlib contribution would. `ContMeasurements`
+holds the theory itself.
 
 Names follow the Mathlib conventions: `UpperCamelCase` for types and Prop-valued
 definitions, `lowerCamelCase` for data, `snake_case` for theorems, spelled out of the
-statement with the conclusion first and the hypotheses after `of_`. The results of
-`BasicResults` live in root namespaces, as a Mathlib contribution would; the theory
-lives in `ContMeasurements`.
+statement with the conclusion first and the hypotheses after `of_`.
 
 ```
 .
@@ -241,6 +225,8 @@ dependencies.
 ## AI assistance
 
 The Lean proofs in this project were produced with AI assistance. What is checked by
-hand is the structure of the development and the statements of all definitions and
-results; the proofs themselves are guaranteed by the Lean kernel, with the single
-exception recorded above.
+hand is the structure of the development and the statements of all individual
+definitions and results; the proofs themselves are guaranteed by the Lean kernel.
+An exception is the Borsuk–Ulam development (`GridSimplex.lean`, `Tucker.lean`,
+`BorsukUlam.lean`) which was autonomously produced by AI, and was not (yet) checked by
+myself apart from the main theorem statement.
