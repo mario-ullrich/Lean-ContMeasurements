@@ -187,15 +187,10 @@ statement with the conclusion first and the hypotheses after `of_`.
     └── Complexity.lean         ← the minimal number n* and the sandwich
 ```
 
-The dependencies live **outside** the repository, in `../lake-packages/v4.33.1`, so that
-all projects of this workspace that pin the same toolchain share one built Mathlib. The
-`packagesDir` line of `lakefile.toml` says so, and the folder is named after the version
-it holds, which lets several Mathlib versions coexist.
-
 ## Building
 
 ```
-lake exe cache get   # only if ../lake-packages/v4.33.1 does not exist yet
+lake exe cache get
 lake build
 ```
 
