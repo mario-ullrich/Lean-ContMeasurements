@@ -1,15 +1,20 @@
-# Adaptive continuous measurements — Lean 4 / Mathlib formalisation
+# Complexity using adaptive continuous measurements in Lean 4 / Mathlib
 
-A Lean 4 / Mathlib formalisation of the upper and lower bounds for **recovery from
-adaptively chosen continuous measurements**, in the noise-free setting.
+A Lean 4 / Mathlib formalisation of matching upper and lower bounds for **recovery from
+adaptively chosen continuous measurements**, in the noise-free setting. Together they
+determine the minimal number of measurements up to one, and exactly when the dimension is a
+power of two. The project builds without `sorry`, and every theorem uses only the three
+axioms Mathlib relies on throughout (`propext`, `Classical.choice`, `Quot.sound`).
 
-**Repository**: <https://github.com/mario-ullrich/Lean-ContMeasurements>
+* **Blueprint** (the mathematics, with the Lean name at every statement):
+  <https://mario-ullrich.github.io/Lean-ContMeasurements/>
+* **Blueprint as PDF**:
+  <https://mario-ullrich.github.io/Lean-ContMeasurements/blueprint.pdf>
+* **Dependency graph**:
+  <https://mario-ullrich.github.io/Lean-ContMeasurements/dep_graph_document.html>
 
-**Blueprint**: a human-readable account of the same mathematics, with every statement
-linked to the Lean declaration proving it, in `blueprint/`. GitHub Actions builds it on
-every push and offers it under *Actions → latest run → blueprint-YYYYMMDD*, which
-contains the PDF and the web pages; see *Building the blueprint* below for building it
-by hand. Once the repository is public, the same pages are deployed to GitHub Pages.
+GitHub Pages serves these three once the repository is public. Until then the same site and
+PDF are downloadable from every run under *Actions* as the artifact `blueprint-YYYYMMDD`.
 
 ## The question
 
@@ -32,195 +37,130 @@ reason the classical obstruction disappears is that the information map
 `x ↦ (λ₁(x), …, λₙ(x))` of an adaptive scheme is in general **discontinuous**, so
 Borsuk–Ulam does not apply to it.
 
-The formalisation follows two papers:
-
-* the upper bound: D. Krieg, E. Novak, M. Ullrich, *How many continuous measurements
-  are needed to learn a vector?*, arXiv:2412.06468;
-* the lower bound: M. Ullrich, *Optimal learning based on adaptive continuous
-  measurements*.
-
-A companion paper treats **noisy** measurements, where entropy numbers govern the
-answer; that setting is left for later.
-
 ## The model
 
-An *adaptive scheme* (`ContMeasurements.AdaptiveScheme`) on a topological space `X`
-is a family of functionals `fct k y : X → ℝ`, one for each number `k` of values
-already observed and each vector `y : Fin k → ℝ` of those values. Every single
-functional is continuous **in the point being measured**; the dependence on `y` is
-completely arbitrary, and that is exactly what "adaptive" means.
+An *adaptive scheme* (`ContMeasurements.AdaptiveScheme`) on a topological space `X` is a
+family of functionals `fct k y : X → ℝ`, one for each number `k` of values already observed
+and each vector `y : Fin k → ℝ` of those values. Every single functional is continuous **in
+the point being measured**; the dependence on `y` is completely arbitrary, and that is
+exactly what "adaptive" means. The information map `S.info n x : Fin n → ℝ` evaluates the
+first `n` measurements in sequence, and an algorithm is `Φ ∘ S.info n` with an arbitrary
+reconstruction map `Φ`. The module docstring of `ContMeasurements/Scheme.lean` explains the
+three conventions the development fixes.
 
-The information map `S.info n x : Fin n → ℝ` evaluates the first `n` measurements in
-sequence. An algorithm is `Φ ∘ S.info n` with an arbitrary reconstruction map `Φ`.
+## Main results
 
-Three conventions are fixed in `ContMeasurements/Scheme.lean`, whose module docstring
-explains each: indexing is 0-based, functionals are continuous on the whole space rather
-than only on the admissible inputs, and errors are stated pointwise rather than through
-a supremum.
+Throughout, `E` is a finite-dimensional real normed space of dimension `d`, and `S` is an
+adaptive scheme on it. `Nat.clog 2 d` is Mathlib's `⌈log₂ d⌉`.
 
-## What is formalised
+* **Lower bound.** If `2ⁿ ≤ d`, then for every scheme and every radius `R > 0` some `x` with
+  `‖x‖ = R` satisfies `S.info n x = S.info n (-x)`: `n` measurements cannot tell an
+  antipodal pair apart (`exists_norm_eq_and_info_eq_info_neg`). Hence every reconstruction
+  `Φ` errs by at least `R` somewhere on that sphere (`exists_norm_eq_and_le_norm_sub`), and
+  a scheme that does distinguish antipodes needs `d + 1 ≤ 2ⁿ`
+  (`AdaptiveScheme.DistinguishesAntipodes.finrank_add_one_le_two_pow`).
+* **The covering proposition** carrying that bound: if `n` measurements separate antipodes
+  on a compact symmetric set, that set is covered by `2ⁿ - 1` split sets
+  (`AdaptiveScheme.DistinguishesAntipodes.hasSplitCover`), by way of the halving lemma
+  (`hasSplitCover_two_mul_of_forall_fiber`). The least such number is the covering form of
+  the Krasnosel'skii genus. This step uses no topology beyond compactness, and in particular
+  no Borsuk–Ulam.
+* **Borsuk–Ulam**, proved here rather than assumed, since Mathlib has neither it nor
+  Brouwer's fixed point theorem nor Sperner's lemma. Tucker's lemma on the triangulation of
+  the integer cube (`GridSimplex.tucker`) gives the antipodal theorem for the cube
+  (`borsukUlam_cube`), then the odd-map form on the Euclidean sphere (`borsukUlam`), and
+  finally the form the lower bound uses: for a continuous odd `Ψ : E → ℝᵏ` with `k < d` and
+  any `R > 0` there is an `x` with `‖x‖ = R` and `Ψ x = 0`
+  (`Function.Odd.exists_norm_eq_and_eq_zero_of_lt_finrank`).
+* **Upper bound.** For `d > 0` and every `ε > 0` there are a scheme and a reconstruction
+  with `‖x - Φ (S.info (⌈log₂ d⌉ + 1) x)‖ ≤ ε` for **every** `x`, with no bound on `‖x‖`
+  assumed (`exists_recovery_scheme`); the maximum norm on `ℝᵈ` is the case
+  `exists_recovery_scheme_pi`.
+* **The three ingredients of the upper bound.** A Lebesgue cover of `ℝᵐ` by `m + 1` colors,
+  with pieces of diameter at most `3/2` and pieces of one color at distance at least
+  `1/(4(m+2))` from each other (`ColoredCover.lebesgue`); one measurement that names a piece
+  of a given color by an integer value (`exists_identification`); and bisection, which joins
+  the schemes for at most `2^L` color classes into one for their union at the cost of `L`
+  further measurements (`exists_bisection_scheme`).
+* **Both bounds together.** `minMeasurements E R ε` is the least `n` admitting a scheme with
+  error at most `ε` on the ball of radius `R`. For `d > 0` and `0 < ε < R`,
 
-Everything below is proved unconditionally: the project has no `sorry` and no axiom
-beyond `propext`, `Classical.choice` and `Quot.sound`.
+  ```
+  ⌈log₂(d+1)⌉ ≤ minMeasurements E R ε ≤ ⌈log₂ d⌉ + 1
+  ```
 
-### The model
+  (`clog_le_minMeasurements_and_le`, whose halves are `clog_le_minMeasurements` and
+  `minMeasurements_le`; the counting form of the lower half is
+  `finrank_add_one_le_two_pow_minMeasurements`). The upper half needs only `ε > 0`. The two
+  bounds meet when `d` is a power of two, where `minMeasurements E R ε = k + 1` for
+  `d = 2ᵏ` (`minMeasurements_eq_of_finrank_eq_two_pow`), and differ by one otherwise. For
+  `d = 2` and `d = 4`, for instance, they pin the answer down at `2` and `3`.
 
-| Result | Status |
-|---|---|
-| `AdaptiveScheme`, `first`, `tail`, `info` | ✅ defined |
-| Combinators `comap`, `const`, `branch` and their `info` lemmas | ✅ proved |
-| `DistinguishesAntipodes` | ✅ defined |
-
-### The lower bound
-
-| Result | Status |
-|---|---|
-| Split sets and `HasSplitCover`; monotonicity, padding, unions | ✅ proved |
-| A closed symmetric set with a nonvanishing odd function is one split set (`hasSplitCover_one_of_odd_ne_zero`) | ✅ proved |
-| Disjoint compact symmetric pieces **share** their split sets (`HasSplitCover.biUnion_of_pairwise_disjoint`) | ✅ proved |
-| Fattening a split cover to a neighbourhood (`HasSplitCover.exists_cthickening`) | ✅ proved |
-| A split cover gives a continuous odd map into `ℝᵏ` without zeros (`HasSplitCover.exists_odd_continuous_ne_zero`) | ✅ proved |
-| Level set to slab (`HasSplitCover.exists_pos_inter_preimage_ball`) | ✅ proved |
-| **Halving lemma**: level sets covered by `h` split sets ⟹ the set by `2h` (`hasSplitCover_two_mul_of_forall_fiber`) | ✅ proved |
-| **Covering proposition**: `n` measurements separating antipodes ⟹ a cover by `2ⁿ - 1` split sets (`AdaptiveScheme.DistinguishesAntipodes.hasSplitCover`) | ✅ proved |
-| Kuhn triangulation of the integer cube: signs, directions, extensions (`GridSimplex`) | ✅ proved |
-| **Tucker's lemma**: a labelling antipodal on the boundary gives one simplex two opposite labels (`GridSimplex.tucker`) | ✅ proved |
-| **Borsuk's antipodal theorem for the cube** (`borsukUlam_cube`) | ✅ proved |
-| **Borsuk–Ulam**, odd-map form (`borsukUlam`) | ✅ proved |
-| Borsuk–Ulam for any norm and radius (`Function.Odd.exists_norm_eq_and_eq_zero_of_lt_finrank`) | ✅ proved |
-| Antipodal coincidence: `2ⁿ ≤ d` ⟹ some antipodal pair is indistinguishable (`exists_norm_eq_and_info_eq_info_neg`) | ✅ proved |
-| Counting form `2ⁿ ≥ d + 1` (`AdaptiveScheme.DistinguishesAntipodes.finrank_add_one_le_two_pow`) | ✅ proved |
-| Error `≥ R` on the sphere of radius `R` when `2ⁿ ≤ d` (`exists_norm_eq_and_le_norm_sub`) | ✅ proved |
-
-### The upper bound
-
-| Result | Status |
-|---|---|
-| `ColoredCover`, color classes, rescaling (`ColoredCover.scale`) | ✅ defined and proved |
-| **Bisection**: `⌈log₂ N⌉` measurements find the color among `N` (`exists_bisection_scheme`) | ✅ proved |
-| Collar function, locally finite terms, the identification functional (`identify`) | ✅ proved |
-| **Identification**: one measurement names the piece, with an integer value (`exists_identification`) | ✅ proved |
-| A continuous injection `ℝ → (0,1)` and its inverse (`Real.logistic`, `Real.logit`) | ✅ proved |
-| Skeleta, faces, and the geometric separation lemma (`LebesgueCover.exists_int_abs_sub_le_of_ne`) | ✅ proved |
-| **Lebesgue cover**: `ℝᵐ` covered with `m + 1` colors, pieces of diameter `≤ 3/2`, separation `1/(4(m+2))` (`ColoredCover.lebesgue`) | ✅ proved |
-| **Upper bound in `ℝᵈ`**, maximum norm (`exists_recovery_scheme_pi`) | ✅ proved |
-| **Upper bound for any finite-dimensional real normed space** (`exists_recovery_scheme`) | ✅ proved |
-
-### Both bounds together
-
-| Result | Status |
-|---|---|
-| `minMeasurements` — the minimal number `n*` | ✅ defined |
-| `n* ≤ ⌈log₂ d⌉ + 1` (`minMeasurements_le`) | ✅ proved |
-| `d + 1 ≤ 2^n*` in counting form (`finrank_add_one_le_two_pow_minMeasurements`) | ✅ proved |
-| `⌈log₂(d+1)⌉ ≤ n*` (`clog_le_minMeasurements`) | ✅ proved |
-| The sandwich `⌈log₂(d+1)⌉ ≤ n* ≤ ⌈log₂ d⌉ + 1` | ✅ proved |
-| `n* = k + 1` in dimension `2ᵏ` (`minMeasurements_eq_of_finrank_eq_two_pow`) | ✅ proved |
-
-The two bounds meet when `d` is a power of two and differ by one otherwise. For
-`d = 2` and `d = 4`, for instance, they pin `n*` down exactly at `2` and `3`.
+The upper bound and the covering proposition are independent of Borsuk–Ulam; the lower
+bound rests on it. Everything else is in the blueprint, with its Lean name at every
+statement.
 
 ## What is left to do
 
 * The Banach-space extension of the lower bound: `eₙᶜᵒⁿᵗ(F, Y) ≥ b_{2ⁿ-1}(F, Y)` in
   terms of Bernstein widths (Section 5 of the lower-bound paper). The proof is local:
   it uses only one sphere inside `F`, so the machinery here already covers it.
-* The **noisy** setting of the companion paper, where the answer is governed by
-  entropy numbers instead.
+* The **noisy** setting of a companion paper, where the answer is governed by entropy
+  numbers instead.
 * The Lipschitz variant: all functionals used here are `1`-Lipschitz except the
-  identification measurement; the paper's Lipschitz version costs one more
-  measurement.
-* A leanblueprint and continuous integration, as in the `Lean-SNumbers` project.
+  identification measurement; the paper's Lipschitz version costs one more measurement.
 
-## Candidates for Mathlib
+## Organisation
 
-* **The Borsuk–Ulam theorem** itself, in any of its forms, together with **Tucker's
-  lemma** and the Kuhn triangulation of the integer cube it runs on.
-* `Metric.infDist` under negation: there is `EMetric.infEdist_neg` but no real-valued
-  `infDist_neg`; here it is derived from `Metric.infDist_image isometry_neg`.
-* The passage from level sets to slabs by a Lebesgue-number argument
-  (`HasSplitCover.exists_pos_inter_preimage_ball`), which is generic.
-* The bisection lemma (`exists_bisection_scheme`): a finite family of "membership
-  oracles" realised by distance functionals.
-* The Lebesgue cover (`ColoredCover.lebesgue`): a colored covering of `ℝᵐ` with
-  `m + 1` colors and separated pieces of the same color.
-* The logistic function and the logit (`Real.logistic`, `Real.logit`), which Mathlib
-  does not have.
-
-## Layout
-
-Two libraries. `BasicResults` holds the general mathematics the theory consumes:
-nothing there mentions measurements, every statement is a candidate for Mathlib, and the
-results live in root namespaces as a Mathlib contribution would. `ContMeasurements`
-holds the theory itself.
+Two libraries. `BasicResults` holds the general mathematics the theory consumes: nothing
+there mentions measurements, every statement is a candidate for Mathlib, and the results
+live in root namespaces as a Mathlib contribution would. It contains split covers and the
+halving lemma, the triangulation of the integer cube, Tucker's lemma, Borsuk–Ulam, colored
+covers with the Lebesgue cover, and the logistic function with its inverse;
+[MathlibCandidates.md](MathlibCandidates.md) lists what could be upstreamed.
+`ContMeasurements` holds the theory itself: the model, the lower bound with its covering
+proposition, bisection and identification, the upper bound, and the minimal number of
+measurements.
 
 Names follow the Mathlib conventions: `UpperCamelCase` for types and Prop-valued
 definitions, `lowerCamelCase` for data, `snake_case` for theorems, spelled out of the
 statement with the conclusion first and the hypotheses after `of_`.
 
-```
-.
-├── lakefile.toml               ← Lake configuration; depends on Mathlib
-├── lean-toolchain              ← Lean 4 version (v4.33.1)
-├── lake-manifest.json          ← the pinned Mathlib revision
-├── BasicResults.lean           ← entry point of the general library
-├── BasicResults/
-│   ├── SplitCover.lean         ← split sets, split covers, odd maps
-│   ├── Halving.lean            ← level sets → slabs → the halving lemma
-│   ├── GridSimplex.lean        ← the Kuhn triangulation of an integer cube
-│   ├── Tucker.lean             ← Tucker's lemma
-│   ├── BorsukUlam.lean         ← Borsuk–Ulam, from Tucker's lemma, + transfer
-│   ├── ColoredCover.lean       ← colored covers and rescaling
-│   ├── LebesgueCover.lean      ← the m+1 color cover of ℝᵐ
-│   └── Logistic.lean           ← the logistic function and the logit
-├── .github/workflows/          ← CI: builds the project and the blueprint
-├── blueprint/
-│   ├── src/                    ← plastex config, LaTeX masters, content.tex
-│   └── scripts/                ← check the Lean names, link them to their sources
-├── ContMeasurements.lean       ← entry point of the theory
-└── ContMeasurements/
-    ├── Scheme.lean             ← the model: AdaptiveScheme, info, combinators
-    ├── LowerBound.lean         ← 2ⁿ ≥ d+1; antipodal coincidence; error ≥ R
-    ├── Bisection.lean          ← finding a color by bisection
-    ├── Identification.lean     ← naming a piece with one measurement
-    ├── UpperBound.lean         ← ⌈log₂ d⌉ + 1 measurements suffice
-    └── Complexity.lean         ← the minimal number n* and the sandwich
-```
-
 ## Building
 
-```
-lake exe cache get
-lake build
+Requires [`elan`](https://github.com/leanprover/elan). The Lean version is pinned in
+`lean-toolchain` and Mathlib in `lake-manifest.json`, so a clone builds against Lean /
+Mathlib `v4.33.1`:
+
+```bash
+lake exe cache get   # downloads the prebuilt Mathlib oleans
+lake build           # builds the project
 ```
 
-The Mathlib revision is pinned in `lake-manifest.json`; `lake exe cache get` fetches
-the matching precompiled oleans. Do **not** run `lake update`: it re-resolves the
-dependencies and makes the build non-reproducible. Run `lake` from inside this folder,
-since `elan` reads `lean-toolchain` from the working directory.
+Run `lake` from inside this folder, since `elan` reads `lean-toolchain` from the working
+directory, and do not run `lake update`: it re-resolves the dependencies and makes the
+build non-reproducible. Both libraries pass the Mathlib style linter, which checks among
+other things that every declaration is documented and that no hypothesis goes unused:
 
-Both libraries pass the Mathlib style linter, which checks among other things that
-every declaration is documented and that no hypothesis goes unused:
-
-```
+```bash
 lake exe runLinter BasicResults
 lake exe runLinter ContMeasurements
 ```
 
-## Building the blueprint
+The blueprint follows the
+[leanblueprint](https://github.com/PatrickMassot/leanblueprint) convention and needs a TeX
+installation, `graphviz` for the dependency graph, and the `leanblueprint` package:
 
-The blueprint follows the [leanblueprint](https://github.com/PatrickMassot/leanblueprint)
-convention. It needs `leanblueprint` with its plasTeX plugins, Graphviz, and a LaTeX
-installation:
-
+```bash
+leanblueprint pdf          # blueprint/print/print.pdf
+leanblueprint web          # blueprint/web/index.html and the dependency graph
+leanblueprint checkdecls   # checks that every \lean{Decl} resolves
 ```
-leanblueprint pdf      # produces blueprint/print/print.pdf
-leanblueprint web      # produces blueprint/web/index.html and the dependency graph
-```
 
-Every `\lean{...}` tag names a declaration of this project; `leanblueprint checkdecls`
-verifies that they all resolve, once the `checkdecls` package is among the Lake
-dependencies.
+GitHub Actions builds the project and the blueprint on every push to `main`, checks every
+`\lean` tag against the compiled project, uploads the site and the PDF as a run artifact,
+and deploys the blueprint to GitHub Pages once the repository is public. Neither output is
+committed.
 
 ## AI assistance
 
@@ -230,3 +170,28 @@ definitions and results; the proofs themselves are guaranteed by the Lean kernel
 An exception is the Borsuk–Ulam development (`GridSimplex.lean`, `Tucker.lean`,
 `BorsukUlam.lean`) which was autonomously produced by AI, and was not (yet) checked by
 myself apart from the main theorem statement.
+
+## License
+
+Apache 2.0, the same as Mathlib. See [LICENSE](LICENSE).
+
+## References
+
+* D. Krieg, E. Novak, M. Ullrich, *How many continuous measurements are needed to learn a
+  vector?*, arXiv:2412.06468, 2024 (updated 2026). The upper bound.
+* M. Ullrich, *Optimal learning based on adaptive continuous measurements*, preprint, 2026.
+  The lower bound.
+* K. Borsuk, *Drei Sätze über die n-dimensionale euklidische Sphäre*, Fund. Math. **20**
+  (1933), 177–190. The odd-map form of the antipodal theorem.
+* A. W. Tucker, *Some topological properties of disk and sphere*, in: Proc. First Canadian
+  Math. Congress (Montreal, 1945), University of Toronto Press, 1946, 285–309. Its
+  combinatorial form, which the proof here runs on.
+* J. Matoušek, *Using the Borsuk-Ulam Theorem*, Springer, Berlin, 2003. The modern account
+  of that lemma and of the method.
+* H. Freudenthal, *Simplizialzerlegungen von beschränkter Flachheit*, Ann. of Math. (2)
+  **43** (1942), no. 3, 580–582, and H. W. Kuhn, *Some combinatorial lemmas in topology*,
+  IBM J. Res. Develop. **4** (1960), no. 5, 518–524. The triangulation of the cube that
+  Tucker's lemma is stated on.
+* M. A. Krasnosel'skii, *On the estimation of the number of critical points of functionals*,
+  Uspekhi Mat. Nauk **7** (1952), 157–164. The genus whose covering form the number of split
+  sets is.
