@@ -34,8 +34,8 @@ Borsuk–Ulam does not apply to it.
 
 The formalisation follows two papers:
 
-* the upper bound: D. Krieg, E. Novak, M. Ullrich, *How many questions do you need to
-  find a vector?*;
+* the upper bound: D. Krieg, E. Novak, M. Ullrich, *How many continuous measurements
+  are needed to learn a vector?*, arXiv:2412.06468;
 * the lower bound: M. Ullrich, *Optimal learning based on adaptive continuous
   measurements*.
 
