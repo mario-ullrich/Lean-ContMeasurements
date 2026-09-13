@@ -54,7 +54,7 @@ jobs:
         with:
           path: |
             ~/.elan
-            ../lake-packages
+            .lake/packages
             .lake/build
           key: ${{ runner.os }}-lean-${{ hashFiles('lake-manifest.json') }}
 
