@@ -154,7 +154,9 @@ installation, `graphviz` for the dependency graph, and the `leanblueprint` packa
 ```bash
 leanblueprint pdf          # blueprint/print/print.pdf
 leanblueprint web          # blueprint/web/index.html and the dependency graph
-leanblueprint checkdecls   # checks that every \lean{Decl} resolves
+
+python blueprint/scripts/check_lean_decls.py --output check_decls.lean
+lake env lean check_decls.lean   # every \lean{Decl} must compile
 ```
 
 GitHub Actions builds the project and the blueprint on every push to `main`, checks every
