@@ -63,7 +63,7 @@ adaptive scheme on it. `Nat.clog 2 d` is Mathlib's `⌈log₂ d⌉`.
   on a compact symmetric set, that set is covered by `2ⁿ - 1` split sets
   (`AdaptiveScheme.DistinguishesAntipodes.hasSplitCover`), by way of the halving lemma
   (`hasSplitCover_two_mul_of_forall_fiber`). The least such number is the covering form of
-  the Krasnosel'skii genus. This step uses no topology beyond compactness, and in particular
+  the Krasnosel'skiĭ genus. This step uses no topology beyond compactness, and in particular
   no Borsuk–Ulam.
 * **Borsuk–Ulam**, proved here rather than assumed, since Mathlib has neither it nor
   Brouwer's fixed point theorem nor Sperner's lemma. Tucker's lemma on the triangulation of
@@ -180,20 +180,25 @@ Apache 2.0, the same as Mathlib. See [LICENSE](LICENSE).
 ## References
 
 * D. Krieg, E. Novak, M. Ullrich, *How many continuous measurements are needed to learn a
-  vector?*, arXiv:2412.06468, 2024 (updated 2026). The upper bound.
+  vector?*, to appear in Proc. Amer. Math. Soc.,
+  [arxiv](https://arxiv.org/abs/2412.06468). The upper bound.
 * M. Ullrich, *Optimal learning based on adaptive continuous measurements*, preprint, 2026.
   The lower bound.
 * K. Borsuk, *Drei Sätze über die n-dimensionale euklidische Sphäre*, Fund. Math. **20**
-  (1933), 177–190. The odd-map form of the antipodal theorem.
+  (1933), 177–190, [doi](https://doi.org/10.4064/fm-20-1-177-190). The odd-map form of the
+  antipodal theorem.
 * A. W. Tucker, *Some topological properties of disk and sphere*, in: Proc. First Canadian
-  Math. Congress (Montreal, 1945), University of Toronto Press, 1946, 285–309. Its
-  combinatorial form, which the proof here runs on.
-* J. Matoušek, *Using the Borsuk-Ulam Theorem*, Springer, Berlin, 2003. The modern account
-  of that lemma and of the method.
+  Math. Congress (Montreal, 1945), University of Toronto Press, 1946, 285–309,
+  [link](https://zbmath.org/3102257). Its combinatorial form, which the proof here runs on.
+* J. Matoušek, *Using the Borsuk-Ulam Theorem*, Springer, Berlin, 2003,
+  [doi](https://doi.org/10.1007/978-3-540-76649-0). The modern account of that lemma and of
+  the method.
 * H. Freudenthal, *Simplizialzerlegungen von beschränkter Flachheit*, Ann. of Math. (2)
-  **43** (1942), no. 3, 580–582, and H. W. Kuhn, *Some combinatorial lemmas in topology*,
-  IBM J. Res. Develop. **4** (1960), no. 5, 518–524. The triangulation of the cube that
-  Tucker's lemma is stated on.
-* M. A. Krasnosel'skii, *On the estimation of the number of critical points of functionals*,
-  Uspekhi Mat. Nauk **7** (1952), 157–164. The genus whose covering form the number of split
-  sets is.
+  **43** (1942), no. 3, 580–582, [doi](https://doi.org/10.2307/1968813). The triangulation
+  of the cube that Tucker's lemma is stated on.
+* H. W. Kuhn, *Some combinatorial lemmas in topology*, IBM J. Res. Develop. **4** (1960),
+  no. 5, 518–524, [doi](https://doi.org/10.1147/rd.45.0518). The same triangulation.
+* M. A. Krasnosel'skiĭ, *On the estimation of the number of critical points of functionals*,
+  Uspekhi Mat. Nauk **7** (1952), no. 2, 157–164,
+  [link](https://www.mathnet.ru/eng/rm8306). The genus whose covering form the number of
+  split sets is.
