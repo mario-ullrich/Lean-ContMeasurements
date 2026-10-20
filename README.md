@@ -161,6 +161,11 @@ python blueprint/scripts/check_lean_decls.py --output check_decls.lean
 lake env lean check_decls.lean   # every \lean{Decl} must compile
 ```
 
+On Windows, set `PYTHONUTF8=1` before `leanblueprint web` (in PowerShell
+`$env:PYTHONUTF8 = 1`): without it plasTeX writes some characters of the pages, the
+proof arrows among them, through the system code page, and the browser shows them
+garbled. The GitHub Actions build runs on Linux, where UTF-8 is the default.
+
 GitHub Actions builds the project and the blueprint on every push to `main`, checks every
 `\lean` tag against the compiled project, uploads the site and the PDF as a run artifact,
 and deploys the blueprint to GitHub Pages. Neither output is committed.
