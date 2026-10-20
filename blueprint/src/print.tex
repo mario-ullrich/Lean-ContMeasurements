@@ -33,15 +33,16 @@
 % reads better after the statement, so it is stored here and printed by
 % \bp@leanflush, which \AtEndEnvironment hooks to the theorem environments.
 % Two subtleties in the printing:
-%   * `\detokenize` is required: declaration names contain underscores, which
-%     TeX would otherwise read as math subscripts;
-%   * the list is split at the commas, so that a long list wraps while each
-%     individual name stays on one line (detokenized spaces are not
-%     breakpoints, so a single detokenized string would run into the margin).
+%   * each name is set with `\path` of the url package: declaration names
+%     contain underscores, which TeX would otherwise read as math subscripts,
+%     and a name wider than the line can still break, after a namespace dot
+%     and nowhere else;
+%   * the list is split at the commas, so that a long list wraps between the
+%     names rather than running into the margin.
 \makeatletter
 \newcommand{\bp@leanlist}{}
 \renewcommand{\lean}[1]{\gdef\bp@leanlist{#1}}
-\newcommand{\bp@leanname}[1]{\mbox{\detokenize{#1}}}
+\newcommand{\bp@leanname}[1]{{\def\UrlBreaks{\do\.}\def\UrlBigBreaks{}\path{#1}}}
 \newcommand{\bp@leanflush}{%
   \ifx\bp@leanlist\@empty\else
     \par\nobreak\smallskip
