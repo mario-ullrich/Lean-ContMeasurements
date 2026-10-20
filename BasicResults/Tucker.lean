@@ -30,10 +30,10 @@ odd number of doors.  That is the contradiction.
 
 ## Main results
 
-* `GridSimplex.IsHappy` — a simplex all of whose signs occur as labels on it.
-* `GridSimplex.odd_deg_iff` — the happy simplices with an odd number of doors are the
+* `GridSimplex.IsHappy`: a simplex all of whose signs occur as labels on it.
+* `GridSimplex.odd_deg_iff`: the happy simplices with an odd number of doors are the
   origin alone and those with a coordinate at the boundary of the cube.
-* `GridSimplex.tucker` — Tucker's lemma.
+* `GridSimplex.tucker`: Tucker's lemma.
 -/
 
 namespace Finset

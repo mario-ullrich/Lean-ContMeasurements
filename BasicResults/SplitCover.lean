@@ -31,16 +31,16 @@ continuous measurement can at most double (plus one); see `Halving.lean` and
 
 ## Main results
 
-* `hasSplitCover_one_of_odd_ne_zero` — a closed symmetric set on which a continuous
+* `hasSplitCover_one_of_odd_ne_zero`: a closed symmetric set on which a continuous
   odd function has no zero is a single split set.  This is both the case `n = 1` of
   the induction and the "sign region of the odd part" contributed by each measurement.
-* `HasSplitCover.biUnion_of_pairwise_disjoint` — pairwise disjoint compact symmetric
+* `HasSplitCover.biUnion_of_pairwise_disjoint`: pairwise disjoint compact symmetric
   pieces, each covered by `h` split sets, together need only `h` split sets: the
   pieces may **share** their sign regions.  This is where the factor `2` of the
   recursion `c(n) = 2 c(n-1) + 1` comes from, and nothing better is possible.
-* `HasSplitCover.exists_cthickening` — a split cover of a compact symmetric set
+* `HasSplitCover.exists_cthickening`: a split cover of a compact symmetric set
   extends to a split cover of a closed neighbourhood of it.
-* `HasSplitCover.exists_odd_continuous_ne_zero` — a cover by `k` split sets yields a
+* `HasSplitCover.exists_odd_continuous_ne_zero`: a cover by `k` split sets yields a
   continuous odd map into `ℝᵏ` without zeros on the covered set, via the sign
   functions `σ(x) = dist(x, P⁻) - dist(x, P⁺)`.  Feeding this into the Borsuk–Ulam
   theorem is the last step of the lower bound.

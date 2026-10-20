@@ -40,9 +40,9 @@ count down from `⌈log₂(d+1)⌉ + 1` to `⌈log₂ d⌉ + 1`.
 
 ## Main results
 
-* `ContMeasurements.exists_recovery_scheme_pi` — the theorem for `ℝᵈ` with the maximum
+* `ContMeasurements.exists_recovery_scheme_pi`: the theorem for `ℝᵈ` with the maximum
   norm.
-* `ContMeasurements.exists_recovery_scheme` — the theorem for an arbitrary
+* `ContMeasurements.exists_recovery_scheme`: the theorem for an arbitrary
   finite-dimensional real normed space, obtained by transporting along a linear
   homeomorphism.  Since all norms on a finite-dimensional space are equivalent, this
   is the statement "for any norm" of the paper.

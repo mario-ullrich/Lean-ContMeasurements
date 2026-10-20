@@ -37,7 +37,7 @@ brings the total down to `⌈log₂ m⌉ + 1`.
 
 ## Main definitions and results
 
-* `ColoredCover.lebesgue` — the colored cover of `ℝᵐ` with `m + 1` colors, pieces of
+* `ColoredCover.lebesgue`: the colored cover of `ℝᵐ` with `m + 1` colors, pieces of
   diameter at most `3/2` and separation `1 / (4(m+2))`.  Its ingredients live in the
   namespace `LebesgueCover`.
 -/

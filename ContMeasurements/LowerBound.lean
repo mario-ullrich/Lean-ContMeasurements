@@ -40,15 +40,15 @@ forbids on the sphere of an `m`-dimensional space unless `2ⁿ - 1 ≥ m`.
 
 ## Main results
 
-* `AdaptiveScheme.DistinguishesAntipodes.hasSplitCover` — the covering proposition.
+* `AdaptiveScheme.DistinguishesAntipodes.hasSplitCover`: the covering proposition.
   **Proved unconditionally**, no Borsuk–Ulam involved.
-* `exists_norm_eq_and_info_eq_info_neg` — if `2ⁿ ≤ m`, some antipodal pair on the
+* `exists_norm_eq_and_info_eq_info_neg`: if `2ⁿ ≤ m`, some antipodal pair on the
   sphere of radius `R` produces identical information.  This is the Borsuk–Ulam theorem for
   adaptive measurements: adaptivity moves the antipodal threshold from `m - 1` to
   `log₂ m`, and no further.
-* `AdaptiveScheme.DistinguishesAntipodes.finrank_add_one_le_two_pow` — the same as
+* `AdaptiveScheme.DistinguishesAntipodes.finrank_add_one_le_two_pow`: the same as
   the counting statement `2ⁿ ≥ dim E + 1`.
-* `exists_norm_eq_and_le_norm_sub` — every algorithm using `n` measurements with
+* `exists_norm_eq_and_le_norm_sub`: every algorithm using `n` measurements with
   `2ⁿ ≤ m` has error at least `R` somewhere on the sphere of radius `R`; the
   measurements are useless.
 -/

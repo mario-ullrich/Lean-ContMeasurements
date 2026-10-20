@@ -24,25 +24,25 @@ They live in root namespaces, as a Mathlib contribution would.
 
 The first five are what the lower bound consumes, the last three the upper bound.
 
-* `BasicResults.SplitCover` — split sets, covers by them, and the sign functions
+* `BasicResults.SplitCover`: split sets, covers by them, and the sign functions
   turning such a cover into a continuous odd map without zeros. This is the covering
   form of the Krasnosel'skiĭ genus.
-* `BasicResults.Halving` — level sets of an even function on a compact symmetric set:
+* `BasicResults.Halving`: level sets of an even function on a compact symmetric set:
   if each is covered by `h` split sets, the whole set needs only `2h`.
-* `BasicResults.GridSimplex` — the Kuhn triangulation of an integer cube, described by
+* `BasicResults.GridSimplex`: the Kuhn triangulation of an integer cube, described by
   the coordinatewise order, with the signs and directions of a simplex and the count of
   the ways of extending one by a vertex.
-* `BasicResults.Tucker` — Tucker's lemma: a labelling of the grid that is antipodal on
+* `BasicResults.Tucker`: Tucker's lemma: a labelling of the grid that is antipodal on
   the boundary gives one simplex two opposite labels. This is the combinatorial form of
   the Borsuk–Ulam theorem.
-* `BasicResults.BorsukUlam` — the Borsuk–Ulam theorem in odd-map form, proved from
+* `BasicResults.BorsukUlam`: the Borsuk–Ulam theorem in odd-map form, proved from
   Tucker's lemma, and its transfer to the sphere of any radius in any
   finite-dimensional real normed space.
-* `BasicResults.ColoredCover` — covers of a metric space by pieces of small diameter,
+* `BasicResults.ColoredCover`: covers of a metric space by pieces of small diameter,
   colored so that distinct pieces of one color are separated, and their rescaling.
-* `BasicResults.LebesgueCover` — such a cover of `ℝᵐ` with `m + 1` colors, built from
+* `BasicResults.LebesgueCover`: such a cover of `ℝᵐ` with `m + 1` colors, built from
   the skeleta of the integer grid. The number `m + 1` is the Lebesgue covering
   dimension bound and cannot be lowered.
-* `BasicResults.Logistic` — the logistic function, a continuous injection `ℝ → (0,1)`,
+* `BasicResults.Logistic`: the logistic function, a continuous injection `ℝ → (0,1)`,
   and the logit inverting it.
 -/

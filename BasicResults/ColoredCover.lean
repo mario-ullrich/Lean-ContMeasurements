@@ -27,10 +27,10 @@ covering dimension of `ℝᵐ`.  The concrete cover with `m + 1` colors is built
 
 ## Main definitions
 
-* `ColoredCover` — the structure above.
-* `ColoredCover.colorClass` — the union `E_r` of all pieces of
+* `ColoredCover`: the structure above.
+* `ColoredCover.colorClass`: the union `E_r` of all pieces of
   color `r`.
-* `ColoredCover.scale` — rescaling by a factor `s > 0`, which scales
+* `ColoredCover.scale`: rescaling by a factor `s > 0`, which scales
   both `ε` and `c`.  This is how an arbitrary target accuracy is reached from a
   single cover of unit scale.
 -/

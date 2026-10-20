@@ -36,18 +36,18 @@ where one of them leaves the grid.
 
 ## Main results
 
-* `IsSimplex.not_mem_signs_negLabel` — a simplex lies in one closed orthant: its signs
+* `IsSimplex.not_mem_signs_negLabel`: a simplex lies in one closed orthant: its signs
   contain no pair of opposite labels.
-* `IsSimplex.card_le_card_directions_succ` — a simplex has at most one more vertex than it
+* `IsSimplex.card_le_card_directions_succ`: a simplex has at most one more vertex than it
   has directions.  This is what makes the counting argument finite.
-* `card_extensions_eq_one` — with one more vertex than directions, a simplex extends in
+* `card_extensions_eq_one`: with one more vertex than directions, a simplex extends in
   exactly one way when one further label is allowed.
-* `extensions_eq_empty` — with one more vertex than directions, a simplex does not extend
+* `extensions_eq_empty`: with one more vertex than directions, a simplex does not extend
   at all when no further label is allowed.
-* `card_extensions_eq_two`, `card_extensions_eq_one_of_isExtremal` — with as many vertices
+* `card_extensions_eq_two`, `card_extensions_eq_one_of_isExtremal`: with as many vertices
   as directions, a simplex extends in exactly two ways, or in one when a coordinate sits
   at the boundary of the cube.
-* `IsSimplex.neg`, `mem_signs_neg` — reflection in the origin maps simplices to simplices
+* `IsSimplex.neg`, `mem_signs_neg`: reflection in the origin maps simplices to simplices
   and reverses every sign.
 -/
 

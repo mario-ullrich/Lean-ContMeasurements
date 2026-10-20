@@ -30,24 +30,24 @@ be exponentially smaller than `dim X`.
 
 ## Main definitions
 
-* `ContMeasurements.AdaptiveScheme X` — the rule `λ` in bundled form: a family
+* `ContMeasurements.AdaptiveScheme X`: the rule `λ` in bundled form: a family
   `fct k y : X → ℝ` of continuous functionals, indexed by the number `k` of values
   already observed and by those values `y : Fin k → ℝ`.
-* `ContMeasurements.AdaptiveScheme.first` — the first functional `λ₁`.
-* `ContMeasurements.AdaptiveScheme.tail` — the scheme that governs the remaining
+* `ContMeasurements.AdaptiveScheme.first`: the first functional `λ₁`.
+* `ContMeasurements.AdaptiveScheme.tail`: the scheme that governs the remaining
   measurements once the first value `y` has been observed.  This is the formal
   counterpart of "the algorithm continues with one measurement less".
-* `ContMeasurements.AdaptiveScheme.info` — the information map `N` of the first `n`
+* `ContMeasurements.AdaptiveScheme.info`: the information map `N` of the first `n`
   measurements.
-* `ContMeasurements.AdaptiveScheme.DistinguishesAntipodes` — `N x ≠ N (-x)` for all
+* `ContMeasurements.AdaptiveScheme.DistinguishesAntipodes`: `N x ≠ N (-x)` for all
   `x` in a set; the property that lower bounds have to rule out.
 
 ## Combinators
 
-* `comap` — transport a scheme along a continuous map `π : Y → X`
+* `comap`: transport a scheme along a continuous map `π : Y → X`
   (used to move between a normed space and its coordinates);
-* `const` — the scheme that keeps asking one fixed functional;
-* `branch` — ask `f` first and then continue with a scheme chosen arbitrarily from
+* `const`: the scheme that keeps asking one fixed functional;
+* `branch`: ask `f` first and then continue with a scheme chosen arbitrarily from
   the value of `f`.  This is the one place where adaptivity is *created*, and it is
   what the bisection algorithm of the upper bound is built from.
 

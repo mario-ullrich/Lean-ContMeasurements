@@ -20,13 +20,13 @@ and differ by one otherwise.
 
 ## Main results
 
-* `ContMeasurements.minMeasurements` — the quantity `n*`.
-* `ContMeasurements.minMeasurements_le` — the upper bound. Proved unconditionally.
-* `ContMeasurements.finrank_add_one_le_two_pow_minMeasurements` — the lower bound in
+* `ContMeasurements.minMeasurements`: the quantity `n*`.
+* `ContMeasurements.minMeasurements_le`: the upper bound. Proved unconditionally.
+* `ContMeasurements.finrank_add_one_le_two_pow_minMeasurements`: the lower bound in
   counting form.
-* `ContMeasurements.clog_le_minMeasurements` — the lower bound, and
+* `ContMeasurements.clog_le_minMeasurements`: the lower bound, and
   `ContMeasurements.clog_le_minMeasurements_and_le` the two bounds together.
-* `ContMeasurements.minMeasurements_eq_of_finrank_eq_two_pow` — equality in dimension
+* `ContMeasurements.minMeasurements_eq_of_finrank_eq_two_pow`: equality in dimension
   `2ᵏ`.
 -/
 

@@ -24,12 +24,12 @@ norm and projecting that radially onto the Euclidean sphere gives the statement 
 
 ## Main statements
 
-* `borsukUlam_cube` — Borsuk's antipodal theorem for the cube, from Tucker's lemma by
+* `borsukUlam_cube`: Borsuk's antipodal theorem for the cube, from Tucker's lemma by
   uniform continuity.
-* `borsukUlam_pi` — the odd-map form on the unit sphere of `Fin m → ℝ` with the sup
+* `borsukUlam_pi`: the odd-map form on the unit sphere of `Fin m → ℝ` with the sup
   norm, which is the boundary of a cube one dimension lower.
-* `borsukUlam` — the theorem itself, on the unit sphere of `EuclideanSpace ℝ (Fin m)`.
-* `Function.Odd.exists_norm_eq_and_eq_zero_of_lt_finrank` — the form actually used: on
+* `borsukUlam`: the theorem itself, on the unit sphere of `EuclideanSpace ℝ (Fin m)`.
+* `Function.Odd.exists_norm_eq_and_eq_zero_of_lt_finrank`: the form actually used: on
   *any* finite-dimensional real normed space `E` of dimension `m`, and on the sphere
   of *any* radius `R > 0`, a continuous odd map `E → ℝᵏ` with `k < m` has a zero.
   This is proved from the Euclidean case by transporting along a linear

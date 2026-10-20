@@ -31,8 +31,8 @@ measurement, see `UpperBound.lean`.
 
 ## Main results
 
-* `ContMeasurements.identify` — the functional itself, a locally finite sum.
-* `ContMeasurements.exists_identification` — the functional and its decoder.
+* `ContMeasurements.identify`: the functional itself, a locally finite sum.
+* `ContMeasurements.exists_identification`: the functional and its decoder.
 -/
 
 open Metric Set
