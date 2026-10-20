@@ -99,6 +99,13 @@ jobs:
       - name: Build blueprint web
         run: leanblueprint web
 
+      # plastexdepgraph writes the nodes and edges of the dependency graph in an
+      # order that changes from run to run, and Graphviz then draws the same
+      # blueprint mirrored in some builds. The script sorts them, so that every
+      # build gives the same picture.
+      - name: Sort the dependency graph
+        run: python blueprint/scripts/sort_dep_graph.py
+
       # Tidy the dependency graph. plastexdepgraph exposes no options for
       # this, so we post-process the generated page:
       #   * Recolor the "ready to formalize" nodes from blue (#A3D6FF) to white,
@@ -108,11 +115,15 @@ jobs:
       #     "Blue border" (every statement is formalized, so no node has either)
       #     and "Blue background" (now recolored white; the green-border row
       #     already explains a stated-but-unproved node).
+      #   * Draw every edge solid. plastexdepgraph dashes the edges that come
+      #     from a statement's `\uses` rather than a proof's, and the dashes
+      #     only say "uses a definition", which the picture shows anyway.
+      #   * Name the page after the project in its heading.
       # The layout is left as it comes: plastexdepgraph sets no rankdir, so Graphviz
       # draws the graph top-to-bottom, base results above derived ones.
-      - name: Tidy dependency graph (recolor sorry-nodes white, drop unused legend rows)
+      - name: Tidy dependency graph (recolor sorry-nodes white, drop unused legend rows, draw all edges solid, title the page)
         run: |
-          sed -i 's/#A3D6FF/#FFFFFF/g; /<dt>Orange border<\/dt>/d; /<dt>Blue border<\/dt>/d; /<dt>Blue background<\/dt>/d' blueprint/web/dep_graph_document.html
+          sed -i 's/#A3D6FF/#FFFFFF/g; /<dt>Orange border<\/dt>/d; /<dt>Blue border<\/dt>/d; /<dt>Blue background<\/dt>/d; s/\[style=dashed\]//g; s/<h1 id="doc_title">Dependencies<\/h1>/<h1 id="doc_title">Adaptive Continuous Measurements: Dependencies<\/h1>/' blueprint/web/dep_graph_document.html
 
       # Zoom the graph, not the page: d3's zoom ignores ctrl+wheel, which is how
       # a touchpad pinch arrives, so the browser zoomed the whole page and with
@@ -120,6 +131,18 @@ jobs:
       # zoom in further than d3-graphviz's default of ten times the fitted size.
       - name: Let the dependency graph take pinch and ctrl+wheel zoom
         run: python blueprint/scripts/dep_graph_zoom.py
+
+      # Make the title page reachable from every page and the repository from
+      # the title page. The menu of each chapter page gains a first entry
+      # "Home" that leads to index.html, as the dependency graph page already
+      # has, followed by the entry for the dependency graph, which
+      # leanblueprint puts at the end; the title page gains a link to the
+      # GitHub repository below the author. plasTeX renders neither: `\home`
+      # and `\github` in web.tex only feed other templates.
+      - name: Link the title page from every page and the repository from it
+        run: |
+          sed -i '/^<li ><a href="dep_graph_document.html">Dependency graph<\/a><\/li>$/d; s#<ul class="sub-toc-0">#&\n<li ><a href="index.html">Home</a></li>\n<li ><a href="dep_graph_document.html">Dependency graph</a></li>#' blueprint/web/*.html
+          sed -i 's#<span class="author">Mario Ullrich</span>#&</p>\n<p class="repo-link">GitHub: <a href="https://github.com/mario-ullrich/Lean-ContMeasurements">Lean-ContMeasurements</a>#' blueprint/web/index.html
 
       # Point the `\lean{...}` links at this repository. leanblueprint builds
       # them as `{dochome}/find/#doc/Decl` and, with no `\dochome` set, falls
