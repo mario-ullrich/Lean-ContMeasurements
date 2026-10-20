@@ -399,8 +399,8 @@ theorem IsSimplex.eq_add_ite (hs : IsSimplex N s) {a x : Fin n → ℤ} (ha : a 
     (hbot : ∀ y ∈ s, a ≤ y) (hx : x ∈ s) (j : Fin n) :
     x j = a j + (if j ∈ step a x then 1 else 0) := by
   rcases hs.eq_or_eq_add_one ha hbot hx j with h | h
-  · rw [if_neg (by simp [h]), h, add_zero]
-  · rw [if_pos (by simp [h]), h]
+  · rw [ite_eq_right (by simp [h]), h, add_zero]
+  · rw [ite_eq_left (by simp [h]), h]
 
 /-! ### Ranks -/
 
@@ -1356,11 +1356,11 @@ theorem card_extensions_eq_two_of_full (hs : IsSimplex N s) {a b : Fin n → ℤ
     intro p' hp1 hp2
     have hxp : x p' = a p' := by
       have h := hs.eq_add_ite ha hbot hx p'
-      rw [if_neg hp2] at h
+      rw [ite_eq_right hp2] at h
       omega
     have hyp : y p' = a p' + 1 := by
       have h := hs.eq_add_ite ha hbot hy p'
-      rw [if_pos hp1] at h
+      rw [ite_eq_left hp1] at h
       omega
     have hle1 : x ≤ raise x p' := le_raise x p'
     have hle2 : raise x p' ≤ y := by
@@ -1459,15 +1459,15 @@ theorem card_extensions_eq_two_of_full (hs : IsSimplex N s) {a b : Fin n → ℤ
           (Finset.mem_insert_self _ _) j
         have hxj := hs.eq_add_ite ha hbot hx' j
         rcases eq_or_ne j i with rfl | hne
-        · rw [raise_apply_self, hwj, hxj, if_pos hiw, if_neg hi1]
+        · rw [raise_apply_self, hwj, hxj, ite_eq_left hiw, ite_eq_right hi1]
           omega
         · rw [raise_apply_of_ne _ hne, hwj, hxj]
           have hiff : j ∈ step a w ↔ j ∈ step a x' := by
             rw [← hi2]
             simp only [Finset.mem_insert, hne, false_or]
           by_cases hj : j ∈ step a x'
-          · rw [if_pos (hiff.2 hj), if_pos hj]
-          · rw [if_neg fun h => hj (hiff.1 h), if_neg hj]
+          · rw [ite_eq_left (hiff.2 hj), ite_eq_left hj]
+          · rw [ite_eq_right fun h => hj (hiff.1 h), ite_eq_right hj]
       rcases Finset.mem_insert.1 hi3 with rfl | hi4
       · rw [hweq]; exact Finset.mem_insert_self _ _
       · rw [Finset.mem_singleton] at hi4

@@ -130,7 +130,7 @@ statement with the conclusion first and the hypotheses after `of_`.
 
 Requires [`elan`](https://github.com/leanprover/elan). The Lean version is pinned in
 `lean-toolchain` and Mathlib in `lake-manifest.json`, so a clone builds against Lean /
-Mathlib `v4.33.1`:
+Mathlib `v4.35.0-rc2`:
 
 ```bash
 lake exe cache get   # downloads the prebuilt Mathlib oleans

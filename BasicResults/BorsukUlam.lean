@@ -112,7 +112,7 @@ theorem norm_le_of_label_true (hn : 0 < n) {y : Fin n → ℝ} {i : Fin n}
   have hs : (if 0 < y (maxIdx hn y) then true else false) = true := congrArg Prod.snd h
   have hpos : 0 < y (maxIdx hn y) := by
     by_contra hcon
-    rw [if_neg hcon] at hs
+    rw [ite_eq_right hcon] at hs
     exact Bool.noConfusion hs
   rw [← hi, ← abs_maxIdx hn y, abs_of_pos hpos]
 
@@ -123,7 +123,7 @@ theorem le_neg_norm_of_label_false (hn : 0 < n) {y : Fin n → ℝ} {i : Fin n}
   have hs : (if 0 < y (maxIdx hn y) then true else false) = false := congrArg Prod.snd h
   have hnpos : ¬ 0 < y (maxIdx hn y) := by
     intro hcon
-    rw [if_pos hcon] at hs
+    rw [ite_eq_left hcon] at hs
     exact Bool.noConfusion hs
   have habs := abs_maxIdx hn y
   rw [abs_of_nonpos (not_lt.1 hnpos)] at habs
@@ -144,9 +144,9 @@ theorem label_neg (hn : 0 < n) {y : Fin n → ℝ} (hy : y ≠ 0) :
   congr 1
   simp only [Pi.neg_apply]
   by_cases hpos : 0 < y (maxIdx hn y)
-  · rw [if_pos hpos, if_neg (by linarith), Bool.not_true]
+  · rw [ite_eq_left hpos, ite_eq_right (by linarith), Bool.not_true]
   · have hneg : y (maxIdx hn y) < 0 := lt_of_le_of_ne (not_lt.1 hpos) hne
-    rw [if_neg hpos, if_pos (by linarith), Bool.not_false]
+    rw [ite_eq_right hpos, ite_eq_left (by linarith), Bool.not_false]
 
 end CubeLabel
 
@@ -408,23 +408,23 @@ theorem borsukUlam_pi {m k : ℕ} (hk : k < m) (f : (Fin m → ℝ) → (Fin k �
     have hpadcont : Continuous pad := by
       refine continuous_pi fun j => ?_
       by_cases h : (j : ℕ) < k
-      · simp only [hpad, dif_pos h]
+      · simp only [hpad, dite_eq_left h]
         exact continuous_apply _
-      · simp only [hpad, dif_neg h]
+      · simp only [hpad, dite_eq_right h]
         exact continuous_const
     have hpadodd : ∀ z : Fin k → ℝ, pad (-z) = -(pad z) := by
       intro z
       funext j
       rw [Pi.neg_apply, hpad, hpad]
       by_cases h : (j : ℕ) < k
-      · rw [dif_pos h, dif_pos h, Pi.neg_apply]
-      · rw [dif_neg h, dif_neg h, neg_zero]
+      · rw [dite_eq_left h, dite_eq_left h, Pi.neg_apply]
+      · rw [dite_eq_right h, dite_eq_right h, neg_zero]
     have hpadzero : ∀ z : Fin k → ℝ, pad z = 0 → z = 0 := by
       intro z hz
       funext i
       have hi : (i : ℕ) < n := lt_of_lt_of_le i.2 hkn
       have h := congrFun hz ⟨i, hi⟩
-      rw [hpad, dif_pos i.2] at h
+      rw [hpad, dite_eq_left i.2] at h
       simpa using h
     -- the map on the cube
     obtain ⟨g, hgdef⟩ : ∃ g : (Fin n → ℝ) → (Fin n → ℝ),

@@ -124,8 +124,8 @@ theorem exists_bisection_scheme {X : Type*} [PseudoMetricSpace X] [Nonempty X] {
         · exact ⟨hne, (Metric.mem_closure_iff_infDist_zero hne).1 hxc⟩
     by_cases hb : U₁.Nonempty ∧ f x = 0
     · -- The point lies in the closure of the first half: continue with `S₁`.
-      have hce : choice (f x) = S₁ := by rw [hchoice]; exact if_pos hb
-      rw [if_pos hb, hce]
+      have hce : choice (f x) = S₁ := by rw [hchoice]; exact ite_eq_left hb
+      rw [ite_eq_left hb, hce]
       exact hS₁ x (hmem.1 hb)
     · -- Otherwise the point is not in the closure of the first half, hence in the
       -- closure of the second: continue with `S₂`.
@@ -136,8 +136,8 @@ theorem exists_bisection_scheme {X : Type*} [PseudoMetricSpace X] [Nonempty X] {
         rcases hx with hx | hx
         · exact absurd (hmem.2 hx) hb
         · exact hx
-      have hce : choice (f x) = S₂ := by rw [hchoice]; exact if_neg hb
-      rw [if_neg hb, hce]
+      have hce : choice (f x) = S₂ := by rw [hchoice]; exact ite_eq_right hb
+      rw [ite_eq_right hb, hce]
       exact hS₂ x hxc₂
 
 end ContMeasurements

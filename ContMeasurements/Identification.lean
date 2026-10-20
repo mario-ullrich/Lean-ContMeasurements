@@ -108,7 +108,7 @@ theorem decodePoint_mem [Nonempty X] {cc : ColoredCover X ι K ε c} {r : Fin K}
   have h : ∃ y : X, ∃ i', cc.color i' = r ∧ y ∈ cc.piece i' ∧
       (e i' : ℤ) + 1 = (e i : ℤ) + 1 :=
     ⟨p, i, hi, hp, rfl⟩
-  rw [decodePoint, dif_pos h]
+  rw [decodePoint, dite_eq_left h]
   obtain ⟨i', hi', hmem', hn'⟩ := h.choose_spec
   have hii : i' = i := he (by omega)
   subst hii
@@ -123,9 +123,9 @@ theorem continuous_identifyTerm (i : ι) : Continuous (identifyTerm cc r e i) :=
   classical
   unfold identifyTerm
   by_cases h : cc.color i = r ∧ (cc.piece i).Nonempty
-  · simp only [if_pos h]
+  · simp only [ite_eq_left h]
     exact continuous_const.mul ((continuous_collar c).comp (Metric.continuous_infDist_pt _))
-  · simp only [if_neg h]
+  · simp only [ite_eq_right h]
     exact continuous_const
 
 /-- If the term of a piece is nonzero somewhere in a small ball, the piece comes
@@ -136,7 +136,7 @@ theorem exists_mem_of_identifyTerm_ne_zero (hc : 0 < c) {i : ι} {x₀ z : X}
   classical
   unfold identifyTerm at hw
   by_cases h : cc.color i = r ∧ (cc.piece i).Nonempty
-  · rw [if_pos h] at hw
+  · rw [ite_eq_left h] at hw
     have hcol : collar c (Metric.infDist z (cc.piece i)) ≠ 0 := by
       intro h0
       rw [h0, mul_zero] at hw
@@ -146,7 +146,7 @@ theorem exists_mem_of_identifyTerm_ne_zero (hc : 0 < c) {i : ι} {x₀ z : X}
     exact ⟨h.1, p, hp, by
       have := dist_triangle x₀ z p
       linarith⟩
-  · rw [if_neg h] at hw
+  · rw [ite_eq_right h] at hw
     exact absurd rfl hw
 
 /-- Near any point, at most one piece of the color `r` contributes a nonzero term:
@@ -189,7 +189,7 @@ theorem identify_eq (hc : 0 < c) {i : ι} (hi : cc.color i = r) {x p : X} (hp : 
     have := dist_triangle p x q
     rw [dist_comm p x] at this
     linarith
-  rw [identify, finsum_eq_single _ i hzero, identifyTerm, if_pos ⟨hi, hne⟩,
+  rw [identify, finsum_eq_single _ i hzero, identifyTerm, ite_eq_left ⟨hi, hne⟩,
     collar_eq_one hc (le_of_lt (lt_of_le_of_lt (Metric.infDist_le_dist_of_mem hp) hxp)),
     mul_one]
 
