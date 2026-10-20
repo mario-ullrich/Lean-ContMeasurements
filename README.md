@@ -1,4 +1,4 @@
-# Complexity using adaptive continuous measurements in Lean 4 / Mathlib
+# A Borsuk–Ulam theorem for adaptive continuous measurements in Lean 4 / Mathlib
 
 A Lean 4 / Mathlib formalisation of matching upper and lower bounds for **recovery from
 adaptively chosen continuous measurements**, in the noise-free setting. Together they
@@ -12,9 +12,6 @@ axioms Mathlib relies on throughout (`propext`, `Classical.choice`, `Quot.sound`
   <https://mario-ullrich.github.io/Lean-ContMeasurements/blueprint.pdf>
 * **Dependency graph**:
   <https://mario-ullrich.github.io/Lean-ContMeasurements/dep_graph_document.html>
-
-GitHub Pages serves these three once the repository is public. Until then the same site and
-PDF are downloadable from every run under *Actions* as the artifact `blueprint-YYYYMMDD`.
 
 ## The question
 
@@ -161,8 +158,7 @@ lake env lean check_decls.lean   # every \lean{Decl} must compile
 
 GitHub Actions builds the project and the blueprint on every push to `main`, checks every
 `\lean` tag against the compiled project, uploads the site and the PDF as a run artifact,
-and deploys the blueprint to GitHub Pages once the repository is public. Neither output is
-committed.
+and deploys the blueprint to GitHub Pages. Neither output is committed.
 
 ## AI assistance
 
