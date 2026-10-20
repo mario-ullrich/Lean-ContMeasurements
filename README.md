@@ -19,20 +19,18 @@ You want to know a vector `x` of a `d`-dimensional real normed space, up to an e
 `ε` in the norm. You cannot see `x`; you may only compute real numbers
 `λ₁(x), …, λₙ(x)`. How large must `n` be?
 
-* If the `λᵢ` are **linear**, fewer than `d` measurements are useless, even if each
-  is chosen after seeing the previous values. Whatever you learn, a whole affine
-  subspace is consistent with it.
-* If the `λᵢ` are **continuous but fixed in advance**, fewer than `d` are useless
-  again, this time by the Borsuk–Ulam theorem: some antipodal pair, at distance `2R`,
-  produces identical values.
-* If the `λᵢ` are **continuous and chosen adaptively**, the answer changes completely:
-  `⌈log₂ d⌉ + 1` measurements suffice for arbitrary accuracy, and `⌈log₂(d+1)⌉` are
-  necessary.
+* If the `λᵢ` are **linear**, `d` measurements are needed, even if each is chosen after
+  seeing the previous values: with fewer, a whole affine subspace is consistent with
+  what has been observed.
+* If the `λᵢ` are **continuous but fixed in advance**, `d` are needed again, by the
+  Borsuk–Ulam theorem: with fewer, some antipodal pair, at distance `2R`, produces
+  identical values.
+* If the `λᵢ` are **continuous and chosen adaptively**, `⌈log₂ d⌉ + 1` measurements
+  suffice for arbitrary accuracy, and `⌈log₂(d+1)⌉` are necessary.
 
-Neither ingredient alone helps; their combination buys an exponential saving. The
-reason the classical obstruction disappears is that the information map
-`x ↦ (λ₁(x), …, λₙ(x))` of an adaptive scheme is in general **discontinuous**, so
-Borsuk–Ulam does not apply to it.
+Adaptivity and nonlinearity together bring the count from `d` down to `⌈log₂ d⌉ + 1`. The
+information map `x ↦ (λ₁(x), …, λₙ(x))` of an adaptive scheme is in general
+**discontinuous**, and the Borsuk–Ulam theorem speaks about continuous maps.
 
 ## The model
 
@@ -60,19 +58,17 @@ adaptive scheme on it. `Nat.clog 2 d` is Mathlib's `⌈log₂ d⌉`.
   on a compact symmetric set, that set is covered by `2ⁿ - 1` split sets
   (`AdaptiveScheme.DistinguishesAntipodes.hasSplitCover`), by way of the halving lemma
   (`hasSplitCover_two_mul_of_forall_fiber`). The least such number is the covering form of
-  the Krasnosel'skiĭ genus. This step uses no topology beyond compactness, and in particular
-  no Borsuk–Ulam.
-* **Borsuk–Ulam**, proved here rather than assumed, since Mathlib has neither it nor
-  Brouwer's fixed point theorem nor Sperner's lemma. Tucker's lemma on the triangulation of
+  the Krasnosel'skiĭ genus. This step uses compactness alone.
+* **Borsuk–Ulam**, proved here combinatorially. Tucker's lemma on the triangulation of
   the integer cube (`GridSimplex.tucker`) gives the antipodal theorem for the cube
   (`borsukUlam_cube`), then the odd-map form on the Euclidean sphere (`borsukUlam`), and
   finally the form the lower bound uses: for a continuous odd `Ψ : E → ℝᵏ` with `k < d` and
   any `R > 0` there is an `x` with `‖x‖ = R` and `Ψ x = 0`
   (`Function.Odd.exists_norm_eq_and_eq_zero_of_lt_finrank`).
 * **Upper bound.** If `0 < d ≤ 2ᵏ`, then for every `ε > 0` there are a scheme and a
-  reconstruction with `‖x - Φ (S.info (k + 1) x)‖ ≤ ε` for **every** `x`, with no bound on
-  `‖x‖` assumed (`exists_recovery_scheme`). In particular `⌈log₂ d⌉ + 1` measurements
-  suffice (`exists_recovery_scheme_clog`); the maximum norm on `ℝᵈ` is the case
+  reconstruction with `‖x - Φ (S.info (k + 1) x)‖ ≤ ε` for **every** `x ∈ E`
+  (`exists_recovery_scheme`). In particular `⌈log₂ d⌉ + 1` measurements suffice
+  (`exists_recovery_scheme_clog`); the maximum norm on `ℝᵈ` is the case
   `exists_recovery_scheme_pi`.
 * **The three ingredients of the upper bound.** A Lebesgue cover of `ℝᵐ` by `m + 1` colors,
   with pieces of diameter at most `3/2` and pieces of one color at distance at least
@@ -94,27 +90,17 @@ adaptive scheme on it. `Nat.clog 2 d` is Mathlib's `⌈log₂ d⌉`.
   `finrank_add_one_le_two_pow_minMeasurements`). The upper half needs only `ε > 0`. The two
   bounds meet when `d` is a power of two, where `minMeasurements E R ε = k + 1` for
   `d = 2ᵏ` (`minMeasurements_eq_of_finrank_eq_two_pow`), and differ by one otherwise. For
-  `d = 2` and `d = 4`, for instance, they pin the answer down at `2` and `3`.
+  `d = 2` and `d = 4`, for instance, the answer is `2` and `3`.
 
-The upper bound and the covering proposition are independent of Borsuk–Ulam; the lower
-bound rests on it. Everything else is in the blueprint, with its Lean name at every
-statement.
-
-## What is left to do
-
-* The Banach-space extension of the lower bound: `eₙᶜᵒⁿᵗ(F, Y) ≥ b_{2ⁿ-1}(F, Y)` in
-  terms of Bernstein widths (Section 5 of the lower-bound paper). The proof is local:
-  it uses only one sphere inside `F`, so the machinery here already covers it.
-* The **noisy** setting of a companion paper, where the answer is governed by entropy
-  numbers instead.
-* The Lipschitz variant: all functionals used here are `1`-Lipschitz except the
-  identification measurement; the paper's Lipschitz version costs one more measurement.
+The lower bound rests on Borsuk–Ulam; the upper bound and the covering proposition are
+elementary. Everything else is in the blueprint, with its Lean name at every statement.
 
 ## Organisation
 
-Two libraries. `BasicResults` holds the general mathematics the theory consumes: nothing
-there mentions measurements, every statement is a candidate for Mathlib, and the results
-live in root namespaces as a Mathlib contribution would. It contains split covers and the
+Two libraries. `BasicResults` holds the general mathematics the theory consumes: every
+statement there is about metric geometry, equivariant topology or the real line, a
+candidate for Mathlib, and the results live in root namespaces as a Mathlib contribution
+would. It contains split covers and the
 halving lemma, the triangulation of the integer cube, Tucker's lemma, Borsuk–Ulam, colored
 covers with the Lebesgue cover, and the logistic function with its inverse;
 [MathlibCandidates.md](MathlibCandidates.md) lists what could be upstreamed.
