@@ -468,7 +468,7 @@ ContMeasurements.finrank_add_one_le_two_pow_minMeasurements}
 \leanok
 \uses{def:min-measurements}
 Let $E$ be a finite-dimensional real normed space with $\dim E = d \ge 1$ and let
-$0 < \varepsilon < R$. Then $d + 1 \le 2^{\,n^*(E, R, \varepsilon)}$ and
+$0 < \varepsilon < R$. Then
 \[
   \lceil \log_2 (d+1) \rceil \;\le\; n^*(E, R, \varepsilon)
   \;\le\; \lceil \log_2 d \rceil + 1 .
@@ -480,7 +480,7 @@ $0 < \varepsilon < R$. Then $d + 1 \le 2^{\,n^*(E, R, \varepsilon)}$ and
 The upper bound is Corollary~\ref{cor:upper-bound-clog}. For the lower bound, an algorithm
 accurate to within $\varepsilon < R$ on the ball of radius $R$ cannot err by $R$ on the
 sphere of radius $R$, so Corollary~\ref{cor:lower-error} forbids
-$2^{n} \le d$.
+$2^{n} \le d$, that is, $d + 1 \le 2^n$ and $n \ge \lceil \log_2 (d+1) \rceil$.
 \end{proof}
 
 \begin{corollary}[Equality in dimension a power of two]
@@ -495,8 +495,8 @@ $n^*(E, R, \varepsilon) = k + 1$.
 \leanok
 \uses{thm:upper-bound, cor:sandwich}
 Theorem~\ref{thm:upper-bound} with $d = 2^k$ gives $n^*(E, R, \varepsilon) \le k + 1$.
-Conversely $2^k + 1 \le 2^{\,n^*(E, R, \varepsilon)}$ by Corollary~\ref{cor:sandwich},
-so $n^*(E, R, \varepsilon) \ge k + 1$.
+Conversely $n^*(E, R, \varepsilon) \ge \lceil \log_2 (2^k + 1) \rceil = k + 1$ by
+Corollary~\ref{cor:sandwich}.
 \end{proof}
 
 The two bounds meet when $d$ is a power of two and differ by one otherwise.
