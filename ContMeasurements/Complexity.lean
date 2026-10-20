@@ -55,7 +55,7 @@ and every radius.  Proved unconditionally. -/
 theorem minMeasurements_le {d : ℕ} (hd : Module.finrank ℝ E = d) (hd0 : 0 < d)
     (R : ℝ) {ε : ℝ} (hε : 0 < ε) : minMeasurements E R ε ≤ Nat.clog 2 d + 1 := by
   refine Nat.sInf_le ?_
-  obtain ⟨S, Φ, hSΦ⟩ := exists_recovery_scheme hd hd0 hε
+  obtain ⟨S, Φ, hSΦ⟩ := exists_recovery_scheme_clog hd hd0 hε
   exact ⟨S, Φ, fun x _ => hSΦ x⟩
 
 /-- **The lower bound, in counting form.**  An algorithm accurate to within `ε < R` on
@@ -66,7 +66,7 @@ theorem finrank_add_one_le_two_pow_minMeasurements {d : ℕ} (hd : Module.finran
   have hne : {n | ∃ (S : AdaptiveScheme E) (Φ : (Fin n → ℝ) → E),
       ∀ x ∈ Metric.closedBall (0 : E) R, ‖x - Φ (S.info n x)‖ ≤ ε}.Nonempty := by
     refine ⟨Nat.clog 2 d + 1, ?_⟩
-    obtain ⟨S, Φ, hSΦ⟩ := exists_recovery_scheme hd hd0 hε
+    obtain ⟨S, Φ, hSΦ⟩ := exists_recovery_scheme_clog hd hd0 hε
     exact ⟨S, Φ, fun x _ => hSΦ x⟩
   obtain ⟨S, Φ, hSΦ⟩ :
       ∃ (S : AdaptiveScheme E) (Φ : (Fin (minMeasurements E R ε) → ℝ) → E),
@@ -101,8 +101,9 @@ theorem minMeasurements_eq_of_finrank_eq_two_pow {k : ℕ} (hd : Module.finrank 
     {R ε : ℝ} (hε : 0 < ε) (hεR : ε < R) : minMeasurements E R ε = k + 1 := by
   have hd0 : 0 < 2 ^ k := Nat.one_le_two_pow
   have hle : minMeasurements E R ε ≤ k + 1 := by
-    have h := minMeasurements_le hd hd0 R hε
-    rwa [Nat.clog_pow 2 k one_lt_two] at h
+    refine Nat.sInf_le ?_
+    obtain ⟨S, Φ, hSΦ⟩ := exists_recovery_scheme hd hd0 le_rfl hε
+    exact ⟨S, Φ, fun x _ => hSΦ x⟩
   have hge : k + 1 ≤ minMeasurements E R ε := by
     have h := finrank_add_one_le_two_pow_minMeasurements hd hd0 hε hεR
     by_contra hcon

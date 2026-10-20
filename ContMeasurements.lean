@@ -21,7 +21,8 @@ continuous functional and may be chosen on the basis of the values already obser
 With **linear** measurements, even adaptively chosen, fewer than `d` achieve nothing
 at all, and the same is true of **nonadaptive continuous** measurements, by the
 Borsuk–Ulam theorem.  Combining adaptivity with nonlinearity changes the answer
-completely: `⌈log₂ d⌉ + 1` measurements suffice, and `⌈log₂(d+1)⌉` are necessary.
+completely: `k + 1` measurements suffice whenever `d ≤ 2ᵏ`, and `n` measurements fail
+whenever `2ⁿ ≤ d`.  In dimension `d = 2ᵏ` exactly `k + 1` are needed.
 
 ## Layout
 
@@ -34,12 +35,12 @@ Nothing there mentions measurements. This library holds the theory itself.
 * `ContMeasurements.LowerBound`: `n` measurements separating antipodes force
   `2ⁿ ≥ d + 1`, hence an error of at least `R` on the sphere of radius `R` when
   `2ⁿ ≤ d`.
-* `ContMeasurements.Bisection`: finding a color costs `⌈log₂ (number of colors)⌉`
+* `ContMeasurements.Bisection`: finding a color among at most `2ᴸ` costs `L`
   measurements.
 * `ContMeasurements.Identification`: one measurement names a piece within a color,
   with an integer value whose fractional part is free to carry one more coordinate.
-* `ContMeasurements.UpperBound`: `⌈log₂ d⌉ + 1` measurements recover any vector of a
-  `d`-dimensional real normed space to any accuracy.
+* `ContMeasurements.UpperBound`: if `d ≤ 2ᵏ`, then `k + 1` measurements recover any
+  vector of a `d`-dimensional real normed space to any accuracy.
 * `ContMeasurements.Complexity`: the minimal number `n*`, the sandwich
   `⌈log₂(d+1)⌉ ≤ n* ≤ ⌈log₂ d⌉ + 1`, and equality `n* = k + 1` in dimension `2ᵏ`.
 -/

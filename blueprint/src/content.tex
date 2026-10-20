@@ -867,8 +867,8 @@ measurement below.
 \label{ch:bisection}
 
 Two ingredients turn a coloured cover into an algorithm: one measurement names the
-piece within a colour class, and $\lceil \log_2 K \rceil$ adaptive measurements find
-the colour.
+piece within a colour class, and $L$ adaptive measurements find the colour among at
+most $2^L$.
 
 \begin{theorem}[The identification measurement]
 \label{thm:identification}
@@ -919,27 +919,46 @@ branch combinator, asking first a functional that separates the two halves.
 \lean{ContMeasurements.exists_recovery_scheme}
 \leanok
 \uses{def:adaptive-scheme, def:info, thm:lebesgue-cover, lem:scale, thm:identification,
-thm:bisection}
-Let $E$ be a real normed space with $\dim E = d \ge 1$ and let $\varepsilon > 0$. Then
-there are an adaptive scheme $S$ on $E$ and a map
-$\Phi : \mathbb{R}^{\lceil \log_2 d \rceil + 1} \to E$ with
+thm:bisection, def:logistic}
+Let $E$ be a real normed space with $\dim E = d \ge 1$, let $k \in \mathbb{N}_0$ with
+$d \le 2^k$, and let $\varepsilon > 0$. Then there are an adaptive scheme $S$ on $E$ and
+a map $\Phi : \mathbb{R}^{k+1} \to E$ with
 \[
-  \| x - \Phi( N_{\lceil \log_2 d \rceil + 1}(x) ) \| \le \varepsilon
+  \| x - \Phi( N_{k+1}(x) ) \| \le \varepsilon
   \qquad \text{for every } x \in E .
 \]
 \end{theorem}
 \begin{proof}
 \leanok
-\uses{thm:lebesgue-cover, lem:scale, thm:identification, thm:bisection}
-In coordinates: rescale the Lebesgue cover of $\mathbb{R}^d$
-(Theorem~\ref{thm:lebesgue-cover}, Lemma~\ref{lem:scale}) to diameter below
-$\varepsilon$. One identification measurement is $\varepsilon$-accurate on each of the
-$d + 1$ colour classes (Theorem~\ref{thm:identification}), and
-$\lceil \log_2 (d+1) \rceil$ bisection measurements find the colour
-(Theorem~\ref{thm:bisection}), which is
-$\lceil \log_2 d \rceil + 1$ measurements in total. For a general norm, transport the
-coordinate algorithm along a linear homeomorphism and rescale the accuracy by the norm
-of its inverse.
+\uses{thm:lebesgue-cover, lem:scale, thm:identification, thm:bisection, def:logistic}
+Write $d = m + 1$ and work in coordinates. Rescale the Lebesgue cover of
+$\mathbb{R}^m$, which has $m + 1 = d$ colours, to diameter below $\varepsilon$
+(Theorem~\ref{thm:lebesgue-cover}, Lemma~\ref{lem:scale}), and read the first $m$
+coordinates of $x$ through it. For each colour, one identification measurement
+(Theorem~\ref{thm:identification}) names the piece containing those coordinates by an
+integer; adding the logistic image of the last coordinate, a number in $(0,1)$, leaves
+the integer part intact while the fractional part carries the last coordinate exactly,
+so one measurement is $\varepsilon$-accurate on each colour class. Bisection over the
+$d \le 2^k$ colours costs $k$ further measurements (Theorem~\ref{thm:bisection}),
+$k + 1$ in total. For a general norm, transport the coordinate algorithm along a linear
+homeomorphism and rescale the accuracy by the norm of its inverse.
+\end{proof}
+
+\begin{corollary}[Upper bound, closed form]
+\label{cor:upper-bound-clog}
+\lean{ContMeasurements.exists_recovery_scheme_clog}
+\leanok
+\uses{thm:upper-bound}
+Let $E$ be a real normed space with $\dim E = d \ge 1$ and let $\varepsilon > 0$. Then
+$\lceil \log_2 d \rceil + 1$ measurements suffice: there are an adaptive scheme $S$ on
+$E$ and a map $\Phi$ with $\| x - \Phi( N_n(x) ) \| \le \varepsilon$ for every
+$x \in E$, where $n = \lceil \log_2 d \rceil + 1$.
+\end{corollary}
+\begin{proof}
+\leanok
+\uses{thm:upper-bound}
+Theorem~\ref{thm:upper-bound} with $k = \lceil \log_2 d \rceil$, since
+$d \le 2^{\lceil \log_2 d \rceil}$.
 \end{proof}
 
 \begin{definition}[Measurement complexity]
@@ -958,7 +977,7 @@ $\|x - \Phi(N_n(x))\| \le \varepsilon$ for every $x$ of the closed ball of radiu
 \lean{ContMeasurements.clog_le_minMeasurements_and_le,
 ContMeasurements.finrank_add_one_le_two_pow_minMeasurements}
 \leanok
-\uses{def:min-measurements, thm:upper-bound, cor:lower-error}
+\uses{def:min-measurements, cor:upper-bound-clog, cor:lower-error}
 Let $E$ be a finite-dimensional real normed space with $\dim E = d \ge 1$ and let
 $0 < \varepsilon < R$. Then $d + 1 \le 2^{\,n^*(E, R, \varepsilon)}$ and
 \[
@@ -968,8 +987,8 @@ $0 < \varepsilon < R$. Then $d + 1 \le 2^{\,n^*(E, R, \varepsilon)}$ and
 \end{corollary}
 \begin{proof}
 \leanok
-\uses{thm:upper-bound, cor:lower-error}
-The upper bound is Theorem~\ref{thm:upper-bound}. For the lower bound, an algorithm
+\uses{cor:upper-bound-clog, cor:lower-error}
+The upper bound is Corollary~\ref{cor:upper-bound-clog}. For the lower bound, an algorithm
 accurate to within $\varepsilon < R$ on the ball of radius $R$ cannot err by $R$ on the
 sphere of radius $R$, so Corollary~\ref{cor:lower-error} forbids
 $2^{n} \le d$.
@@ -979,14 +998,16 @@ $2^{n} \le d$.
 \label{cor:power-of-two}
 \lean{ContMeasurements.minMeasurements_eq_of_finrank_eq_two_pow}
 \leanok
-\uses{cor:sandwich}
+\uses{def:min-measurements}
 Let $E$ be a real normed space with $\dim E = 2^k$ and let $0 < \varepsilon < R$. Then
 $n^*(E, R, \varepsilon) = k + 1$.
 \end{corollary}
 \begin{proof}
 \leanok
-\uses{cor:sandwich}
-Both bounds of Corollary~\ref{cor:sandwich} equal $k + 1$.
+\uses{thm:upper-bound, cor:sandwich}
+Theorem~\ref{thm:upper-bound} with $d = 2^k$ gives $n^*(E, R, \varepsilon) \le k + 1$.
+Conversely $2^k + 1 \le 2^{\,n^*(E, R, \varepsilon)}$ by Corollary~\ref{cor:sandwich},
+so $n^*(E, R, \varepsilon) \ge k + 1$.
 \end{proof}
 
 The two bounds meet when $d$ is a power of two and differ by one otherwise.

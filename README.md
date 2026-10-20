@@ -69,15 +69,18 @@ adaptive scheme on it. `Nat.clog 2 d` is Mathlib's `⌈log₂ d⌉`.
   finally the form the lower bound uses: for a continuous odd `Ψ : E → ℝᵏ` with `k < d` and
   any `R > 0` there is an `x` with `‖x‖ = R` and `Ψ x = 0`
   (`Function.Odd.exists_norm_eq_and_eq_zero_of_lt_finrank`).
-* **Upper bound.** For `d > 0` and every `ε > 0` there are a scheme and a reconstruction
-  with `‖x - Φ (S.info (⌈log₂ d⌉ + 1) x)‖ ≤ ε` for **every** `x`, with no bound on `‖x‖`
-  assumed (`exists_recovery_scheme`); the maximum norm on `ℝᵈ` is the case
+* **Upper bound.** If `0 < d ≤ 2ᵏ`, then for every `ε > 0` there are a scheme and a
+  reconstruction with `‖x - Φ (S.info (k + 1) x)‖ ≤ ε` for **every** `x`, with no bound on
+  `‖x‖` assumed (`exists_recovery_scheme`). In particular `⌈log₂ d⌉ + 1` measurements
+  suffice (`exists_recovery_scheme_clog`); the maximum norm on `ℝᵈ` is the case
   `exists_recovery_scheme_pi`.
 * **The three ingredients of the upper bound.** A Lebesgue cover of `ℝᵐ` by `m + 1` colors,
   with pieces of diameter at most `3/2` and pieces of one color at distance at least
-  `1/(4(m+2))` from each other (`ColoredCover.lebesgue`); one measurement that names a piece
-  of a given color by an integer value (`exists_identification`); and bisection, which joins
-  the schemes for at most `2^L` color classes into one for their union at the cost of `L`
+  `1/(4(m+2))` from each other (`ColoredCover.lebesgue`), used for the first `m = d - 1`
+  coordinates, so that it has `d` colors; one measurement that names a piece of a given
+  color by an integer value (`exists_identification`) and carries the last coordinate in
+  its fractional part, through the logistic function; and bisection, which joins the
+  schemes for at most `2^L` color classes into one for their union at the cost of `L`
   further measurements (`exists_bisection_scheme`).
 * **Both bounds together.** `minMeasurements E R ε` is the least `n` admitting a scheme with
   error at most `ε` on the ball of radius `R`. For `d > 0` and `0 < ε < R`,
