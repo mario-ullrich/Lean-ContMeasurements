@@ -45,3 +45,6 @@ refs/
 .claude/
 *.swp
 *~
+
+# Python bytecode caches of the blueprint scripts
+__pycache__/
