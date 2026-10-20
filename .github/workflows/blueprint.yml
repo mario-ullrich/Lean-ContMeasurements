@@ -125,6 +125,13 @@ jobs:
         run: |
           sed -i 's/#A3D6FF/#FFFFFF/g; /<dt>Orange border<\/dt>/d; /<dt>Blue border<\/dt>/d; /<dt>Blue background<\/dt>/d; s/\[style=dashed\]//g; s/<h1 id="doc_title">Dependencies<\/h1>/<h1 id="doc_title">Adaptive Continuous Measurements: Dependencies<\/h1>/' blueprint/web/dep_graph_document.html
 
+      # Set the Borsuk–Ulam appendix apart: its nodes form a cluster labelled as the
+      # appendix, with a thin grey rounded frame. The script lists the nodes from the
+      # blueprint source, so a statement added to or removed from the appendix needs no
+      # change here, and it fails if a listed name is not a node of the graph.
+      - name: Set the Borsuk–Ulam appendix apart in the dependency graph
+        run: python blueprint/scripts/cluster_dep_graph.py
+
       # Zoom the graph, not the page: d3's zoom ignores ctrl+wheel, which is how
       # a touchpad pinch arrives, so the browser zoomed the whole page and with
       # it the statement that opens on a click. The script also lets the graph

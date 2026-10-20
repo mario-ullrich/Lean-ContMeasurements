@@ -120,7 +120,9 @@ covers with the Lebesgue cover, and the logistic function with its inverse;
 [MathlibCandidates.md](MathlibCandidates.md) lists what could be upstreamed.
 `ContMeasurements` holds the theory itself: the model, the lower bound with its covering
 proposition, bisection and identification, the upper bound, and the minimal number of
-measurements.
+measurements. The blueprint states the results of the two papers in seven chapters and
+proves the Borsuk–Ulam theorem in an appendix, which the dependency graph shows as a
+block.
 
 Names follow the Mathlib conventions: `UpperCamelCase` for types and Prop-valued
 definitions, `lowerCamelCase` for data, `snake_case` for theorems, spelled out of the

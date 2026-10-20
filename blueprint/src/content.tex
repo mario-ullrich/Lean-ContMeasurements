@@ -229,6 +229,284 @@ $2(2^{n-1} - 1)$ for all of $K$ minus the first piece, and
 $2(2^{n-1} - 1) + 1 = 2^n - 1$.
 \end{proof}
 
+\chapter{The lower bound}
+\label{ch:lower}
+
+The lower bound is due to Ullrich \cite{U26}. Combining the covering proposition with
+Borsuk--Ulam turns a count of split sets into a bound on the dimension. The
+Borsuk--Ulam theorem is proved in Appendix~\ref{ch:borsuk}, combinatorially, since
+Mathlib does not have it.
+
+\begin{theorem}[Antipodal coincidence]
+\label{thm:antipodal-coincidence}
+\lean{ContMeasurements.exists_norm_eq_and_info_eq_info_neg}
+\leanok
+\uses{def:info, prop:covering, prop:split-cover-odd-map, cor:borsuk-ulam-norm}
+Let $E$ be a real normed space with $\dim E = m$, let $S$ be an adaptive scheme on $E$,
+let $n \in \mathbb{N}_0$ with $2^n \le m$, and let $R > 0$. Then there is $x \in E$ with
+$\|x\| = R$ and $N_n(x) = N_n(-x)$.
+\end{theorem}
+\begin{proof}
+\leanok
+\uses{prop:covering, prop:split-cover-odd-map, cor:borsuk-ulam-norm}
+If not, the scheme distinguishes antipodes on the sphere of radius $R$, which is
+compact and symmetric, so Proposition~\ref{prop:covering} covers that sphere with
+$2^n - 1$ split sets. Proposition~\ref{prop:split-cover-odd-map} turns the cover into a
+continuous odd map into $\mathbb{R}^{2^n - 1}$ without zeros on the sphere. Since
+$2^n - 1 < m$, Corollary~\ref{cor:borsuk-ulam-norm} produces a zero of norm $R$.
+\end{proof}
+
+\begin{corollary}[Counting form]
+\label{cor:counting}
+\lean{ContMeasurements.AdaptiveScheme.DistinguishesAntipodes.finrank_add_one_le_two_pow}
+\leanok
+\uses{def:distinguishes-antipodes, thm:antipodal-coincidence}
+Let $E$ be a finite-dimensional real normed space, $R > 0$, and let a scheme
+distinguish antipodes on the sphere of radius $R$ with $n$ measurements. Then
+$\dim E + 1 \le 2^n$.
+\end{corollary}
+\begin{proof}
+\leanok
+\uses{thm:antipodal-coincidence}
+Otherwise $2^n \le \dim E$, and Theorem~\ref{thm:antipodal-coincidence} produces an
+antipodal pair on the sphere with the same information.
+\end{proof}
+
+\begin{corollary}[Below the threshold nothing is achieved]
+\label{cor:lower-error}
+\lean{ContMeasurements.exists_norm_eq_and_le_norm_sub}
+\leanok
+\uses{thm:antipodal-coincidence}
+Let $E$ be a real normed space with $\dim E = m$, let $S$ be an adaptive scheme on $E$,
+let $n \in \mathbb{N}_0$ with $2^n \le m$, let $R > 0$ and let
+$\Phi : \mathbb{R}^n \to E$ be arbitrary. Then there is $x \in E$ with $\|x\| = R$ and
+$R \le \|x - \Phi(N_n(x))\|$.
+\end{corollary}
+\begin{proof}
+\leanok
+\uses{thm:antipodal-coincidence}
+Take an antipodal pair with the same information. Both points receive the same output,
+and they are $2R$ apart, so one of them is at distance at least $R$ from it.
+\end{proof}
+
+\chapter{Coloured covers}
+\label{ch:colored}
+
+The upper bound is due to Krieg, Novak and Ullrich \cite{KNU}. Its combinatorial
+input is a covering of the space by small pieces whose colours can be told apart
+cheaply.
+
+\begin{definition}[Coloured cover]
+\label{def:colored-cover}
+\lean{ColoredCover}
+\leanok
+A \emph{coloured cover} of a metric space $X$ with $K$ colours, diameter $\varepsilon$
+and separation $c$ consists of pieces $A_i$ covering $X$ and a colour
+$\kappa(i) \in \{1, \dots, K\}$ for each piece, such that
+$\operatorname{dist}(x, y) \le \varepsilon$ for all $x, y$ in one piece, and
+$\operatorname{dist}(x, y) \ge c$ whenever $x \in A_i$, $y \in A_j$ with $i \neq j$ and
+$\kappa(i) = \kappa(j)$.
+\end{definition}
+
+The \emph{colour class} of a colour is the union of the pieces carrying it. Within one
+colour class the pieces are $c$-separated, which is what makes a single measurement
+enough to name the piece.
+
+\begin{lemma}[Rescaling]
+\label{lem:scale}
+\lean{ColoredCover.scale}
+\leanok
+\uses{def:colored-cover}
+For every $s > 0$, a coloured cover with $K$ colours, diameter $\varepsilon$ and
+separation $c$ yields one with $K$ colours, diameter $s\varepsilon$ and separation
+$sc$.
+\end{lemma}
+\begin{proof}
+\leanok
+Replace each piece $A$ by $sA$.
+\end{proof}
+
+\begin{theorem}[The Lebesgue cover of $\mathbb{R}^m$]
+\label{thm:lebesgue-cover}
+\lean{ColoredCover.lebesgue}
+\leanok
+\uses{def:colored-cover}
+The space $\mathbb{R}^m$ with the maximum norm has a coloured cover with $m + 1$
+colours, diameter $3/2$ and a positive separation.
+\end{theorem}
+\begin{proof}
+\leanok
+The pieces are indexed by an integer point together with a subset of the coordinates,
+and are neighbourhoods of the faces of the integer grid; the colour is the size of the
+subset. Two distinct pieces of the same colour meet different faces of the same
+dimension and are therefore separated.
+\end{proof}
+
+The number $m + 1$ is the Lebesgue covering dimension bound and cannot be lowered.
+
+\begin{definition}[Logistic function and logit]
+\label{def:logistic}
+\lean{Real.logistic, Real.logit}
+\leanok
+The \emph{logistic function} is $\ell(s) = e^s / (1 + e^s)$ and the \emph{logit} is
+$\ell^{-1}(p) = \log\bigl( p / (1 - p) \bigr)$.
+\end{definition}
+
+The logistic function is a continuous injection $\mathbb{R} \to (0,1)$; it is what
+compresses a countable family of values into a bounded range in the identification
+measurement below.
+
+\chapter{Bisection and identification}
+\label{ch:bisection}
+
+Two ingredients turn a coloured cover into an algorithm: one measurement names the
+piece within a colour class, and $L$ adaptive measurements find the colour among at
+most $2^L$.
+
+\begin{theorem}[The identification measurement]
+\label{thm:identification}
+\lean{ContMeasurements.exists_identification}
+\leanok
+\uses{def:colored-cover, def:logistic}
+Let $X$ be a nonempty metric space, let $cc$ be a coloured cover of $X$ with countable
+index set, diameter $\varepsilon$ and separation $c > 0$, and let $r$ be a colour.
+Then there are a continuous functional $\varphi : X \to \mathbb{R}$ and a map
+$\mathrm{dec} : \mathbb{Z} \to X$ such that for every $x$ in the closure of the colour
+class of $r$ there is $n \in \mathbb{Z}$ with $\varphi(x) = n$ and
+$\operatorname{dist}\bigl( x, \mathrm{dec}(n) \bigr) \le \varepsilon + c/8$.
+\end{theorem}
+\begin{proof}
+\leanok
+\uses{def:logistic}
+Enumerate the pieces of the colour class and attach to the $j$-th piece a collar
+function, supported in its $c/8$-neighbourhood and equal to $1$ on the piece. The
+functional is the sum of the collar functions weighted by the logit of an injective
+encoding of $j$; the weights make the sum locally finite and continuous, and its value
+on a point of the colour class names the piece.
+\end{proof}
+
+\begin{theorem}[Bisection over colours]
+\label{thm:bisection}
+\lean{ContMeasurements.exists_bisection_scheme}
+\leanok
+\uses{def:adaptive-scheme, def:info}
+Let $X$ be a nonempty metric space, let $A_1, \dots, A_{K}$ be sets, and suppose that
+for each $r$ there are a scheme of $\ell$ measurements and a reconstruction map that is
+$\eta$-accurate on $\overline{A_r}$. Then for every $L \in \mathbb{N}_0$ and every set
+$C$ of at most $2^L$ colours there are a scheme of $\ell + L$ measurements and a
+reconstruction map that is $\eta$-accurate on $\overline{\bigcup_{r \in C} A_r}$.
+\end{theorem}
+\begin{proof}
+\leanok
+\uses{def:adaptive-scheme}
+Induction on $L$. Split $C$ into two halves of at most $2^{L-1}$ colours, take the
+schemes the inductive hypothesis provides for each half, and put them together with the
+branch combinator, asking first a functional that separates the two halves.
+\end{proof}
+
+\chapter{The upper bound and the two bounds together}
+\label{ch:upper}
+
+\begin{theorem}[Upper bound]
+\label{thm:upper-bound}
+\lean{ContMeasurements.exists_recovery_scheme}
+\leanok
+\uses{def:adaptive-scheme, def:info, thm:lebesgue-cover, lem:scale, thm:identification,
+thm:bisection, def:logistic}
+Let $E$ be a real normed space with $\dim E = d \ge 1$, let $k \in \mathbb{N}_0$ with
+$d \le 2^k$, and let $\varepsilon > 0$. Then there are an adaptive scheme $S$ on $E$ and
+a map $\Phi : \mathbb{R}^{k+1} \to E$ with
+\[
+  \| x - \Phi( N_{k+1}(x) ) \| \le \varepsilon
+  \qquad \text{for every } x \in E .
+\]
+\end{theorem}
+\begin{proof}
+\leanok
+\uses{thm:lebesgue-cover, lem:scale, thm:identification, thm:bisection, def:logistic}
+Write $d = m + 1$ and work in coordinates. Rescale the Lebesgue cover of
+$\mathbb{R}^m$, which has $m + 1 = d$ colours, to diameter below $\varepsilon$
+(Theorem~\ref{thm:lebesgue-cover}, Lemma~\ref{lem:scale}), and read the first $m$
+coordinates of $x$ through it. For each colour, one identification measurement
+(Theorem~\ref{thm:identification}) names the piece containing those coordinates by an
+integer; adding the logistic image of the last coordinate, a number in $(0,1)$, leaves
+the integer part intact while the fractional part carries the last coordinate exactly,
+so one measurement is $\varepsilon$-accurate on each colour class. Bisection over the
+$d \le 2^k$ colours costs $k$ further measurements (Theorem~\ref{thm:bisection}),
+$k + 1$ in total. For a general norm, transport the coordinate algorithm along a linear
+homeomorphism and rescale the accuracy by the norm of its inverse.
+\end{proof}
+
+\begin{corollary}[Upper bound, closed form]
+\label{cor:upper-bound-clog}
+\lean{ContMeasurements.exists_recovery_scheme_clog}
+\leanok
+\uses{thm:upper-bound}
+Let $E$ be a real normed space with $\dim E = d \ge 1$ and let $\varepsilon > 0$. Then
+$\lceil \log_2 d \rceil + 1$ measurements suffice: there are an adaptive scheme $S$ on
+$E$ and a map $\Phi$ with $\| x - \Phi( N_n(x) ) \| \le \varepsilon$ for every
+$x \in E$, where $n = \lceil \log_2 d \rceil + 1$.
+\end{corollary}
+\begin{proof}
+\leanok
+\uses{thm:upper-bound}
+Theorem~\ref{thm:upper-bound} with $k = \lceil \log_2 d \rceil$, since
+$d \le 2^{\lceil \log_2 d \rceil}$.
+\end{proof}
+
+\begin{definition}[Measurement complexity]
+\label{def:min-measurements}
+\lean{ContMeasurements.minMeasurements}
+\leanok
+\uses{def:info}
+For a normed space $E$ and $R, \varepsilon > 0$, let $n^*(E, R, \varepsilon)$ be the
+least $n$ for which there are an adaptive scheme $S$ on $E$ and a map
+$\Phi : \mathbb{R}^n \to E$ with
+$\|x - \Phi(N_n(x))\| \le \varepsilon$ for every $x$ of the closed ball of radius $R$.
+\end{definition}
+
+\begin{corollary}[The two bounds]
+\label{cor:sandwich}
+\lean{ContMeasurements.clog_le_minMeasurements_and_le,
+ContMeasurements.finrank_add_one_le_two_pow_minMeasurements}
+\leanok
+\uses{def:min-measurements, cor:upper-bound-clog, cor:lower-error}
+Let $E$ be a finite-dimensional real normed space with $\dim E = d \ge 1$ and let
+$0 < \varepsilon < R$. Then $d + 1 \le 2^{\,n^*(E, R, \varepsilon)}$ and
+\[
+  \lceil \log_2 (d+1) \rceil \;\le\; n^*(E, R, \varepsilon)
+  \;\le\; \lceil \log_2 d \rceil + 1 .
+\]
+\end{corollary}
+\begin{proof}
+\leanok
+\uses{cor:upper-bound-clog, cor:lower-error}
+The upper bound is Corollary~\ref{cor:upper-bound-clog}. For the lower bound, an algorithm
+accurate to within $\varepsilon < R$ on the ball of radius $R$ cannot err by $R$ on the
+sphere of radius $R$, so Corollary~\ref{cor:lower-error} forbids
+$2^{n} \le d$.
+\end{proof}
+
+\begin{corollary}[Equality in dimension a power of two]
+\label{cor:power-of-two}
+\lean{ContMeasurements.minMeasurements_eq_of_finrank_eq_two_pow}
+\leanok
+\uses{def:min-measurements}
+Let $E$ be a real normed space with $\dim E = 2^k$ and let $0 < \varepsilon < R$. Then
+$n^*(E, R, \varepsilon) = k + 1$.
+\end{corollary}
+\begin{proof}
+\leanok
+\uses{thm:upper-bound, cor:sandwich}
+Theorem~\ref{thm:upper-bound} with $d = 2^k$ gives $n^*(E, R, \varepsilon) \le k + 1$.
+Conversely $2^k + 1 \le 2^{\,n^*(E, R, \varepsilon)}$ by Corollary~\ref{cor:sandwich},
+so $n^*(E, R, \varepsilon) \ge k + 1$.
+\end{proof}
+
+The two bounds meet when $d$ is a power of two and differ by one otherwise.
+
+\appendix
+
 \chapter{The Kuhn triangulation of an integer cube}
 \label{ch:grid}
 
@@ -737,280 +1015,6 @@ A linear homeomorphism carries the Euclidean unit sphere onto a compact symmetri
 and $u \mapsto (R / \|e(u)\|) \, e(u)$ sends that set onto the sphere of radius $R$,
 oddly and continuously.
 \end{proof}
-
-\chapter{The lower bound}
-\label{ch:lower}
-
-The lower bound is due to Ullrich \cite{U26}. Combining the covering proposition with
-Borsuk--Ulam turns a count of split sets into a bound on the dimension.
-
-\begin{theorem}[Antipodal coincidence]
-\label{thm:antipodal-coincidence}
-\lean{ContMeasurements.exists_norm_eq_and_info_eq_info_neg}
-\leanok
-\uses{def:info, prop:covering, prop:split-cover-odd-map, cor:borsuk-ulam-norm}
-Let $E$ be a real normed space with $\dim E = m$, let $S$ be an adaptive scheme on $E$,
-let $n \in \mathbb{N}_0$ with $2^n \le m$, and let $R > 0$. Then there is $x \in E$ with
-$\|x\| = R$ and $N_n(x) = N_n(-x)$.
-\end{theorem}
-\begin{proof}
-\leanok
-\uses{prop:covering, prop:split-cover-odd-map, cor:borsuk-ulam-norm}
-If not, the scheme distinguishes antipodes on the sphere of radius $R$, which is
-compact and symmetric, so Proposition~\ref{prop:covering} covers that sphere with
-$2^n - 1$ split sets. Proposition~\ref{prop:split-cover-odd-map} turns the cover into a
-continuous odd map into $\mathbb{R}^{2^n - 1}$ without zeros on the sphere. Since
-$2^n - 1 < m$, Corollary~\ref{cor:borsuk-ulam-norm} produces a zero of norm $R$.
-\end{proof}
-
-\begin{corollary}[Counting form]
-\label{cor:counting}
-\lean{ContMeasurements.AdaptiveScheme.DistinguishesAntipodes.finrank_add_one_le_two_pow}
-\leanok
-\uses{def:distinguishes-antipodes, thm:antipodal-coincidence}
-Let $E$ be a finite-dimensional real normed space, $R > 0$, and let a scheme
-distinguish antipodes on the sphere of radius $R$ with $n$ measurements. Then
-$\dim E + 1 \le 2^n$.
-\end{corollary}
-\begin{proof}
-\leanok
-\uses{thm:antipodal-coincidence}
-Otherwise $2^n \le \dim E$, and Theorem~\ref{thm:antipodal-coincidence} produces an
-antipodal pair on the sphere with the same information.
-\end{proof}
-
-\begin{corollary}[Below the threshold nothing is achieved]
-\label{cor:lower-error}
-\lean{ContMeasurements.exists_norm_eq_and_le_norm_sub}
-\leanok
-\uses{thm:antipodal-coincidence}
-Let $E$ be a real normed space with $\dim E = m$, let $S$ be an adaptive scheme on $E$,
-let $n \in \mathbb{N}_0$ with $2^n \le m$, let $R > 0$ and let
-$\Phi : \mathbb{R}^n \to E$ be arbitrary. Then there is $x \in E$ with $\|x\| = R$ and
-$R \le \|x - \Phi(N_n(x))\|$.
-\end{corollary}
-\begin{proof}
-\leanok
-\uses{thm:antipodal-coincidence}
-Take an antipodal pair with the same information. Both points receive the same output,
-and they are $2R$ apart, so one of them is at distance at least $R$ from it.
-\end{proof}
-
-\chapter{Coloured covers}
-\label{ch:colored}
-
-The upper bound is due to Krieg, Novak and Ullrich \cite{KNU}. Its combinatorial
-input is a covering of the space by small pieces whose colours can be told apart
-cheaply.
-
-\begin{definition}[Coloured cover]
-\label{def:colored-cover}
-\lean{ColoredCover}
-\leanok
-A \emph{coloured cover} of a metric space $X$ with $K$ colours, diameter $\varepsilon$
-and separation $c$ consists of pieces $A_i$ covering $X$ and a colour
-$\kappa(i) \in \{1, \dots, K\}$ for each piece, such that
-$\operatorname{dist}(x, y) \le \varepsilon$ for all $x, y$ in one piece, and
-$\operatorname{dist}(x, y) \ge c$ whenever $x \in A_i$, $y \in A_j$ with $i \neq j$ and
-$\kappa(i) = \kappa(j)$.
-\end{definition}
-
-The \emph{colour class} of a colour is the union of the pieces carrying it. Within one
-colour class the pieces are $c$-separated, which is what makes a single measurement
-enough to name the piece.
-
-\begin{lemma}[Rescaling]
-\label{lem:scale}
-\lean{ColoredCover.scale}
-\leanok
-\uses{def:colored-cover}
-For every $s > 0$, a coloured cover with $K$ colours, diameter $\varepsilon$ and
-separation $c$ yields one with $K$ colours, diameter $s\varepsilon$ and separation
-$sc$.
-\end{lemma}
-\begin{proof}
-\leanok
-Replace each piece $A$ by $sA$.
-\end{proof}
-
-\begin{theorem}[The Lebesgue cover of $\mathbb{R}^m$]
-\label{thm:lebesgue-cover}
-\lean{ColoredCover.lebesgue}
-\leanok
-\uses{def:colored-cover}
-The space $\mathbb{R}^m$ with the maximum norm has a coloured cover with $m + 1$
-colours, diameter $3/2$ and a positive separation.
-\end{theorem}
-\begin{proof}
-\leanok
-The pieces are indexed by an integer point together with a subset of the coordinates,
-and are neighbourhoods of the faces of the integer grid; the colour is the size of the
-subset. Two distinct pieces of the same colour meet different faces of the same
-dimension and are therefore separated.
-\end{proof}
-
-The number $m + 1$ is the Lebesgue covering dimension bound and cannot be lowered.
-
-\begin{definition}[Logistic function and logit]
-\label{def:logistic}
-\lean{Real.logistic, Real.logit}
-\leanok
-The \emph{logistic function} is $\ell(s) = e^s / (1 + e^s)$ and the \emph{logit} is
-$\ell^{-1}(p) = \log\bigl( p / (1 - p) \bigr)$.
-\end{definition}
-
-The logistic function is a continuous injection $\mathbb{R} \to (0,1)$; it is what
-compresses a countable family of values into a bounded range in the identification
-measurement below.
-
-\chapter{Bisection and identification}
-\label{ch:bisection}
-
-Two ingredients turn a coloured cover into an algorithm: one measurement names the
-piece within a colour class, and $L$ adaptive measurements find the colour among at
-most $2^L$.
-
-\begin{theorem}[The identification measurement]
-\label{thm:identification}
-\lean{ContMeasurements.exists_identification}
-\leanok
-\uses{def:colored-cover, def:logistic}
-Let $X$ be a nonempty metric space, let $cc$ be a coloured cover of $X$ with countable
-index set, diameter $\varepsilon$ and separation $c > 0$, and let $r$ be a colour.
-Then there are a continuous functional $\varphi : X \to \mathbb{R}$ and a map
-$\mathrm{dec} : \mathbb{Z} \to X$ such that for every $x$ in the closure of the colour
-class of $r$ there is $n \in \mathbb{Z}$ with $\varphi(x) = n$ and
-$\operatorname{dist}\bigl( x, \mathrm{dec}(n) \bigr) \le \varepsilon + c/8$.
-\end{theorem}
-\begin{proof}
-\leanok
-\uses{def:logistic}
-Enumerate the pieces of the colour class and attach to the $j$-th piece a collar
-function, supported in its $c/8$-neighbourhood and equal to $1$ on the piece. The
-functional is the sum of the collar functions weighted by the logit of an injective
-encoding of $j$; the weights make the sum locally finite and continuous, and its value
-on a point of the colour class names the piece.
-\end{proof}
-
-\begin{theorem}[Bisection over colours]
-\label{thm:bisection}
-\lean{ContMeasurements.exists_bisection_scheme}
-\leanok
-\uses{def:adaptive-scheme, def:info}
-Let $X$ be a nonempty metric space, let $A_1, \dots, A_{K}$ be sets, and suppose that
-for each $r$ there are a scheme of $\ell$ measurements and a reconstruction map that is
-$\eta$-accurate on $\overline{A_r}$. Then for every $L \in \mathbb{N}_0$ and every set
-$C$ of at most $2^L$ colours there are a scheme of $\ell + L$ measurements and a
-reconstruction map that is $\eta$-accurate on $\overline{\bigcup_{r \in C} A_r}$.
-\end{theorem}
-\begin{proof}
-\leanok
-\uses{def:adaptive-scheme}
-Induction on $L$. Split $C$ into two halves of at most $2^{L-1}$ colours, take the
-schemes the inductive hypothesis provides for each half, and put them together with the
-branch combinator, asking first a functional that separates the two halves.
-\end{proof}
-
-\chapter{The upper bound and the two bounds together}
-\label{ch:upper}
-
-\begin{theorem}[Upper bound]
-\label{thm:upper-bound}
-\lean{ContMeasurements.exists_recovery_scheme}
-\leanok
-\uses{def:adaptive-scheme, def:info, thm:lebesgue-cover, lem:scale, thm:identification,
-thm:bisection, def:logistic}
-Let $E$ be a real normed space with $\dim E = d \ge 1$, let $k \in \mathbb{N}_0$ with
-$d \le 2^k$, and let $\varepsilon > 0$. Then there are an adaptive scheme $S$ on $E$ and
-a map $\Phi : \mathbb{R}^{k+1} \to E$ with
-\[
-  \| x - \Phi( N_{k+1}(x) ) \| \le \varepsilon
-  \qquad \text{for every } x \in E .
-\]
-\end{theorem}
-\begin{proof}
-\leanok
-\uses{thm:lebesgue-cover, lem:scale, thm:identification, thm:bisection, def:logistic}
-Write $d = m + 1$ and work in coordinates. Rescale the Lebesgue cover of
-$\mathbb{R}^m$, which has $m + 1 = d$ colours, to diameter below $\varepsilon$
-(Theorem~\ref{thm:lebesgue-cover}, Lemma~\ref{lem:scale}), and read the first $m$
-coordinates of $x$ through it. For each colour, one identification measurement
-(Theorem~\ref{thm:identification}) names the piece containing those coordinates by an
-integer; adding the logistic image of the last coordinate, a number in $(0,1)$, leaves
-the integer part intact while the fractional part carries the last coordinate exactly,
-so one measurement is $\varepsilon$-accurate on each colour class. Bisection over the
-$d \le 2^k$ colours costs $k$ further measurements (Theorem~\ref{thm:bisection}),
-$k + 1$ in total. For a general norm, transport the coordinate algorithm along a linear
-homeomorphism and rescale the accuracy by the norm of its inverse.
-\end{proof}
-
-\begin{corollary}[Upper bound, closed form]
-\label{cor:upper-bound-clog}
-\lean{ContMeasurements.exists_recovery_scheme_clog}
-\leanok
-\uses{thm:upper-bound}
-Let $E$ be a real normed space with $\dim E = d \ge 1$ and let $\varepsilon > 0$. Then
-$\lceil \log_2 d \rceil + 1$ measurements suffice: there are an adaptive scheme $S$ on
-$E$ and a map $\Phi$ with $\| x - \Phi( N_n(x) ) \| \le \varepsilon$ for every
-$x \in E$, where $n = \lceil \log_2 d \rceil + 1$.
-\end{corollary}
-\begin{proof}
-\leanok
-\uses{thm:upper-bound}
-Theorem~\ref{thm:upper-bound} with $k = \lceil \log_2 d \rceil$, since
-$d \le 2^{\lceil \log_2 d \rceil}$.
-\end{proof}
-
-\begin{definition}[Measurement complexity]
-\label{def:min-measurements}
-\lean{ContMeasurements.minMeasurements}
-\leanok
-\uses{def:info}
-For a normed space $E$ and $R, \varepsilon > 0$, let $n^*(E, R, \varepsilon)$ be the
-least $n$ for which there are an adaptive scheme $S$ on $E$ and a map
-$\Phi : \mathbb{R}^n \to E$ with
-$\|x - \Phi(N_n(x))\| \le \varepsilon$ for every $x$ of the closed ball of radius $R$.
-\end{definition}
-
-\begin{corollary}[The two bounds]
-\label{cor:sandwich}
-\lean{ContMeasurements.clog_le_minMeasurements_and_le,
-ContMeasurements.finrank_add_one_le_two_pow_minMeasurements}
-\leanok
-\uses{def:min-measurements, cor:upper-bound-clog, cor:lower-error}
-Let $E$ be a finite-dimensional real normed space with $\dim E = d \ge 1$ and let
-$0 < \varepsilon < R$. Then $d + 1 \le 2^{\,n^*(E, R, \varepsilon)}$ and
-\[
-  \lceil \log_2 (d+1) \rceil \;\le\; n^*(E, R, \varepsilon)
-  \;\le\; \lceil \log_2 d \rceil + 1 .
-\]
-\end{corollary}
-\begin{proof}
-\leanok
-\uses{cor:upper-bound-clog, cor:lower-error}
-The upper bound is Corollary~\ref{cor:upper-bound-clog}. For the lower bound, an algorithm
-accurate to within $\varepsilon < R$ on the ball of radius $R$ cannot err by $R$ on the
-sphere of radius $R$, so Corollary~\ref{cor:lower-error} forbids
-$2^{n} \le d$.
-\end{proof}
-
-\begin{corollary}[Equality in dimension a power of two]
-\label{cor:power-of-two}
-\lean{ContMeasurements.minMeasurements_eq_of_finrank_eq_two_pow}
-\leanok
-\uses{def:min-measurements}
-Let $E$ be a real normed space with $\dim E = 2^k$ and let $0 < \varepsilon < R$. Then
-$n^*(E, R, \varepsilon) = k + 1$.
-\end{corollary}
-\begin{proof}
-\leanok
-\uses{thm:upper-bound, cor:sandwich}
-Theorem~\ref{thm:upper-bound} with $d = 2^k$ gives $n^*(E, R, \varepsilon) \le k + 1$.
-Conversely $2^k + 1 \le 2^{\,n^*(E, R, \varepsilon)}$ by Corollary~\ref{cor:sandwich},
-so $n^*(E, R, \varepsilon) \ge k + 1$.
-\end{proof}
-
-The two bounds meet when $d$ is a power of two and differ by one otherwise.
 
 \bpbibheading
 \begin{thebibliography}{99}
