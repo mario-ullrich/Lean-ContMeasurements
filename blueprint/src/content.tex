@@ -113,7 +113,6 @@ $\delta$ is odd and nonvanishing on $W$.
 \label{lem:split-cover-union}
 \lean{HasSplitCover.biUnion_of_pairwise_disjoint}
 \leanok
-\uses{def:split-cover}
 Let $s$ be a finite index set and let $Z_j$, $j \in s$, be compact, symmetric and
 pairwise disjoint with $\mathrm{SC}(Z_j) \le h$ for every $j \in s$. Then
 $\mathrm{SC}\bigl( \bigcup_{j \in s} Z_j \bigr) \le h$.
@@ -170,7 +169,7 @@ lower bound.
 \label{lem:split-cover-slab}
 \lean{HasSplitCover.exists_pos_inter_preimage_ball}
 \leanok
-\uses{def:split-cover, lem:split-cover-thickening}
+\uses{def:split-cover}
 Let $Z \subseteq E$ be compact and symmetric, let $\mu : E \to \mathbb{R}$ be
 continuous and even on $Z$, and let $y \in \mathbb{R}$ with
 $\mathrm{SC}\bigl( Z \cap \mu^{-1}(y) \bigr) \le h$. Then there is $\rho > 0$ with
@@ -188,14 +187,14 @@ so their values are bounded away from $y$.
 \label{thm:halving}
 \lean{hasSplitCover_two_mul_of_forall_fiber}
 \leanok
-\uses{def:split-cover, lem:split-cover-slab, lem:split-cover-union}
+\uses{def:split-cover}
 Let $Z \subseteq E$ be compact and symmetric and let $\mu : E \to \mathbb{R}$ be
 continuous and even on $Z$. If $\mathrm{SC}\bigl( Z \cap \mu^{-1}(y) \bigr) \le h$ for
 every $y \in \mathbb{R}$, then $\mathrm{SC}(Z) \le 2h$.
 \end{theorem}
 \begin{proof}
 \leanok
-\uses{lem:split-cover-slab, lem:split-cover-union}
+\uses{lem:split-cover-union, lem:split-cover-slab}
 Every value has a ball of values whose slab is still covered by $h$ split sets
 (Lemma~\ref{lem:split-cover-slab}). A Lebesgue number for this cover of the compact
 set of attained values yields a partition of $\mathbb{R}$ into intervals of that
@@ -212,13 +211,13 @@ topology beyond compactness.
 \label{prop:covering}
 \lean{ContMeasurements.AdaptiveScheme.DistinguishesAntipodes.hasSplitCover}
 \leanok
-\uses{def:distinguishes-antipodes, def:split-cover, thm:halving, lem:split-cover-odd}
+\uses{def:distinguishes-antipodes, def:split-cover}
 Let $K \subseteq E$ be compact and symmetric. If a scheme distinguishes antipodes on
 $K$ with $n$ measurements, then $\mathrm{SC}(K) \le 2^n - 1$.
 \end{proposition}
 \begin{proof}
 \leanok
-\uses{thm:halving, lem:split-cover-odd}
+\uses{lem:split-cover-odd, thm:halving}
 Induction on $n$. With no measurement, $K$ is empty. For the step, write $\mu$ for the
 even part and $\delta$ for the odd part of the first functional. Where $\delta \neq 0$,
 one split set suffices (Lemma~\ref{lem:split-cover-odd}). On each level set of $\mu$
@@ -241,14 +240,14 @@ Mathlib does not have it.
 \label{thm:antipodal-coincidence}
 \lean{ContMeasurements.exists_norm_eq_and_info_eq_info_neg}
 \leanok
-\uses{def:info, prop:covering, prop:split-cover-odd-map, cor:borsuk-ulam-norm}
+\uses{def:info}
 Let $E$ be a real normed space with $\dim E = m$, let $S$ be an adaptive scheme on $E$,
 let $n \in \mathbb{N}_0$ with $2^n \le m$, and let $R > 0$. Then there is $x \in E$ with
 $\|x\| = R$ and $N_n(x) = N_n(-x)$.
 \end{theorem}
 \begin{proof}
 \leanok
-\uses{prop:covering, prop:split-cover-odd-map, cor:borsuk-ulam-norm}
+\uses{prop:split-cover-odd-map, prop:covering, cor:borsuk-ulam-norm}
 If not, the scheme distinguishes antipodes on the sphere of radius $R$, which is
 compact and symmetric, so Proposition~\ref{prop:covering} covers that sphere with
 $2^n - 1$ split sets. Proposition~\ref{prop:split-cover-odd-map} turns the cover into a
@@ -260,7 +259,7 @@ $2^n - 1 < m$, Corollary~\ref{cor:borsuk-ulam-norm} produces a zero of norm $R$.
 \label{cor:counting}
 \lean{ContMeasurements.AdaptiveScheme.DistinguishesAntipodes.finrank_add_one_le_two_pow}
 \leanok
-\uses{def:distinguishes-antipodes, thm:antipodal-coincidence}
+\uses{def:distinguishes-antipodes}
 Let $E$ be a finite-dimensional real normed space, $R > 0$, and let a scheme
 distinguish antipodes on the sphere of radius $R$ with $n$ measurements. Then
 $\dim E + 1 \le 2^n$.
@@ -276,7 +275,6 @@ antipodal pair on the sphere with the same information.
 \label{cor:lower-error}
 \lean{ContMeasurements.exists_norm_eq_and_le_norm_sub}
 \leanok
-\uses{thm:antipodal-coincidence}
 Let $E$ be a real normed space with $\dim E = m$, let $S$ be an adaptive scheme on $E$,
 let $n \in \mathbb{N}_0$ with $2^n \le m$, let $R > 0$ and let
 $\Phi : \mathbb{R}^n \to E$ be arbitrary. Then there is $x \in E$ with $\|x\| = R$ and
@@ -367,7 +365,7 @@ most $2^L$.
 \label{thm:identification}
 \lean{ContMeasurements.exists_identification}
 \leanok
-\uses{def:colored-cover, def:logistic}
+\uses{def:colored-cover}
 Let $X$ be a nonempty metric space, let $cc$ be a coloured cover of $X$ with countable
 index set, diameter $\varepsilon$ and separation $c > 0$, and let $r$ be a colour.
 Then there are a continuous functional $\varphi : X \to \mathbb{R}$ and a map
@@ -389,7 +387,7 @@ on a point of the colour class names the piece.
 \label{thm:bisection}
 \lean{ContMeasurements.exists_bisection_scheme}
 \leanok
-\uses{def:adaptive-scheme, def:info}
+\uses{def:info}
 Let $X$ be a nonempty metric space, let $A_1, \dots, A_{K}$ be sets, and suppose that
 for each $r$ there are a scheme of $\ell$ measurements and a reconstruction map that is
 $\eta$-accurate on $\overline{A_r}$. Then for every $L \in \mathbb{N}_0$ and every set
@@ -411,8 +409,7 @@ branch combinator, asking first a functional that separates the two halves.
 \label{thm:upper-bound}
 \lean{ContMeasurements.exists_recovery_scheme}
 \leanok
-\uses{def:adaptive-scheme, def:info, thm:lebesgue-cover, lem:scale, thm:identification,
-thm:bisection, def:logistic}
+\uses{def:adaptive-scheme, def:info}
 Let $E$ be a real normed space with $\dim E = d \ge 1$, let $k \in \mathbb{N}_0$ with
 $d \le 2^k$, and let $\varepsilon > 0$. Then there are an adaptive scheme $S$ on $E$ and
 a map $\Phi : \mathbb{R}^{k+1} \to E$ with
@@ -423,7 +420,7 @@ a map $\Phi : \mathbb{R}^{k+1} \to E$ with
 \end{theorem}
 \begin{proof}
 \leanok
-\uses{thm:lebesgue-cover, lem:scale, thm:identification, thm:bisection, def:logistic}
+\uses{lem:scale, thm:lebesgue-cover, def:logistic, thm:identification, thm:bisection}
 Write $d = m + 1$ and work in coordinates. Rescale the Lebesgue cover of
 $\mathbb{R}^m$, which has $m + 1 = d$ colours, to diameter below $\varepsilon$
 (Theorem~\ref{thm:lebesgue-cover}, Lemma~\ref{lem:scale}), and read the first $m$
@@ -441,7 +438,6 @@ homeomorphism and rescale the accuracy by the norm of its inverse.
 \label{cor:upper-bound-clog}
 \lean{ContMeasurements.exists_recovery_scheme_clog}
 \leanok
-\uses{thm:upper-bound}
 Let $E$ be a real normed space with $\dim E = d \ge 1$ and let $\varepsilon > 0$. Then
 $\lceil \log_2 d \rceil + 1$ measurements suffice: there are an adaptive scheme $S$ on
 $E$ and a map $\Phi$ with $\| x - \Phi( N_n(x) ) \| \le \varepsilon$ for every
@@ -470,7 +466,7 @@ $\|x - \Phi(N_n(x))\| \le \varepsilon$ for every $x$ of the closed ball of radiu
 \lean{ContMeasurements.clog_le_minMeasurements_and_le,
 ContMeasurements.finrank_add_one_le_two_pow_minMeasurements}
 \leanok
-\uses{def:min-measurements, cor:upper-bound-clog, cor:lower-error}
+\uses{def:min-measurements}
 Let $E$ be a finite-dimensional real normed space with $\dim E = d \ge 1$ and let
 $0 < \varepsilon < R$. Then $d + 1 \le 2^{\,n^*(E, R, \varepsilon)}$ and
 \[
@@ -480,7 +476,7 @@ $0 < \varepsilon < R$. Then $d + 1 \le 2^{\,n^*(E, R, \varepsilon)}$ and
 \end{corollary}
 \begin{proof}
 \leanok
-\uses{cor:upper-bound-clog, cor:lower-error}
+\uses{cor:lower-error, cor:upper-bound-clog}
 The upper bound is Corollary~\ref{cor:upper-bound-clog}. For the lower bound, an algorithm
 accurate to within $\varepsilon < R$ on the ball of radius $R$ cannot err by $R$ on the
 sphere of radius $R$, so Corollary~\ref{cor:lower-error} forbids
@@ -573,7 +569,6 @@ Two vertices with $x_i > 0 > y_i$ would differ by at least $2$ in the coordinate
 \label{lem:card-signs}
 \lean{GridSimplex.IsSimplex.card_signs}
 \leanok
-\uses{lem:orthant}
 For every simplex $s$, the number of signs of $s$ equals the number of directions of
 $s$.
 \end{lemma}
@@ -609,7 +604,6 @@ set has coordinates. Its ranks then run through every value from $0$ upwards.
 \label{lem:unit-step}
 \lean{GridSimplex.IsSimplex.exists_eq_add_single}
 \leanok
-\uses{lem:card-simplex}
 In a saturated simplex, two consecutive vertices $x < y$ satisfy $y = x + e_i$ for
 exactly one coordinate $i$.
 \end{lemma}
@@ -650,7 +644,7 @@ one the counting needs.
 \label{lem:extensions-empty}
 \lean{GridSimplex.extensions_eq_empty}
 \leanok
-\uses{def:extensions, lem:card-simplex}
+\uses{def:extensions}
 A simplex with one more vertex than it has directions has no extension within its own
 signs.
 \end{lemma}
@@ -664,7 +658,7 @@ Such an extension would have two more vertices than directions.
 \label{lem:extensions-one}
 \lean{GridSimplex.card_extensions_eq_one}
 \leanok
-\uses{def:extensions, lem:card-simplex, lem:orthant}
+\uses{lem:orthant, def:extensions}
 Let $N \ge 1$, let $s$ be a simplex with one more vertex than it has directions, and
 let $\ell$ be a label such that neither $\ell$ nor $\operatorname{neg} \ell$ is a sign
 of $s$. Then $s$ has exactly one extension within $\{\ell\} \cup \operatorname{signs}(s)$.
@@ -682,7 +676,7 @@ of $\ell$ decides which end, and $N \ge 1$ keeps the point in the grid.
 \label{lem:extensions-two}
 \lean{GridSimplex.card_extensions_eq_two}
 \leanok
-\uses{def:extensions, def:extremal, lem:card-simplex}
+\uses{lem:card-simplex, def:extensions}
 A simplex with as many vertices as directions and without an extremal coordinate has
 exactly two extensions within its own signs.
 \end{lemma}
@@ -700,7 +694,7 @@ both points stay in the grid precisely because the coordinate is not extremal.
 \label{lem:extensions-one-extremal}
 \lean{GridSimplex.card_extensions_eq_one_of_isExtremal}
 \leanok
-\uses{def:extensions, def:extremal, lem:card-simplex}
+\uses{lem:card-simplex, def:extensions, def:extremal}
 Let $N \ge 1$. A simplex with as many vertices as directions and with an extremal
 coordinate has exactly one extension within its own signs.
 \end{lemma}
@@ -745,7 +739,7 @@ label of $s$.
 \label{def:separates}
 \lean{GridSimplex.Separates}
 \leanok
-\uses{def:simplex, def:label}
+\uses{def:label, def:simplex}
 A labelling $\lambda$ \emph{separates} if no simplex carries a pair of opposite labels,
 that is, $\lambda(x) \neq \operatorname{neg} \lambda(y)$ for all $x, y$ in a common
 simplex.
@@ -759,7 +753,7 @@ contradiction.
 \label{lem:happy-shape}
 \lean{GridSimplex.IsHappy.shape}
 \leanok
-\uses{def:happy, lem:card-signs, lem:card-simplex}
+\uses{def:happy}
 Let $s$ be happy and let $k$ be the number of its directions. Then $s$ has $k+1$
 vertices and $k+1$ labels, or $k+1$ vertices and $k$ labels, or $k$ vertices and $k$
 labels.
@@ -801,7 +795,7 @@ possible orders.
 \label{lem:even-odd-degree}
 \lean{GridSimplex.even_card_odd_deg}
 \leanok
-\uses{def:door, lem:door-count}
+\uses{def:door}
 The number of happy simplices of odd degree is even.
 \end{lemma}
 \begin{proof}
@@ -828,16 +822,15 @@ Induction on the cardinality: remove a point and its image, which are distinct.
 \label{thm:odd-degree}
 \lean{GridSimplex.odd_deg_iff}
 \leanok
-\uses{def:door, def:separates, def:extremal, lem:happy-shape, lem:extensions-empty,
-lem:extensions-one, lem:extensions-two, lem:extensions-one-extremal}
+\uses{def:extremal, def:separates, def:door}
 Let $N \ge 1$ and let $\lambda$ separate. A happy simplex has odd degree if and only if
 it is the origin alone, or it has as many vertices as directions and an extremal
 coordinate.
 \end{theorem}
 \begin{proof}
 \leanok
-\uses{lem:happy-shape, lem:extensions-empty, lem:extensions-one, lem:extensions-two,
-lem:extensions-one-extremal}
+\uses{lem:extensions-empty, lem:extensions-one, lem:extensions-two,
+lem:extensions-one-extremal, lem:happy-shape}
 Take the three shapes of Lemma~\ref{lem:happy-shape} in turn. With $k+1$ vertices and
 $k+1$ labels, the labels are distinct and exceed the signs by exactly one label
 $\ell$; deleting the vertex carrying $\ell$ is the only door below, and since $\lambda$
@@ -855,8 +848,7 @@ give two doors above, or one when a coordinate is extremal.
 \label{thm:tucker}
 \lean{GridSimplex.tucker}
 \leanok
-\uses{def:grid, def:label, def:separates, thm:odd-degree, lem:even-odd-degree,
-lem:involution, lem:simplex-neg}
+\uses{def:grid, def:label, def:separates}
 Let $n \ge 0$ and $N \ge 1$, and let $\lambda$ assign a label to every point of the
 grid $G \subseteq \mathbb{Z}^n$ so that
 $\lambda(-v) = \operatorname{neg} \lambda(v)$ for every boundary point $v$. Then there
@@ -865,7 +857,7 @@ with $\lambda(u) = \operatorname{neg} \lambda(w)$.
 \end{theorem}
 \begin{proof}
 \leanok
-\uses{thm:odd-degree, lem:even-odd-degree, lem:involution, lem:simplex-neg}
+\uses{lem:simplex-neg, lem:even-odd-degree, lem:involution, thm:odd-degree}
 Suppose not. Any two points of a simplex are comparable and differ by at most one in
 each coordinate, so $\lambda$ separates, and Theorem~\ref{thm:odd-degree} applies. The
 happy simplices of odd degree are then the origin alone together with the extremal
@@ -918,7 +910,7 @@ coordinate is the same, and the sign there is reversed.
 \label{thm:borsuk-cube}
 \lean{borsukUlam_cube}
 \leanok
-\uses{thm:tucker, def:max-label, lem:label-neg}
+\uses{def:max-label}
 Let $n \ge 1$ and let $g : \mathbb{R}^n \to \mathbb{R}^n$ be continuous on the cube
 $[-1, 1]^n$ and odd on its boundary. Then $g(x) = 0$ for some $x$ in the cube.
 \end{theorem}
@@ -967,7 +959,7 @@ unit sphere; on the boundary of the cube the slack vanishes, so it is odd there.
 \label{thm:borsuk-pi}
 \lean{borsukUlam_pi}
 \leanok
-\uses{thm:borsuk-cube, def:lift, lem:lift-pos}
+\uses{def:lift}
 Let $k < m$ and let $f : \mathbb{R}^m \to \mathbb{R}^k$ be odd and continuous on the
 unit sphere of the sup norm. Then $f(x) = 0$ for some $x$ of that sphere.
 \end{theorem}
@@ -984,7 +976,6 @@ continuous on the cube and odd on its boundary.
 \label{thm:borsuk-ulam}
 \lean{borsukUlam}
 \leanok
-\uses{thm:borsuk-pi}
 Let $k < m$ and let $f : \mathbb{R}^m \to \mathbb{R}^k$ be odd and continuous on the
 Euclidean unit sphere. Then $f(x) = 0$ for some $x$ of that sphere.
 \end{theorem}
@@ -1003,7 +994,6 @@ any norm.
 \label{cor:borsuk-ulam-norm}
 \lean{Function.Odd.exists_norm_eq_and_eq_zero_of_lt_finrank}
 \leanok
-\uses{thm:borsuk-ulam}
 Let $E$ be a real normed space with $\dim E = m$, let $k < m$, let $R > 0$ and let
 $\Psi : E \to \mathbb{R}^k$ be continuous and odd. Then there is $x \in E$ with
 $\|x\| = R$ and $\Psi(x) = 0$.
