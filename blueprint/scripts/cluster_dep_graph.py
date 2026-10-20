@@ -2,7 +2,10 @@
 
 The appendix proves the Borsuk--Ulam theorem, which the two papers only cite.  In the
 dependency graph its nodes form one cluster: a thin grey rounded frame labelled as the
-appendix, in the style of the blocks of the sibling projects.  The nodes are read from
+appendix, in the style of the blocks of the sibling projects, with the label set in
+Helvetica: the browser lays the graph out with Graphviz's own metrics for the chosen
+font, and for the default Times a phone substitutes a wider serif, so a long label runs
+out of its frame there.  The nodes are read from
 the blueprint source, as the labels of the theorem-like environments after `\\appendix`,
 so a statement added to or removed from the appendix needs no change here.
 
@@ -49,7 +52,7 @@ def appendix_labels(source):
 def cluster(labels):
     """The DOT text of the cluster, with the attributes of the sibling projects' blocks."""
     nodes = " ".join(f'"{name}";' for name in labels)
-    return (f' subgraph {NAME} {{ label="{LABEL}"; labeljust=l; fontcolor="#808080";'
+    return (f' subgraph {NAME} {{ label="{LABEL}"; labeljust=l; fontname="Helvetica"; fontcolor="#808080";'
             f' color="#b0b0b0"; style=rounded; penwidth=1; margin=12; {nodes} }}')
 
 
