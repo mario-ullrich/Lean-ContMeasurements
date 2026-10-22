@@ -36,9 +36,10 @@ information map `x ↦ (λ₁(x), …, λₙ(x))` of an adaptive scheme is in ge
 
 An *adaptive scheme* (`ContMeasurements.AdaptiveScheme`) on a topological space `X` is a
 family of functionals `fct k y : X → ℝ`, one for each number `k` of values already observed
-and each vector `y : Fin k → ℝ` of those values. Every single functional is continuous **in
-the point being measured**; the dependence on `y` is completely arbitrary, and that is
-exactly what "adaptive" means. The information map `S.info n x : Fin n → ℝ` evaluates the
+and each vector `y : Fin k → ℝ` of those values. Each functional `fct k y` is continuous
+as a function of the point `x`, while the choice of the functional may depend on the
+observed values `y` in any way whatsoever; this freedom is what makes the scheme
+adaptive. The information map `S.info n x : Fin n → ℝ` evaluates the
 first `n` measurements in sequence, and an algorithm is `Φ ∘ S.info n` with an arbitrary
 reconstruction map `Φ`. The module docstring of `ContMeasurements/Scheme.lean` explains the
 three conventions the development fixes.
