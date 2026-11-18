@@ -1,11 +1,12 @@
 # Builds the Lean project and the leanblueprint, then publishes the result
 # two ways:
 #
-#   * GitHub Pages (public repository): the rendered blueprint is deployed to
+#   * GitHub Pages: the rendered blueprint is deployed to
 #     https://<owner>.github.io/Lean-ContMeasurements/ with the PDF at
-#     https://<owner>.github.io/Lean-ContMeasurements/blueprint.pdf.
-#     While the repository is private, the deploy job is skipped (Pages is
-#     unavailable on the free plan for private repositories).
+#     https://<owner>.github.io/Lean-ContMeasurements/blueprint.pdf. The deploy
+#     job runs for the public repository; its condition keeps a private fork
+#     from deploying (Pages is unavailable on the free plan for private
+#     repositories).
 #
 #   * Workflow artifact (always): `blueprint-YYYYMMDD` is downloadable from
 #     every run summary under the Actions tab. It contains the PDF and the
@@ -201,7 +202,7 @@ jobs:
         run: echo "name=blueprint-$(date -u +%Y%m%d)" >> "$GITHUB_OUTPUT"
 
       - name: Upload blueprint (HTML site with blueprint.pdf)
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ steps.stamp.outputs.name }}
           path: blueprint/web/
@@ -210,14 +211,14 @@ jobs:
       # Same directory again, packaged in the special format deploy-pages
       # expects (upload-artifact ZIPs are not compatible with Pages).
       - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v5
         with:
           path: blueprint/web
 
-  # ----- Deploy the rendered blueprint to GitHub Pages. Skipped while the
-  # repository is private; once it is public, the next push to main (or a
-  # manual workflow_dispatch run) deploys. configure-pages enables Pages
-  # with source "GitHub Actions" automatically on the first run.
+  # ----- Deploy the rendered blueprint to GitHub Pages on every push to main
+  # (or a manual workflow_dispatch run); the condition keeps a private fork
+  # from deploying. configure-pages enables Pages with source "GitHub
+  # Actions" automatically on the first run.
   deploy:
     needs: build
     if: github.ref == 'refs/heads/main' && !github.event.repository.private
@@ -235,10 +236,10 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Enable and configure Pages
-        uses: actions/configure-pages@v5
+        uses: actions/configure-pages@v6
         with:
           enablement: true
 
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5

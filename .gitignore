@@ -9,7 +9,7 @@ lake-packages/
 *.trace
 *.hash
 
-# LaTeX intermediate files (the sources in refs/ are tracked)
+# LaTeX intermediate files
 *.aux
 *.bbl
 *.blg
