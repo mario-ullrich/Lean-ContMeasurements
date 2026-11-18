@@ -1,7 +1,11 @@
 # A Borsuk–Ulam theorem for adaptive continuous measurements in Lean 4 / Mathlib
 
 A Lean 4 / Mathlib formalisation of matching upper and lower bounds for **recovery from
-adaptively chosen continuous measurements**, in the noise-free setting. Together they
+adaptively chosen continuous measurements**, in the noise-free setting. The lower bound is
+the main result of the preprint
+[*A Borsuk–Ulam theorem for adaptive continuous measurements*](https://arxiv.org/abs/2610.33781),
+the upper bound that of Krieg, Novak and Ullrich in
+[Proc. Amer. Math. Soc.](https://doi.org/10.1090/proc/17901) Together they
 determine the minimal number of measurements up to one, and exactly when the dimension is a
 power of two. The project builds without `sorry`, and every theorem uses only the three
 axioms Mathlib relies on throughout (`propext`, `Classical.choice`, `Quot.sound`).
@@ -173,10 +177,11 @@ Apache 2.0, the same as Mathlib. See [LICENSE](LICENSE).
 ## References
 
 * D. Krieg, E. Novak, M. Ullrich, *How many continuous measurements are needed to learn a
-  vector?*, to appear in Proc. Amer. Math. Soc.,
-  [arxiv](https://arxiv.org/abs/2412.06468). The upper bound.
-* M. Ullrich, *Optimal learning based on adaptive continuous measurements*, preprint, 2026.
-  The lower bound.
+  vector?*, Proc. Amer. Math. Soc. (2026), published online,
+  [doi](https://doi.org/10.1090/proc/17901), [arxiv](https://arxiv.org/abs/2412.06468). The
+  upper bound.
+* M. Ullrich, *A Borsuk–Ulam theorem for adaptive continuous measurements*, preprint, 2026,
+  [arxiv](https://arxiv.org/abs/2610.33781). The lower bound.
 * K. Borsuk, *Drei Sätze über die n-dimensionale euklidische Sphäre*, Fund. Math. **20**
   (1933), 177–190, [doi](https://doi.org/10.4064/fm-20-1-177-190). The odd-map form of the
   antipodal theorem.
