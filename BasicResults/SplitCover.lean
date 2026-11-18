@@ -47,6 +47,7 @@ continuous measurement can at most double (plus one); see `Halving.lean` and
 -/
 
 open Metric Set
+open scoped Pointwise
 
 variable {E : Type*} [NormedAddCommGroup E]
 

@@ -96,7 +96,7 @@ both the diameter bound and the separation constant are multiplied by `s`.
 Applying this to the unit-scale Lebesgue cover of `ℝᵐ` produces covers of arbitrarily
 small diameter, which is what turns the recovery algorithm into one of arbitrary
 accuracy. -/
-def scale (cc : ColoredCover V ι K ε c) {s : ℝ} (hs : 0 < s) :
+noncomputable def scale (cc : ColoredCover V ι K ε c) {s : ℝ} (hs : 0 < s) :
     ColoredCover V ι K (s * ε) (s * c) where
   piece i := (fun x => s⁻¹ • x) ⁻¹' cc.piece i
   color := cc.color

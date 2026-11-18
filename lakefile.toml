@@ -1,17 +1,22 @@
 name = "contmeasurements"
 defaultTargets = ["ContMeasurements", "BasicResults"]
 
+# Mathlib is written for the module system; the files of this project are ordinary Lean
+# files, which Lake then warns about at every Mathlib import. This setting declares the
+# mix as intended.
+allowNonModules = true
+
 # As Mathlib does for itself: an unknown identifier in a statement is an error.
 [leanOptions]
 autoImplicit = false
 relaxedAutoImplicit = false
 
-# Mathlib pinned to the v4.35.0 tag, matching lean-toolchain: a release tag has a
+# Mathlib pinned to the v4.36.0 tag, matching lean-toolchain: a release tag has a
 # fully-published build cache, so `lake exe cache get` finds every olean.
 [[require]]
 name = "mathlib"
 scope = "leanprover-community"
-version = "git#v4.35.0"
+version = "git#v4.36.0"
 
 # The general ingredients the theory consumes: Borsuk–Ulam, split covers, the halving
 # lemma, colored covers, the Lebesgue cover of R^m. Nothing here mentions measurements,

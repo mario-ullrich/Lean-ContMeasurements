@@ -56,6 +56,7 @@ forbids on the sphere of an `m`-dimensional space unless `2ⁿ - 1 ≥ m`.
 namespace ContMeasurements
 
 open Metric Set AdaptiveScheme
+open scoped Pointwise
 
 variable {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E]
 
