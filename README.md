@@ -10,14 +10,13 @@ determine the minimal number of measurements up to one, and exactly when the dim
 power of two. The project builds without `sorry`, and every theorem uses only the three
 axioms Mathlib relies on throughout (`propext`, `Classical.choice`, `Quot.sound`).
 
-* **Blueprint** (the mathematics, with the Lean name at every statement):
-  <https://mario-ullrich.github.io/Lean-ContMeasurements/>
-* **Blueprint as PDF**:
-  <https://mario-ullrich.github.io/Lean-ContMeasurements/blueprint.pdf>
-* **Dependency graph**, read off the Lean proofs (views Flow and Rings):
-  <https://mario-ullrich.github.io/Lean-ContMeasurements/graph/flow.html>
-* **Dependency graph of the blueprint** (leanblueprint):
-  <https://mario-ullrich.github.io/Lean-ContMeasurements/dep_graph_document_old.html>
+* [**Blueprint**](https://mario-ullrich.github.io/Lean-ContMeasurements/) (the mathematics,
+  with the Lean name at every statement)
+* [**Blueprint as PDF**](https://mario-ullrich.github.io/Lean-ContMeasurements/blueprint.pdf)
+* [**Dependency graph**](https://mario-ullrich.github.io/Lean-ContMeasurements/graph/flow.html)
+  (own design)
+* [**Dependency graph**](https://mario-ullrich.github.io/Lean-ContMeasurements/dep_graph_document_old.html)
+  (leanblueprint)
 
 ## The question
 
