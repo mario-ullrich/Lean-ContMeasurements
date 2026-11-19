@@ -14,8 +14,10 @@ axioms Mathlib relies on throughout (`propext`, `Classical.choice`, `Quot.sound`
   <https://mario-ullrich.github.io/Lean-ContMeasurements/>
 * **Blueprint as PDF**:
   <https://mario-ullrich.github.io/Lean-ContMeasurements/blueprint.pdf>
-* **Dependency graph**:
-  <https://mario-ullrich.github.io/Lean-ContMeasurements/dep_graph_document.html>
+* **Dependency graph**, read off the Lean proofs (views Flow and Rings):
+  <https://mario-ullrich.github.io/Lean-ContMeasurements/graph/flow.html>
+* **Dependency graph of the blueprint** (leanblueprint):
+  <https://mario-ullrich.github.io/Lean-ContMeasurements/dep_graph_document_old.html>
 
 ## The question
 
@@ -159,7 +161,10 @@ garbled. The GitHub Actions build runs on Linux, where UTF-8 is the default.
 
 GitHub Actions builds the project and the blueprint on every push to `main`, checks every
 `\lean` tag against the compiled project, uploads the site and the PDF as a run artifact,
-and deploys the blueprint to GitHub Pages. Neither output is committed.
+and deploys the blueprint to GitHub Pages; the site and the PDF are built afresh each time.
+The dependency graph read off the Lean proofs comes from a separate extractor run on the
+compiled project: its pages and data are committed in `blueprint/graph/` and copied into
+the site.
 
 ## AI assistance
 

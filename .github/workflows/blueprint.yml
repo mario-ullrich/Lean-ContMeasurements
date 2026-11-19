@@ -152,17 +152,18 @@ jobs:
         run: python blueprint/scripts/add_uses_buttons.py
 
       # Make the title page reachable from every page, and the repository and
-      # the dependency graph from the title page. The menu of each chapter page
-      # gains a first entry "Home" that leads to index.html, as the dependency
-      # graph page already has, followed by the entry for the dependency graph,
-      # which leanblueprint puts at the end; the title page gains two lines
-      # below the author, the GitHub repository and the dependency graph.
+      # the dependency graphs from the title page. The menu of each chapter page
+      # gains a first entry "Home" that leads to index.html, as the leanblueprint
+      # graph page already has, followed by the entry for the dependency graph
+      # drawn from the Lean code (graph/flow.html, published below),
+      # which replaces leanblueprint's entry at the end; the title page gains
+      # two lines below the author, the GitHub repository and the two graphs.
       # plasTeX renders none of these: `\home` and `\github` in web.tex only
       # feed other templates.
-      - name: Link the title page from every page, and the repository and the graph from it
+      - name: Link the title page from every page, and the repository and the graphs from it
         run: |
-          sed -i '/^<li ><a href="dep_graph_document.html">Dependency graph<\/a><\/li>$/d; s#<ul class="sub-toc-0">#&\n<li ><a href="index.html">Home</a></li>\n<li ><a href="dep_graph_document.html">Dependency graph</a></li>#' blueprint/web/*.html
-          sed -i 's#<span class="author">Mario Ullrich</span>#&</p>\n<p class="repo-link">GitHub: <a href="https://github.com/mario-ullrich/Lean-ContMeasurements">Lean-ContMeasurements</a></p>\n<p class="repo-link"><a href="dep_graph_document.html">Dependency graph</a>#' blueprint/web/index.html
+          sed -i '/^<li ><a href="dep_graph_document.html">Dependency graph<\/a><\/li>$/d; s#<ul class="sub-toc-0">#&\n<li ><a href="index.html">Home</a></li>\n<li ><a href="graph/flow.html">Dependency graph</a></li>#' blueprint/web/*.html
+          sed -i 's#<span class="author">Mario Ullrich</span>#&</p>\n<p class="repo-link">GitHub: <a href="https://github.com/mario-ullrich/Lean-ContMeasurements">Lean-ContMeasurements</a></p>\n<p class="repo-link"><a href="graph/flow.html">Dependency graph</a>, <a href="dep_graph_document_old.html">leanblueprint version</a>#' blueprint/web/index.html
 
       # Point the `\lean{...}` links at this repository. leanblueprint builds
       # them as `{dochome}/find/#doc/Decl` and, with no `\dochome` set, falls
@@ -177,6 +178,21 @@ jobs:
           python blueprint/scripts/link_lean_decls.py \
             --repo "$GITHUB_REPOSITORY" \
             --rev "$GITHUB_SHA"
+
+      # The dependency graph drawn from the compiled Lean code: its arrows are
+      # read off the proofs. The pages in blueprint/graph/ (the views Flow and
+      # Rings, with the data in data.json) go to graph/ on the site, where the
+      # menu and the title page lead. The graph leanblueprint draws from the
+      # `\uses` of the blueprint stays on the site as dep_graph_document_old.html.
+      # The steps above expect its original name, so the rename comes last, and
+      # the check fails the build if a page still links that name.
+      - name: Publish the dependency graph from the Lean code, keep the leanblueprint graph
+        run: |
+          cp -r blueprint/graph blueprint/web/graph
+          mv blueprint/web/dep_graph_document.html blueprint/web/dep_graph_document_old.html
+          if grep -l 'dep_graph_document\.html' blueprint/web/*.html; then
+            echo "these pages still link dep_graph_document.html"; exit 1
+          fi
 
       # `leanblueprint checkdecls` would need the `checkdecls` package among the Lake
       # dependencies. The script below needs none and checks more: it turns every
