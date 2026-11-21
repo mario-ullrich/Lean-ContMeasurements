@@ -3,8 +3,10 @@ Copyright (c) 2026 Mario Ullrich. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mario Ullrich
 -/
-import Mathlib.Analysis.Normed.Module.Basic
-import Mathlib.Topology.MetricSpace.HausdorffDistance
+module
+
+public import Mathlib.Analysis.Normed.Module.Basic
+public import Mathlib.Topology.MetricSpace.HausdorffDistance
 
 /-!
 # Colored covers
@@ -34,6 +36,8 @@ covering dimension of `ℝᵐ`.  The concrete cover with `m + 1` colors is built
   both `ε` and `c`.  This is how an arbitrary target accuracy is reached from a
   single cover of unit scale.
 -/
+
+@[expose] public section
 
 open Metric Set
 

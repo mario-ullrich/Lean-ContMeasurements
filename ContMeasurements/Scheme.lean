@@ -3,8 +3,10 @@ Copyright (c) 2026 Mario Ullrich. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mario Ullrich
 -/
-import Mathlib.Topology.MetricSpace.Pseudo.Defs
-import Mathlib.Data.Fin.Tuple.Basic
+module
+
+public import Mathlib.Topology.MetricSpace.Pseudo.Defs
+public import Mathlib.Data.Fin.Tuple.Basic
 
 /-!
 # Adaptive continuous measurements: the model
@@ -65,6 +67,8 @@ be exponentially smaller than `dim X`.
   `∃ x ∈ F, R ≤ dist x (Φ (S.info n x))`.  This avoids `sSup` side conditions and is
   equivalent to the formulation with the worst-case error.
 -/
+
+@[expose] public section
 
 namespace ContMeasurements
 

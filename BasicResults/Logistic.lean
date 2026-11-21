@@ -3,7 +3,9 @@ Copyright (c) 2026 Mario Ullrich. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mario Ullrich
 -/
-import Mathlib.Analysis.SpecialFunctions.Log.Basic
+module
+
+public import Mathlib.Analysis.SpecialFunctions.Log.Basic
 
 /-!
 # The logistic function and its inverse
@@ -15,6 +17,8 @@ Nothing here is specific to measurements.  The pair is used once, in the upper b
 a measurement whose value is an *integer* has a free fractional part, and the logistic
 function puts one more real coordinate into it, saving one measurement.
 -/
+
+@[expose] public section
 
 namespace Real
 

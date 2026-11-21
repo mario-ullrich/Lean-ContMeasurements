@@ -3,9 +3,11 @@ Copyright (c) 2026 Mario Ullrich. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mario Ullrich
 -/
-import ContMeasurements.Scheme
-import BasicResults.Halving
-import BasicResults.BorsukUlam
+module
+
+public import ContMeasurements.Scheme
+public import BasicResults.Halving
+public import BasicResults.BorsukUlam
 
 /-!
 # The lower bound
@@ -52,6 +54,8 @@ forbids on the sphere of an `m`-dimensional space unless `2ⁿ - 1 ≥ m`.
   `2ⁿ ≤ m` has error at least `R` somewhere on the sphere of radius `R`; the
   measurements are useless.
 -/
+
+@[expose] public section
 
 namespace ContMeasurements
 

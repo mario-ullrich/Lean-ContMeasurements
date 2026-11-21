@@ -3,14 +3,16 @@ Copyright (c) 2026 Mario Ullrich. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mario Ullrich
 -/
-import BasicResults.SplitCover
-import BasicResults.Halving
-import BasicResults.GridSimplex
-import BasicResults.Tucker
-import BasicResults.BorsukUlam
-import BasicResults.ColoredCover
-import BasicResults.LebesgueCover
-import BasicResults.Logistic
+module
+
+public import BasicResults.SplitCover
+public import BasicResults.Halving
+public import BasicResults.GridSimplex
+public import BasicResults.Tucker
+public import BasicResults.BorsukUlam
+public import BasicResults.ColoredCover
+public import BasicResults.LebesgueCover
+public import BasicResults.Logistic
 
 /-!
 # Basic results

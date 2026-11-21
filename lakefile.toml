@@ -1,11 +1,6 @@
 name = "contmeasurements"
 defaultTargets = ["ContMeasurements", "BasicResults"]
 
-# Mathlib is written for the module system; the files of this project are ordinary Lean
-# files, which Lake then warns about at every Mathlib import. This setting declares the
-# mix as intended.
-allowNonModules = true
-
 # As Mathlib does for itself: an unknown identifier in a statement is an error.
 [leanOptions]
 autoImplicit = false

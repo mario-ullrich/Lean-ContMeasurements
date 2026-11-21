@@ -3,8 +3,10 @@ Copyright (c) 2026 Mario Ullrich. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mario Ullrich
 -/
-import ContMeasurements.LowerBound
-import ContMeasurements.UpperBound
+module
+
+public import ContMeasurements.LowerBound
+public import ContMeasurements.UpperBound
 
 /-!
 # The exact number of measurements
@@ -29,6 +31,8 @@ and differ by one otherwise.
 * `ContMeasurements.minMeasurements_eq_of_finrank_eq_two_pow`: equality in dimension
   `2ᵏ`.
 -/
+
+@[expose] public section
 
 namespace ContMeasurements
 

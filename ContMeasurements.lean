@@ -3,13 +3,15 @@ Copyright (c) 2026 Mario Ullrich. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mario Ullrich
 -/
-import BasicResults
-import ContMeasurements.Scheme
-import ContMeasurements.LowerBound
-import ContMeasurements.Bisection
-import ContMeasurements.Identification
-import ContMeasurements.UpperBound
-import ContMeasurements.Complexity
+module
+
+public import BasicResults
+public import ContMeasurements.Scheme
+public import ContMeasurements.LowerBound
+public import ContMeasurements.Bisection
+public import ContMeasurements.Identification
+public import ContMeasurements.UpperBound
+public import ContMeasurements.Complexity
 
 /-!
 # Adaptive continuous measurements

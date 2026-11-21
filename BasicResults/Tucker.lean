@@ -3,9 +3,11 @@ Copyright (c) 2026 Mario Ullrich. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mario Ullrich
 -/
-import BasicResults.GridSimplex
-import Mathlib.Data.Finset.Powerset
-import Mathlib.Algebra.BigOperators.Ring.Nat
+module
+
+public import BasicResults.GridSimplex
+public import Mathlib.Data.Finset.Powerset
+public import Mathlib.Algebra.BigOperators.Ring.Nat
 
 /-!
 # Tucker's lemma
@@ -35,6 +37,8 @@ odd number of doors.  That is the contradiction.
   origin alone and those with a coordinate at the boundary of the cube.
 * `GridSimplex.tucker`: Tucker's lemma.
 -/
+
+@[expose] public section
 
 namespace Finset
 

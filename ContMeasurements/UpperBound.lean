@@ -3,12 +3,14 @@ Copyright (c) 2026 Mario Ullrich. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mario Ullrich
 -/
-import ContMeasurements.Bisection
-import ContMeasurements.Identification
-import BasicResults.LebesgueCover
-import BasicResults.Logistic
-import Mathlib.Analysis.Normed.Module.FiniteDimension
-import Mathlib.Data.Nat.Log
+module
+
+public import ContMeasurements.Bisection
+public import ContMeasurements.Identification
+public import BasicResults.LebesgueCover
+public import BasicResults.Logistic
+public import Mathlib.Analysis.Normed.Module.FiniteDimension
+public import Mathlib.Data.Nat.Log
 
 /-!
 # The upper bound
@@ -51,6 +53,8 @@ count down from `⌈log₂(d+1)⌉ + 1` to `⌈log₂ d⌉ + 1`.
 
 Both are proved **unconditionally**; Borsuk–Ulam is not involved.
 -/
+
+@[expose] public section
 
 namespace ContMeasurements
 

@@ -3,14 +3,16 @@ Copyright (c) 2026 Mario Ullrich. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mario Ullrich
 -/
-import Mathlib.Data.Int.Interval
-import Mathlib.Algebra.Order.Group.Int
-import Mathlib.Algebra.Order.Group.Defs
-import Mathlib.Data.Fintype.Pi
-import Mathlib.Data.Finset.Max
-import Mathlib.Order.Preorder.Chain
-import Mathlib.Algebra.Group.Pointwise.Finset.Basic
-import Mathlib.Algebra.Order.BigOperators.Group.Finset
+module
+
+public import Mathlib.Data.Int.Interval
+public import Mathlib.Algebra.Order.Group.Int
+public import Mathlib.Algebra.Order.Group.Defs
+public import Mathlib.Data.Fintype.Pi
+public import Mathlib.Data.Finset.Max
+public import Mathlib.Order.Preorder.Chain
+public import Mathlib.Algebra.Group.Pointwise.Finset.Basic
+public import Mathlib.Algebra.Order.BigOperators.Group.Finset
 
 /-!
 # Simplices of the Kuhn triangulation of an integer grid
@@ -50,6 +52,8 @@ where one of them leaves the grid.
 * `IsSimplex.neg`, `mem_signs_neg`: reflection in the origin maps simplices to simplices
   and reverses every sign.
 -/
+
+@[expose] public section
 
 open Finset
 open scoped Pointwise

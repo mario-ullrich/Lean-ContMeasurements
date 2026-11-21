@@ -3,9 +3,11 @@ Copyright (c) 2026 Mario Ullrich. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mario Ullrich
 -/
-import Mathlib.Analysis.Normed.Group.Pointwise
-import Mathlib.Topology.MetricSpace.Thickening
-import Mathlib.Algebra.Group.EvenFunction
+module
+
+public import Mathlib.Analysis.Normed.Group.Pointwise
+public import Mathlib.Topology.MetricSpace.Thickening
+public import Mathlib.Algebra.Group.EvenFunction
 
 /-!
 # Split sets and split covers
@@ -45,6 +47,8 @@ continuous measurement can at most double (plus one); see `Halving.lean` and
   functions `σ(x) = dist(x, P⁻) - dist(x, P⁺)`.  Feeding this into the Borsuk–Ulam
   theorem is the last step of the lower bound.
 -/
+
+@[expose] public section
 
 open Metric Set
 open scoped Pointwise

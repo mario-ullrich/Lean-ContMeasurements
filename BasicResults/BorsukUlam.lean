@@ -3,10 +3,12 @@ Copyright (c) 2026 Mario Ullrich. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mario Ullrich
 -/
-import Mathlib.Analysis.InnerProductSpace.EuclideanDist
-import Mathlib.Analysis.Normed.Module.Connected
-import Mathlib.Algebra.Group.EvenFunction
-import BasicResults.Tucker
+module
+
+public import Mathlib.Analysis.InnerProductSpace.EuclideanDist
+public import Mathlib.Analysis.Normed.Module.Connected
+public import Mathlib.Algebra.Group.EvenFunction
+public import BasicResults.Tucker
 
 /-!
 # The Borsuk–Ulam theorem
@@ -36,6 +38,8 @@ norm and projecting that radially onto the Euclidean sphere gives the statement 
   homeomorphism and rescaling radially, and it is what makes the lower bound valid
   for an arbitrary norm.
 -/
+
+@[expose] public section
 
 open Metric
 

@@ -3,9 +3,11 @@ Copyright (c) 2026 Mario Ullrich. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mario Ullrich
 -/
-import BasicResults.ColoredCover
-import Mathlib.Analysis.Normed.Lp.PiLp
-import Mathlib.Algebra.Order.Floor.Ring
+module
+
+public import BasicResults.ColoredCover
+public import Mathlib.Analysis.Normed.Lp.PiLp
+public import Mathlib.Algebra.Order.Floor.Ring
 
 /-!
 # A colored cover of `ℝᵐ` with `m + 1` colors
@@ -41,6 +43,8 @@ brings the total down to `⌈log₂ m⌉ + 1`.
   diameter at most `3/2` and separation `1 / (4(m+2))`.  Its ingredients live in the
   namespace `LebesgueCover`.
 -/
+
+@[expose] public section
 
 open Metric Set
 

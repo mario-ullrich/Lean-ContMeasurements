@@ -3,7 +3,9 @@ Copyright (c) 2026 Mario Ullrich. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mario Ullrich
 -/
-import BasicResults.SplitCover
+module
+
+public import BasicResults.SplitCover
 
 /-!
 # The halving lemma
@@ -28,6 +30,8 @@ together need `h` split sets and the odd slabs another `h`.
 The factor `2` cannot be improved: it is exactly dual to the bisection over colors
 performed by the recovery algorithm of the upper bound.
 -/
+
+@[expose] public section
 
 open Metric Set
 

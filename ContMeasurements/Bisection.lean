@@ -3,8 +3,10 @@ Copyright (c) 2026 Mario Ullrich. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mario Ullrich
 -/
-import ContMeasurements.Scheme
-import Mathlib.Topology.MetricSpace.HausdorffDistance
+module
+
+public import ContMeasurements.Scheme
+public import Mathlib.Topology.MetricSpace.HausdorffDistance
 
 /-!
 # Bisection over finitely many sets
@@ -43,6 +45,8 @@ well as on the closure of a nonempty set.  The branch condition therefore also t
 `(⋃ r ∈ C₁, A r).Nonempty`; this is a fact about the cover, known to the algorithm
 designer, not information about the point being measured.
 -/
+
+@[expose] public section
 
 namespace ContMeasurements
 
