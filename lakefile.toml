@@ -21,3 +21,19 @@ name = "BasicResults"
 
 [[lean_lib]]
 name = "ContMeasurements"
+
+# Submission surfaces for the Palomar registry, one directory per result.
+# Kept out of `defaultTargets` on purpose: a plain `lake build` never compiles the
+# Challenge modules, whose `sorry` placeholders are required by the submission format.
+# Build them explicitly with `lake build Palomar`.
+#
+# The globs make every module under `Palomar/` its own root. A Challenge and its Solution
+# must not meet in one environment: the Challenge repeats the definitions that the Solution
+# gets from `ContMeasurements`, so importing both would declare them twice, and Comparator
+# likewise compiles the two separately.
+#
+# `Palomar` is listed alongside `Palomar.+` because the `.+` form builds the submodules
+# only. The root imports nothing.
+[[lean_lib]]
+name = "Palomar"
+globs = ["Palomar", "Palomar.+"]

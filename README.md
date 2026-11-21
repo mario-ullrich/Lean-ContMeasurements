@@ -114,7 +114,10 @@ covers with the Lebesgue cover, and the logistic function with its inverse;
 proposition, bisection and identification, the upper bound, and the minimal number of
 measurements. The blueprint states the results of the two papers in seven chapters and
 proves the Borsuk–Ulam theorem in an appendix, which the dependency graph shows as a
-block.
+block. A third library, `Palomar`, holds the registry submission: a `Challenge` module
+states the advertised theorems on Mathlib alone, with `sorry` in place of the proofs as the
+registry format requires, and a `Solution` module proves them from the development. Build
+it separately with `lake build Palomar`.
 
 Names follow the Mathlib conventions: `UpperCamelCase` for types and Prop-valued
 definitions, `lowerCamelCase` for data, `snake_case` for theorems, spelled out of the

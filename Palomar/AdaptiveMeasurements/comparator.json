@@ -1,0 +1,13 @@
+{
+  "challenge_module": "Palomar.AdaptiveMeasurements.Challenge",
+  "solution_module": "Palomar.AdaptiveMeasurements.Solution",
+  "theorem_names": [
+    "ContMeasurements.exists_norm_eq_and_info_eq_info_neg",
+    "ContMeasurements.exists_recovery_scheme",
+    "ContMeasurements.clog_le_minMeasurements_and_le",
+    "ContMeasurements.minMeasurements_eq_of_finrank_eq_two_pow"
+  ],
+  "definition_names": [],
+  "permitted_axioms": ["propext", "Quot.sound", "Classical.choice"],
+  "enable_nanoda": true
+}

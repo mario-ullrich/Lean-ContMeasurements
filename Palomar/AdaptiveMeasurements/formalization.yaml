@@ -1,0 +1,178 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/mathlib-initiative/formalization.yaml/main/schema/formalization.schema.json
+# formalization.yaml v0.4
+version: "v0.4"
+
+project:
+  name: "A Borsuk–Ulam theorem for adaptive continuous measurements"
+  description: >-
+    How many real numbers λ₁(x), …, λₙ(x) must be computed to recover a vector x of a
+    d-dimensional real normed space to within ε, when every λᵢ is continuous in x and may
+    be chosen after the previous values have been seen? The answer is exponentially
+    smaller than for linear or for non-adaptive continuous measurements: ⌈log₂ d⌉ + 1
+    measurements suffice for every accuracy (Krieg, Novak and Ullrich), and ⌈log₂(d+1)⌉
+    are necessary (Ullrich). The lower bound is a Borsuk–Ulam theorem for adaptive
+    schemes: if 2^n ≤ d, then on every sphere some antipodal pair x, -x produces the same
+    n values, although the information map is in general discontinuous.
+  authors:
+    - "Mario Ullrich"
+  license: "Apache-2.0"
+  responsible_maintainers:
+    - "Mario Ullrich"
+
+classification:
+  arxiv: ["math.FA", "cs.CC", "math.NA"]
+  msc2020: ["65Y20", "41A46", "55M20", "55M30"]
+
+sources:
+  - title: "How many continuous measurements are needed to learn a vector?"
+    authors:
+      - "David Krieg"
+      - "Erich Novak"
+      - "Mario Ullrich"
+    id: "doi:10.1090/proc/17901"
+    type: "paper"
+    location: "Proc. Amer. Math. Soc. (2026), published online; arXiv:2412.06468"
+    relationship: "formalizes"
+    note: >-
+      The upper bound: k + 1 adaptive continuous measurements recover every vector of a
+      d-dimensional real normed space with d ≤ 2^k to within any ε > 0, with no bound on
+      the norm of the vector; in particular ⌈log₂ d⌉ + 1 suffice. Its recovery algorithm
+      (a Lebesgue cover of ℝ^(d-1) by d colors, one measurement that names a piece, and
+      bisection over the color classes) is the one formalized.
+    author_endorsement: "participated"
+  - title: "A Borsuk–Ulam theorem for adaptive continuous measurements"
+    authors:
+      - "Mario Ullrich"
+    id: "arXiv:2610.33781"
+    type: "paper"
+    location: "https://arxiv.org/abs/2610.33781"
+    relationship: "formalizes"
+    note: >-
+      Preprint (2026). The lower bound ⌈log₂(d+1)⌉ and the antipodal-coincidence theorem
+      formalized here are its main results; its proof (a covering proposition by split
+      sets, a halving lemma, and the Borsuk–Ulam theorem) is the one followed.
+    author_endorsement: "participated"
+  - title: "Drei Sätze über die n-dimensionale euklidische Sphäre"
+    authors:
+      - "Karol Borsuk"
+    id: "doi:10.4064/fm-20-1-177-190"
+    type: "paper"
+    location: "Fund. Math. 20 (1933), 177–190"
+    relationship: "background"
+    note: >-
+      The antipodal theorem the lower bound rests on, in its odd-map form. The
+      development proves it in the same repository, combinatorially, from Tucker's lemma
+      on the Kuhn triangulation of the integer cube.
+  - title: "Some topological properties of disk and sphere"
+    authors:
+      - "Albert W. Tucker"
+    id: "https://zbmath.org/3102257"
+    type: "paper"
+    location: "Proc. First Canadian Math. Congress (Montreal, 1945), University of Toronto Press, 1946, 285–309"
+    relationship: "background"
+    note: >-
+      Tucker's lemma, the combinatorial form of the antipodal theorem, through which the
+      development proves the Borsuk–Ulam theorem.
+
+related_formalizations: []
+
+status:
+  scope: >-
+    Formalized and advertised: ContMeasurements.exists_norm_eq_and_info_eq_info_neg, the
+    Borsuk–Ulam theorem for adaptive schemes (2^n ≤ d forces an antipodal pair on every
+    sphere with the same n values); ContMeasurements.exists_recovery_scheme, the upper
+    bound (k + 1 measurements for d ≤ 2^k, every ε > 0 and every x);
+    ContMeasurements.clog_le_minMeasurements_and_le, the two bounds on the least number of
+    measurements for the closed ball of radius R and accuracy ε < R; and
+    ContMeasurements.minMeasurements_eq_of_finrank_eq_two_pow, equality n* = k + 1 for
+    d = 2^k. All hold in every real normed space of dimension d > 0. Not formalized: the
+    Lipschitz variant of the upper bound, the noisy setting, and the extension of the
+    lower bound to Bernstein widths in Banach spaces. The results belong to
+    information-based complexity and approximation theory, where the number of
+    measurements needed to recover a vector is a basic quantity.
+  sorry_count: 0
+  sorry_in_definitions: 0
+  axioms: []
+
+automation:
+  methods:
+    - method: "agent"
+      models:
+        - "Claude Opus 5 (Anthropic)"
+        - "Claude Fable 5.1 (Anthropic)"
+      framework: "Claude Code"
+      tool_setup: >-
+        VS Code with the Lean 4 extension, and Claude Code driving an agentic loop
+        that edits Lean files and runs `lake build` until the affected files compile.
+        No proof search beyond the tactics of Lean and Mathlib.
+      cost:
+        wall_time: "not tracked"
+        spend_usd: "subscription-based"
+        hardware: "local machine"
+      prompting_notes: >-
+        Standing instructions kept in a CLAUDE.md file outside this repository and
+        applied to every session: prefer many small, self-contained, reusable lemmas
+        over long proofs; search Mathlib first and reuse existing lemmas and canonical
+        spellings; rebuild the affected files after every change and never leave a
+        `sorry` unannounced.
+  spend_usd: "subscription-based"
+  notes: >-
+    The Lean proofs were produced with AI assistance. The author designed the structure
+    of the development and checked and revised the statements of all definitions and
+    results of the theory; the Borsuk–Ulam development it uses was produced autonomously
+    by AI and has not been reviewed line by line. The proofs themselves are guaranteed by
+    the Lean kernel.
+
+fidelity:
+  divergences: >-
+    The papers ask the functionals to be continuous on the set of admissible inputs; the
+    formalization asks for continuity on the whole space. For a closed set of inputs this
+    is no loss, by the Tietze extension theorem, and it keeps the model free of a set
+    parameter.
+
+    The papers measure the error by the worst case over the unit ball of a normed space;
+    the formalization states errors pointwise, an upper bound as ‖x - Φ(N x)‖ ≤ ε for
+    every x and a lower bound as some x with ‖x‖ = R and R ≤ ‖x - Φ(N x)‖, and defines
+    the least number of measurements for the closed ball of radius R and accuracy ε, with
+    ε < R in the lower bounds. The upper bound is stated for all x of the space, with no
+    bound on the norm, which is stronger than the ball version.
+
+review:
+  status: "self-assessed"
+  reviewers:
+    - "none"
+  notes: >-
+    The statements of all definitions and results of the theory were checked and
+    revised by the author; the proof scripts were largely produced with AI assistance
+    and rest on the Lean kernel. The Borsuk–Ulam development it uses was produced
+    autonomously by AI and has not been reviewed line by line.
+
+alignment:
+  namespace: "ContMeasurements"
+  statements:
+    - source: "Ullrich, A Borsuk–Ulam theorem for adaptive continuous measurements, the antipodal-coincidence theorem"
+      lean: "ContMeasurements.exists_norm_eq_and_info_eq_info_neg"
+      module: "ContMeasurements.LowerBound"
+      status: "proved"
+      note: "If 2^n ≤ dim E, every scheme sends some antipodal pair of every sphere to the same n values."
+    - source: "Krieg, Novak and Ullrich, How many continuous measurements are needed to learn a vector?, the upper bound"
+      lean: "ContMeasurements.exists_recovery_scheme"
+      module: "ContMeasurements.UpperBound"
+      status: "proved"
+      note: "If 0 < dim E ≤ 2^k, then k + 1 measurements recover every x to within ε, for every ε > 0."
+    - source: "Both papers, the two bounds on the least number of measurements"
+      lean: "ContMeasurements.clog_le_minMeasurements_and_le"
+      module: "ContMeasurements.Complexity"
+      status: "proved"
+      note: "⌈log₂(d+1)⌉ ≤ n*(E, R, ε) ≤ ⌈log₂ d⌉ + 1 for 0 < ε < R."
+    - source: "Both papers, the case of a power of two"
+      lean: "ContMeasurements.minMeasurements_eq_of_finrank_eq_two_pow"
+      module: "ContMeasurements.Complexity"
+      status: "proved"
+      note: "n*(E, R, ε) = k + 1 when dim E = 2^k."
+
+acknowledgements: >-
+  Built on Mathlib. The Challenge module reproduces the definitions of an adaptive scheme,
+  its information map and the least number of measurements from ContMeasurements/Scheme.lean
+  and ContMeasurements/Complexity.lean, so that the advertised statements can be read
+  against Mathlib alone.
