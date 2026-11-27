@@ -9,7 +9,7 @@ module
 # Palomar submissions
 
 Root module of the `Palomar` library, which collects the submission surfaces for the
-[Palomar registry](https://palomar-registry.org): one directory per result, holding a
+[Palomar registry](https://palomar-registry.org): one directory per registered result, holding a
 `Challenge` module (the audited statements), a `Solution` module (the proofs, drawn from
 the development in `ContMeasurements/` and `BasicResults/`), a `comparator.json` and a
 `formalization.yaml`.
@@ -29,13 +29,13 @@ built from the glob `Palomar.+`.
 This library is deliberately absent from `defaultTargets`, so a plain `lake build` behaves
 exactly as it does without it. Build these modules with `lake build Palomar`.
 
-## Entries
+## Registered results
 
-* `Palomar/AdaptiveMeasurements/`: a Borsuk–Ulam theorem for adaptive continuous
-  measurements and the matching upper bound: if `2ⁿ ≤ d`, every adaptive scheme of `n`
-  continuous measurements on a `d`-dimensional real normed space gives some antipodal pair
-  on every sphere the same values, while `k + 1` measurements recover every vector to any
-  accuracy when `d ≤ 2ᵏ`; hence `⌈log₂(d+1)⌉ ≤ n* ≤ ⌈log₂ d⌉ + 1` for the least number
+* `Palomar/AdaptiveMeasurements/`, PALOMAR-2026-11-27-000012: a Borsuk–Ulam theorem for
+  adaptive continuous measurements and the matching upper bound: if `2ⁿ ≤ d`, every
+  adaptive scheme of `n` continuous measurements on a `d`-dimensional real normed space
+  gives some antipodal pair on every sphere the same values, while `k + 1` measurements
+  recover every vector to any accuracy when `d ≤ 2ᵏ`; hence `⌈log₂(d+1)⌉ ≤ n* ≤ ⌈log₂ d⌉ + 1` for the least number
   `n*`, with equality `n* = k + 1` when `d = 2ᵏ`; advertising
   `ContMeasurements.exists_norm_eq_and_info_eq_info_neg`,
   `ContMeasurements.exists_recovery_scheme`,

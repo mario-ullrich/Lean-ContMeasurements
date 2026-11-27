@@ -101,6 +101,17 @@ adaptive scheme on it. `Nat.clog 2 d` is Mathlib's `⌈log₂ d⌉`.
 The lower bound rests on Borsuk–Ulam; the upper bound and the covering proposition are
 elementary. Everything else is in the blueprint, with its Lean name at every statement.
 
+## Palomar registry
+
+The [Palomar registry](https://palomar-registry.org) re-checks a registered proof at a
+fixed commit. The lower bound, the upper bound and the two bounds on `minMeasurements`
+(`exists_norm_eq_and_info_eq_info_neg`, `exists_recovery_scheme`,
+`clog_le_minMeasurements_and_le` and `minMeasurements_eq_of_finrank_eq_two_pow`) are
+registered together as
+[PALOMAR-2026-11-27-000012](https://palomar-registry.org/entry?id=PALOMAR-2026-11-27-000012&version=1),
+checked at commit
+[`4905ab3`](https://github.com/mario-ullrich/Lean-ContMeasurements/tree/4905ab37892a2488a4d11b0a803a445778d9d9db).
+
 ## Organisation
 
 Two libraries. `BasicResults` holds the general mathematics the theory consumes: every
